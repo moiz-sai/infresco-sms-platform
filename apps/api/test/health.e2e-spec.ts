@@ -1,24 +1,18 @@
 import { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
 import request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { configureApp } from '../src/app.setup';
+import type { App } from 'supertest/types';
+import { createTestApp } from './app.factory';
 
 describe('T1 health', () => {
-  let app: INestApplication;
+  let app: INestApplication<App>;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-    app = moduleRef.createNestApplication();
-    configureApp(app);
-    await app.init();
+    app = await createTestApp();
   });
 
   afterAll(() => app.close());
 
-  it('GET /api/health → ok', () =>
+  it('GET /api/health → ok (public, no login)', () =>
     request(app.getHttpServer())
       .get('/api/health')
       .expect(200, { status: 'ok' }));

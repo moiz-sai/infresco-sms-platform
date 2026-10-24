@@ -1,11 +1,12 @@
 # Infresco SMS — Agent Build Spec (2-day MVP)
-v1.0 · 2026-10-24 · Owner: Vik (Infresco) · Target: clerk + principal school-office system, demo-ready
+v1.1 · 2026-10-24 · Owner: Vik (Infresco) · Target: clerk + principal school-office system, demo-ready
 
 ## §0 How to use (agent: read first)
 - Save this file as `docs/SPEC.md`. Root `CLAUDE.md` must contain only:
-  `Read docs/SPEC.md §0–§7 once, then ONLY the §T section named in the prompt. Obey §1.`
-- One session = one task. Prompt: `Do T4 from docs/SPEC.md.`
-- §0–§7 are shared context. §T1–§T10 are tasks. Never read a task section you were not given.
+  `Read docs/STATUS.md first. Then docs/SPEC.md §0–§8 once, ONLY the §T section named in the prompt, and only the docs/progress/ files STATUS.md lists under "Read next". Obey §1. End every task with the §8 handoff.`
+- One session = one task. Prompt: `Do T4 from docs/SPEC.md.` (or just `Continue.` — the next task is in `docs/STATUS.md`).
+- Session start order: `docs/STATUS.md` → this spec §0–§8 → your §T section → listed progress notes. Read nothing else until you need a specific file.
+- §0–§8 are shared context. §T1–§T10 are tasks. Never read a task section you were not given.
 - Human does before T1: install Node 26 LTS, pnpm (`npm i -g pnpm`), PostgreSQL 18 (port 5432), VS Code. Create DB `sms_dev`.
 
 ## §1 Token rules (mandatory)
@@ -14,14 +15,15 @@ v1.0 · 2026-10-24 · Owner: Vik (Infresco) · Target: clerk + principal school-
 3. Read a file only if you will change or call it. Read once; do not re-read after your own edit.
 4. Existing files: targeted edits only. Full writes only for new files.
 5. Generate boilerplate with CLIs: `nest g resource|module|service|controller`, `pnpm dlx shadcn@latest add <names>`.
-6. Never paste code, diffs or file contents into chat. Final message ≤ 8 lines: what was done, check results, open issues.
-7. Long command output: `| Select-Object -Last 40`.
-8. Dependencies: only those in §2. No README, no docs, comments only for non-obvious logic.
+6. Never paste code, diffs or file contents into chat. Final message ≤ 8 lines: what was done, check results, open issues, and the path of the progress note written.
+7. Long command output: `| Select-Object -Last 40` (Linux/macOS: `| tail -40`).
+8. Dependencies: only those in §2. No README or other docs, except the two handoff files in §8. Comments only for non-obvious logic.
 9. Same error after 2 fix attempts → stop, report the exact error and file. Never loop.
 10. Write the tests listed in Accept as automated tests (`apps/api/test/*.e2e-spec.ts`) and keep them; never delete an earlier task's test.
 11. Each task has a token budget (approximate, input+output). Expect to exceed by >30% → stop and report.
-12. Commit at the end: `git commit -am "T<n>: <title>"`.
-13. Regression gate: before committing, `pnpm verify` must pass (build, lint, fresh migrate + seed ×2 on `sms_test`, ALL tasks' tests, prod boot). If an earlier task's test breaks: fix it when the cause is the current task's code; if the fix needs an earlier design change, stop and report. Manual UI checks go in `docs/CHECKLIST.md`.
+12. Before committing, write the §8 handoff. Then: `git add -A && git commit -m "T<n>: <title>"`. A task is not done until its handoff is committed.
+13. A task stopped early (rule 9 or 11) still writes its handoff, with `Status: BLOCKED` and the exact error.
+14. Regression gate: before the handoff/commit, `pnpm verify` must pass (build, lint, fresh migrate + seed ×2 on `sms_test`, ALL tasks' tests, prod boot). If an earlier task's test breaks: fix it when the cause is the current task's code; if the fix needs an earlier design change, stop and report (rule 13). Manual UI checks the task adds go in `docs/CHECKLIST.md`.
 
 ## §2 Stack (fixed)
 - Windows dev, PowerShell. Node 26 LTS (fallback 24). pnpm workspaces.
@@ -95,6 +97,45 @@ Codes: `students.view students.edit attendance.mark attendance.view fees.configu
 ## §7 Screens (`apps/web/src/pages`)
 Login · Shell (sidebar filtered by permissions, school name, language toggle, Switch User PIN dialog) · Setup (school, years, classes/sections) · Students list (search, filters, paging) · Admission form · Student profile (details, guardians, attendance %, fee statement, history) · Attendance grid (keyboard: ↑↓ move, P/A/L/V set, Space toggle, Ctrl+S save; mobile: big P/A buttons) · Attendance month register (print A4 landscape) · Fee setup (classes × heads grid) · Fee collection (search focused → dues → amount prefilled → Ctrl+Enter save & print → refocus search; siblings shown) · Receipt print (`/print/receipt/:id`, 80 mm and A4 ×2 copies, `window.print()`) · Defaulters · Cash close · Approvals inbox · Dashboard · Users & roles · Audit · Settings.
 
+## §8 Handoff files (mandatory, every task)
+Two files carry state between sessions, so the next session never re-reads code to find out where things stand.
+
+**`docs/STATUS.md`** — one file, overwritten each task, ≤ 30 lines:
+```
+# STATUS
+Updated: <YYYY-MM-DD HH:MM> · Last task: T<n> <title> · Result: DONE | PARTIAL | BLOCKED
+## Done
+- T1 ✔  T2 ✔  T3 ✔  (one line, task ids only)
+## Next
+- Task: T<n+1> <title>
+- Before starting: <human action needed, or "none">
+## Read next
+- docs/progress/T<n>.md   (only notes the next task truly needs; max 2)
+## Open issues
+- <issue> → <file:line or command> (max 5; delete when fixed)
+## How to run
+- api: pnpm --filter api start:dev · web: pnpm --filter web dev · seed: pnpm --filter api seed
+```
+
+**`docs/progress/T<n>.md`** — one per task, written once, ≤ 40 lines:
+```
+# T<n> <title> — DONE | PARTIAL | BLOCKED
+## Built
+- <module/screen>: <one line> (`path/to/main/file.ts`)
+## Accept results
+- <check>: PASS | FAIL (<one-line reason>)
+## Decisions that differ from SPEC
+- <what and why> (or "none")
+## Contracts the next tasks rely on
+- Endpoints added: <METHOD /path> (one line each)
+- Services exported: <Name.method(args)>  · Tables/columns added beyond §4: <list or "none">
+## Left undone / known bugs
+- <item> → <where>
+## Next task notes
+- <anything T<n+1> must know, ≤ 3 lines>
+```
+Rules: plain facts, no code blocks except one-line commands, no prose paragraphs. Never copy spec text into these files. If a later task fixes an issue, update `STATUS.md` only; never edit old progress notes. Each note adds roughly 600–900 tokens to the next session instead of tens of thousands spent re-reading code.
+
 ---
 
 ## Day 1
@@ -155,4 +196,5 @@ Inno Setup installer and Windows services, restore wizard, status page, licensin
 ## §Y Day schedule (human)
 - Day 1: T1 (1 h) · T2 (1.5 h) · T3 (2 h) · T4 (3 h) · T5 (2 h) · human review of screens (1 h)
 - Day 2: T6 (3.5 h) · T7 (2 h) · T8 (2 h) · T9 (1.5 h) · T10 (1 h) · full demo run-through (1 h)
-- Total agent budget ≈ 1.06M tokens (approximate). Human checks each Accept block before starting the next task.
+- Total agent budget ≈ 1.06M tokens (approximate). Human checks each Accept block and the new `docs/progress/T<n>.md` before starting the next task.
+- Starting fresh after a break: open a new session and say `Continue.` — the agent reads `docs/STATUS.md` and picks up the next task.
