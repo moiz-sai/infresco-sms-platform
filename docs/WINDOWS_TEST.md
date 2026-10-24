@@ -1,0 +1,110 @@
+# Windows test guide
+
+For the person testing Infresco SMS on a Windows PC. Follow it top to bottom; you don't need to read any other project file.
+Do **Part 1 once**. For each **test round**, do Part 2, then that round's checks in Part 3, then report back with Part 4.
+
+| Round | When | What gets tested |
+|---|---|---|
+| 1 | After T5 | Install, login, students, attendance from a phone |
+| 2 | After T10 | Production build, receipt printing, backups (before the demo) |
+
+---
+
+## Part 1 — One-time setup (about 45 min)
+
+1. Install (default options are fine):
+   - Git: https://git-scm.com/download/win
+   - Node.js 26 LTS (24 also works): https://nodejs.org
+   - PostgreSQL 18: https://www.postgresql.org/download/windows/. Write down the password you set for the `postgres` user and keep port 5432. Skip Stack Builder at the end.
+2. Open **PowerShell** (not as admin) and install pnpm:
+   ```powershell
+   npm i -g pnpm
+   ```
+3. Create the two databases (enter the `postgres` password when asked):
+   ```powershell
+   & "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -c "CREATE DATABASE sms_dev" -c "CREATE DATABASE sms_test"
+   ```
+4. Get the code (the developer will tell you which one applies):
+   ```powershell
+   git clone <repo URL> infresco-sms      # GitHub
+   git clone sms.bundle infresco-sms      # bundle file
+   cd infresco-sms
+   ```
+5. Create the settings files:
+   ```powershell
+   Copy-Item apps\api\.env.example apps\api\.env
+   Copy-Item apps\api\.env.test.example apps\api\.env.test
+   ```
+   Open both files in Notepad and change these lines (use `sms_dev` in `.env`, `sms_test` in `.env.test`):
+   - `DATABASE_ADMIN_URL=postgres://postgres:<postgres password>@localhost:5432/sms_dev`
+   - `DATABASE_URL=postgres://sms_app:<invent a password>@localhost:5432/sms_dev`. Use the **same** invented password in both files.
+   - `SESSION_SECRET=` followed by 40 random characters. Generate them with:
+     ```powershell
+     -join ((48..57)+(65..90)+(97..122) | Get-Random -Count 40 | % {[char]$_})
+     ```
+   If a password contains `@ : / ? #`, choose another one. Those characters break the URL.
+
+## Part 2 — Start of every round: get the latest code and set it up
+
+```powershell
+cd infresco-sms
+git pull                                  # or re-clone from a new bundle
+pnpm install
+pnpm --filter api db:migrate
+pnpm --filter api db:seed
+pnpm verify
+```
+`pnpm verify` takes about 30 s. It must end with `verify passed`. If it shows `✗`, stop and report (Part 4).
+
+Then start the app in **two** PowerShell windows, both inside `infresco-sms`:
+```powershell
+pnpm dev:api      # window 1 — wait for "Nest application successfully started"
+pnpm dev:web      # window 2 — wait for "Local: http://localhost:5173/"
+```
+The first time, Windows Firewall asks about Node.js. Tick **Private networks** and click Allow.
+
+Logins: `principal` or `clerk`, password `Admin@123`, PIN `1234`.
+
+## Part 3 — Test rounds
+
+### Round 1 (after T5)
+Base
+- [ ] `pnpm install` finishes without red errors
+- [ ] `pnpm verify` ends with `verify passed`
+- [ ] Browser http://localhost:5173/api/health shows `{"status":"ok"}`
+
+Screens on the PC (the developer refines this list when T5 is done)
+- [ ] Login works as `clerk` and as `principal`. A wrong password 5× locks the account for 5 min
+- [ ] English ↔ Urdu toggle: Urdu text renders correctly and the layout mirrors right-to-left
+- [ ] Admit a student with two guardians, then find them in the students list by typing their Urdu name
+- [ ] Mark attendance for a section using only the keyboard (↑↓, P/A/L/V, Ctrl+S)
+
+Phone (same Wi-Fi as the PC)
+- [ ] Run `ipconfig` and note the PC's **IPv4 Address** (e.g. 192.168.1.20)
+- [ ] Phone browser opens `http://<IPv4>:8080/api/health` and shows `{"status":"ok"}`
+- [ ] Phone: log in and mark attendance with the big P/A buttons
+
+### Round 2 (after T10, before the demo)
+Filled in when T10 is done: production build + start script, phone access to the built app, 80 mm and A4 receipt printing, backup and restore script.
+
+## Part 4 — Reporting
+
+For every unticked or failing item, send the developer:
+1. The round and the item text
+2. What you did and what you saw instead (a screenshot of the screen or PowerShell window)
+3. For command failures, the **last 40 lines** of output:
+   ```powershell
+   pnpm verify 2>&1 | Select-Object -Last 40
+   ```
+4. Your Windows version (`winver`) and `node --version`
+
+When the round is done, send this file back with your ticks (`- [x]`) and notes.
+
+### Common problems
+| Symptom | Fix |
+|---|---|
+| `pnpm` is not recognized | Close and reopen PowerShell after `npm i -g pnpm` |
+| `psql` is not recognized | Use the full path from Part 1 step 3 |
+| `password authentication failed` | The password in `.env`/`.env.test` doesn't match. Check the `postgres` password in `DATABASE_ADMIN_URL` |
+| `address already in use :8080` | An old window is still running the API. Close it, or restart the PC |
+| Phone can't connect | Same Wi-Fi? Firewall allowed on Private? In Windows Settings, the Wi-Fi network must be set to **Private**, not Public |

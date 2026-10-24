@@ -17,13 +17,13 @@ v1.1 · 2026-10-24 · Owner: Vik (Infresco) · Target: clerk + principal school-
 5. Generate boilerplate with CLIs: `nest g resource|module|service|controller`, `pnpm dlx shadcn@latest add <names>`.
 6. Never paste code, diffs or file contents into chat. Final message ≤ 8 lines: what was done, check results, open issues, and the path of the progress note written.
 7. Long command output: `| Select-Object -Last 40` (Linux/macOS: `| tail -40`).
-8. Dependencies: only those in §2. No README or other docs, except the two handoff files in §8. Comments only for non-obvious logic.
+8. Dependencies: only those in §2. No README or other docs, except the two handoff files in §8, `docs/CHECKLIST.md` and `docs/WINDOWS_TEST.md`. Comments only for non-obvious logic.
 9. Same error after 2 fix attempts → stop, report the exact error and file. Never loop.
 10. Write the tests listed in Accept as automated tests (`apps/api/test/*.e2e-spec.ts`) and keep them; never delete an earlier task's test.
 11. Each task has a token budget (approximate, input+output). Expect to exceed by >30% → stop and report.
 12. Before committing, write the §8 handoff. Then: `git add -A && git commit -m "T<n>: <title>"`. A task is not done until its handoff is committed.
 13. A task stopped early (rule 9 or 11) still writes its handoff, with `Status: BLOCKED` and the exact error.
-14. Regression gate: before the handoff/commit, `pnpm verify` must pass (build, lint, fresh migrate + seed ×2 on `sms_test`, ALL tasks' tests, prod boot). If an earlier task's test breaks: fix it when the cause is the current task's code; if the fix needs an earlier design change, stop and report (rule 13). Manual UI checks the task adds go in `docs/CHECKLIST.md`.
+14. Regression gate: before the handoff/commit, `pnpm verify` must pass (build, lint, fresh migrate + seed ×2 on `sms_test`, ALL tasks' tests, prod boot). If an earlier task's test breaks: fix it when the cause is the current task's code; if the fix needs an earlier design change, stop and report (rule 13). Manual UI checks the task adds go in `docs/CHECKLIST.md`; anything Windows-specific (setup steps, firewall, printing, scripts) goes in the matching round of `docs/WINDOWS_TEST.md`.
 
 ## §2 Stack (fixed)
 - Windows dev, PowerShell. Node 26 LTS (fallback 24). pnpm workspaces.
