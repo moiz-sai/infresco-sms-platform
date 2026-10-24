@@ -17,13 +17,20 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
+    "typecheck": "tsc --noEmit",
+    "lint:check": "eslint \"{src,test}/**/*.ts\"",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "ts-node --transpile-only src/db/migrate.ts",
+    "db:seed": "ts-node --transpile-only src/db/seed.ts",
+    "db:reset-test": "ts-node --transpile-only src/db/reset-test.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
-    "@nestjs/config": "^12.0.1",
+    "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@node-rs/argon2": "^2.2.2",
     "@sms/shared": "workspace:*",
     "drizzle-orm": "^0.45.4",
     "pg": "^8.23.1",

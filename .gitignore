@@ -5,3 +5,4 @@ dist/
 backups/
 coverage/
 .vite/
+.env.test

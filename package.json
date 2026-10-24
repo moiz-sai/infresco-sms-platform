@@ -2,12 +2,15 @@
   "name": "infresco-sms",
   "private": true,
   "packageManager": "pnpm@12.15.0",
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "build": "pnpm --filter @sms/shared build && pnpm --filter api build && pnpm --filter web build",
     "dev:api": "pnpm --filter api start:dev",
     "dev:web": "pnpm --filter web dev",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "verify": "node scripts/verify.mjs"
   },
   "devDependencies": {
     "prettier": "^3.4.2"

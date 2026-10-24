@@ -38,7 +38,8 @@ class PoolCloser implements OnApplicationShutdown {
     {
       provide: DB,
       inject: [PG_POOL],
-      useFactory: (pool: Pool): Db => drizzle({ client: pool, schema }),
+      useFactory: (pool: Pool): Db =>
+        drizzle({ client: pool, schema, casing: 'snake_case' }),
     },
     PoolCloser,
   ],

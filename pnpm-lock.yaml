@@ -176,14 +176,17 @@ importers:
         specifier: ^11.0.1
         version: 11.2.8(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1)
       '@nestjs/config':
-        specifier: ^12.0.1
-        version: 12.0.1(@nestjs/common@11.2.8(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(rxjs@7.8.2)
+        specifier: ^4.0.4
+        version: 4.0.4(@nestjs/common@11.2.8(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(rxjs@7.8.2)
       '@nestjs/core':
         specifier: ^11.0.1
         version: 11.2.8(@nestjs/common@11.2.8(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/platform-express@11.2.8)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/platform-express':
         specifier: ^11.0.1
         version: 11.2.8(@nestjs/common@11.2.8(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/core@11.2.8)(supports-color@8.1.1)
+      '@node-rs/argon2':
+        specifier: ^2.2.2
+        version: 2.2.2
       '@sms/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -1519,10 +1522,10 @@ packages:
       class-validator:
         optional: true
 
-  '@nestjs/config@12.0.1':
-    resolution: {integrity: sha512-pxqEtULFi4qXda0TqyR2YFq7o4UoRa7h4K5H0lgFuBMrUGr6x6VVldaJJrowFyh4uvp8dNq9Mie3T+l+uEOTfw==}
+  '@nestjs/config@4.0.4':
+    resolution: {integrity: sha512-CJPjNitr0bAufSEnRe2N+JbnVmMmDoo6hvKCPzXgZoGwJSmp/dZPk9f/RMbuD/+Q1ZJPjwsRpq0vxna++Knwow==}
     peerDependencies:
-      '@nestjs/common': ^11.0.0 || ^12.0.0
+      '@nestjs/common': ^10.0.0 || ^11.0.0
       rxjs: ^7.1.0
 
   '@nestjs/core@11.2.8':
@@ -1574,6 +1577,92 @@ packages:
   '@noble/hashes@1.8.0':
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
     engines: {node: ^14.21.3 || >=16}
+
+  '@node-rs/argon2-android-arm-eabi@2.2.2':
+    resolution: {integrity: sha512-c11BOrPLBWNC1cDyzGB+Bil+flmxfZbB2hv8EhcobmAsFKMyqkHPNhUY4qhcjv1U+4+Vmw4G8H+l224iO2g/Dw==}
+    engines: {node: '>= 10'}
+    cpu: [arm]
+    os: [android]
+
+  '@node-rs/argon2-android-arm64@2.2.2':
+    resolution: {integrity: sha512-dpMYIoxhN/wY6hFH+3MM5kQErcH3luMekkszbkDF3NKqhB1kFRntkOLDpFY87oItBSHJrsoYkXC3vBRhjYoCjQ==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [android]
+
+  '@node-rs/argon2-darwin-arm64@2.2.2':
+    resolution: {integrity: sha512-vxVAXcIG0iiHizkCuImmzVhOFsRnU4Z79xiOxdISLyI+QhOAWbbTaVSXw0PNfThB3zAdkzzDJ/WWu52Hs/qHGg==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@node-rs/argon2-darwin-x64@2.2.2':
+    resolution: {integrity: sha512-r7GbSFpFZZ9EAV9cvIm9prUjOupK7QQXTyP+FJ6bWSMq0h+qRDBlUOXQXduDIIrLEGoBVelixKUtf4ksZ0ljoQ==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@node-rs/argon2-freebsd-x64@2.2.2':
+    resolution: {integrity: sha512-AmWxDSmQgprilD6NX3jmxCgcDvWAW7kGJnnWQo+0qav6nfMXdPZYgSezK/skmw1GBWipr4yZMIUzpeNHnVpMxg==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [freebsd]
+
+  '@node-rs/argon2-linux-arm-gnueabihf@2.2.2':
+    resolution: {integrity: sha512-M1gnPBTr9GFeEUWkQ53qCJeTsX03C3kcUeHnDbN7dU2xkI58wMP4Z1sEBN7WmKJ/fTHYEgti4truz7r4A82DLg==}
+    engines: {node: '>= 10'}
+    cpu: [arm]
+    os: [linux]
+
+  '@node-rs/argon2-linux-arm64-gnu@2.2.2':
+    resolution: {integrity: sha512-4CYDlIdITlLSVcAXYUtEoGUahRaayPXM+4Rcfg3BZx9WGi6UB8HUycs6GNMTPYXV5kVXCpyE2u1HmYUpgmIzOQ==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  '@node-rs/argon2-linux-arm64-musl@2.2.2':
+    resolution: {integrity: sha512-FYlfj3XgQ1xrx6HzQbKbUcKiYMG/3iSi/X81KyhHaItTJ7vZlMwrbVLl9yqDmvotKUF6VjrhrlZ8KRbbzchseA==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+    libc: [musl]
+
+  '@node-rs/argon2-linux-x64-gnu@2.2.2':
+    resolution: {integrity: sha512-ULXLs8UFYZANlwiROM7AeccxZndr2Xk3IstADq3jAUhnwV2W75mxMBTABUZ+7AdKRhPLOrxU77OgnMWlDkYJQg==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@node-rs/argon2-linux-x64-musl@2.2.2':
+    resolution: {integrity: sha512-zgjIwc9TyGodn62vGc+36DGwFqVV5e7L8Ptd2FQWuBxe5aFrcFxvtDGn1/qfYwoHLv09utgtR+RBAPCXepWG3Q==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
+  '@node-rs/argon2-win32-arm64-msvc@2.2.2':
+    resolution: {integrity: sha512-3nLhvLie/ec5xfxUBXXqGMb7oGeqF+YXrcGckqaTaGkPtOBozho0Kh2IuP/zi9BcOriirTG2LW3gtIOfpuh+mQ==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@node-rs/argon2-win32-ia32-msvc@2.2.2':
+    resolution: {integrity: sha512-6RJKD6cFl7UeiYJLjRsXPywVXSFSaSDdr6xGpztNDV31QHCEecWnsnNmKxzi4gVpln2F9XeWEtIgM4Nqw1hLbA==}
+    engines: {node: '>= 10'}
+    cpu: [ia32]
+    os: [win32]
+
+  '@node-rs/argon2-win32-x64-msvc@2.2.2':
+    resolution: {integrity: sha512-dQOO9S4QKBaVul0Uyk/2quJc/OBeHNZRJP+GZZTy1A5kYIaAfIJGHUYLY6oFoAlcuLIkdFouLaHX3fCl8tZm/w==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [win32]
+
+  '@node-rs/argon2@2.2.2':
+    resolution: {integrity: sha512-NtdlPPWtR5U4BxX5EGJYza+UklNaoWORmkaKCMqf/nyKeXWKVwNt8KfQoRpNT7OB1DcEwmePafO4wZyW+sbfCQ==}
+    engines: {node: '>= 10'}
 
   '@oxc-project/types@0.155.0':
     resolution: {integrity: sha512-SeE8JPwW1xs1tHeNycjUtUBdhorRa8o4jlvjwk49R7/Z291i+4DQa7JJIgOm/TaYQZx+QrPQbVJ/9c8dMIZN8Q==}
@@ -2038,9 +2127,6 @@ packages:
 
   '@sinonjs/fake-timers@15.4.0':
     resolution: {integrity: sha512-DsG+8/LscQIQg68J6Ef3dv10u6nVyetYn923s3/sus5eaGfTo1of5WMZSLf0UJc9KDuKPilPH0UDJCjvNbDNCA==}
-
-  '@standard-schema/spec@1.1.0':
-    resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
   '@tokenizer/inflate@0.4.1':
     resolution: {integrity: sha512-2mAv+8pkG6GIZiF1kNg1jAjh27IDxEPKwdGul3snfztFerfPGI1LjDezZp3i7BElXompqEtPmoPx6c2wgtWsOA==}
@@ -2829,18 +2915,17 @@ packages:
     resolution: {integrity: sha512-X07nttJQkwkfKfvTPG/KSnE2OMdcUCao6+eXF3wmnIQRn2aPAHH3VxDbDOdegkd6JbPsXqShpvEOHfAT+nCNwQ==}
     engines: {node: '>=0.3.1'}
 
-  dotenv-expand@13.0.0:
-    resolution: {integrity: sha512-aBfBS8eYIeXmpHI9ThIlA7/WLq+SLt18iXUZhb52rW89QLKQFoIpPG1bPeewoPZsTyjSSO3T7234FBVUM1V2rA==}
+  dotenv-expand@12.0.3:
+    resolution: {integrity: sha512-uc47g4b+4k/M/SeaW1y4OApx+mtLWl92l5LMPP0GNXctZqELk+YGgOPIIC5elYmUH4OuoK3JLhuRUYegeySiFA==}
     engines: {node: '>=12'}
 
-  dotenv@17.4.2:
-    resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
+  dotenv@16.6.1:
+    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
     engines: {node: '>=12'}
 
-  dotenv@18.0.3:
-    resolution: {integrity: sha512-/8CJTyL817qPnfbQrJgOEcrU3fDrJkRIoXBE566wHuvIXKOCHUZhPqGPbCPi9SogjdGnreF0TlvnTgK6J/8zpA==}
+  dotenv@17.4.1:
+    resolution: {integrity: sha512-k8DaKGP6r1G30Lx8V4+pCsLzKr8vLmV2paqEj1Y55GdAgJuIqpRp5FfajGF8KtwMxCz9qJc6wUIJnm053d/WCw==}
     engines: {node: '>=12'}
-    hasBin: true
 
   drizzle-kit@0.31.11:
     resolution: {integrity: sha512-YCYqxTLIB2OCqf6w9/Vef13baBVbwQIPcbT4Y56AfO6B9ajZhDhD8Jkveg/hJvT/iuMloKD/IYYkyMMNhr7Kqg==}
@@ -2993,9 +3078,6 @@ packages:
   es-set-tostringtag@2.1.0:
     resolution: {integrity: sha512-j6vWzfrGVfyXxge+O0x5sh6cvxAog0a/4Rdd2K36zCMV5eJ+/+tOAngRO8cODMNWbVRdVlmGZQL2YS3yR8bIUA==}
     engines: {node: '>= 0.4'}
-
-  es-toolkit@1.52.0:
-    resolution: {integrity: sha512-XTNEJQh1tY1ZJVcf6ayP/2n4ZPyaHlW2FWs7xvw5ddPuhUVjLD3olQVQS7kf58JbAB48iL0uL/jerTrjtV3lDA==}
 
   esbuild@0.18.20:
     resolution: {integrity: sha512-ceqxoedUrcayh7Y7ZX6NdbbDzGROiyVBgC4PriJThBKSVPWnnFHZAkfI1lJT8QFkOwH4qOS2SJkS4wvpGl8BpA==}
@@ -5861,13 +5943,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nestjs/config@12.0.1(@nestjs/common@11.2.8(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(rxjs@7.8.2)':
+  '@nestjs/config@4.0.4(@nestjs/common@11.2.8(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(rxjs@7.8.2)':
     dependencies:
       '@nestjs/common': 11.2.8(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1)
-      '@standard-schema/spec': 1.1.0
-      dotenv: 18.0.3
-      dotenv-expand: 13.0.0
-      es-toolkit: 1.52.0
+      dotenv: 17.4.1
+      dotenv-expand: 12.0.3
+      lodash: 4.18.1
       rxjs: 7.8.2
 
   '@nestjs/core@11.2.8(@nestjs/common@11.2.8(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/platform-express@11.2.8)(reflect-metadata@0.2.2)(rxjs@7.8.2)':
@@ -5917,6 +5998,61 @@ snapshots:
       '@nestjs/platform-express': 11.2.8(@nestjs/common@11.2.8(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/core@11.2.8)(supports-color@8.1.1)
 
   '@noble/hashes@1.8.0': {}
+
+  '@node-rs/argon2-android-arm-eabi@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-android-arm64@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-darwin-arm64@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-darwin-x64@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-freebsd-x64@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-linux-arm-gnueabihf@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-linux-arm64-gnu@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-linux-arm64-musl@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-linux-x64-gnu@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-linux-x64-musl@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-win32-arm64-msvc@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-win32-ia32-msvc@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-win32-x64-msvc@2.2.2':
+    optional: true
+
+  '@node-rs/argon2@2.2.2':
+    optionalDependencies:
+      '@node-rs/argon2-android-arm-eabi': 2.2.2
+      '@node-rs/argon2-android-arm64': 2.2.2
+      '@node-rs/argon2-darwin-arm64': 2.2.2
+      '@node-rs/argon2-darwin-x64': 2.2.2
+      '@node-rs/argon2-freebsd-x64': 2.2.2
+      '@node-rs/argon2-linux-arm-gnueabihf': 2.2.2
+      '@node-rs/argon2-linux-arm64-gnu': 2.2.2
+      '@node-rs/argon2-linux-arm64-musl': 2.2.2
+      '@node-rs/argon2-linux-x64-gnu': 2.2.2
+      '@node-rs/argon2-linux-x64-musl': 2.2.2
+      '@node-rs/argon2-win32-arm64-msvc': 2.2.2
+      '@node-rs/argon2-win32-ia32-msvc': 2.2.2
+      '@node-rs/argon2-win32-x64-msvc': 2.2.2
 
   '@oxc-project/types@0.155.0': {}
 
@@ -6173,8 +6309,6 @@ snapshots:
   '@sinonjs/fake-timers@15.4.0':
     dependencies:
       '@sinonjs/commons': 3.0.1
-
-  '@standard-schema/spec@1.1.0': {}
 
   '@tokenizer/inflate@0.4.1(supports-color@8.1.1)':
     dependencies:
@@ -6959,13 +7093,13 @@ snapshots:
 
   diff@4.0.4: {}
 
-  dotenv-expand@13.0.0:
+  dotenv-expand@12.0.3:
     dependencies:
-      dotenv: 17.4.2
+      dotenv: 16.6.1
 
-  dotenv@17.4.2: {}
+  dotenv@16.6.1: {}
 
-  dotenv@18.0.3: {}
+  dotenv@17.4.1: {}
 
   drizzle-kit@0.31.11:
     dependencies:
@@ -7024,8 +7158,6 @@ snapshots:
       get-intrinsic: 1.3.0
       has-tostringtag: 1.0.2
       hasown: 2.0.4
-
-  es-toolkit@1.52.0: {}
 
   esbuild@0.18.20:
     optionalDependencies:

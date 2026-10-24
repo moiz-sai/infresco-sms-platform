@@ -18,9 +18,10 @@ v1.0 · 2026-10-24 · Owner: Vik (Infresco) · Target: clerk + principal school-
 7. Long command output: `| Select-Object -Last 40`.
 8. Dependencies: only those in §2. No README, no docs, comments only for non-obvious logic.
 9. Same error after 2 fix attempts → stop, report the exact error and file. Never loop.
-10. Write only the tests listed in Accept.
+10. Write the tests listed in Accept as automated tests (`apps/api/test/*.e2e-spec.ts`) and keep them; never delete an earlier task's test.
 11. Each task has a token budget (approximate, input+output). Expect to exceed by >30% → stop and report.
 12. Commit at the end: `git commit -am "T<n>: <title>"`.
+13. Regression gate: before committing, `pnpm verify` must pass (build, lint, fresh migrate + seed ×2 on `sms_test`, ALL tasks' tests, prod boot). If an earlier task's test breaks: fix it when the cause is the current task's code; if the fix needs an earlier design change, stop and report. Manual UI checks go in `docs/CHECKLIST.md`.
 
 ## §2 Stack (fixed)
 - Windows dev, PowerShell. Node 26 LTS (fallback 24). pnpm workspaces.
@@ -29,7 +30,7 @@ v1.0 · 2026-10-24 · Owner: Vik (Infresco) · Target: clerk + principal school-
 - API deps: `@nestjs/config`, `@nestjs/schedule`, `@nestjs/serve-static`, `drizzle-orm`, `pg`, `express-session`, `connect-pg-simple`, `@node-rs/argon2` (fallback `bcryptjs`), `zod`, `pino`, `nestjs-pino`.
 - Web deps: `tailwindcss` v4, shadcn/ui, `react-router`, `@tanstack/react-query`, `@tanstack/react-table`, `i18next`, `react-i18next`, `recharts`, `@fontsource-variable/inter`, `@fontsource/noto-naskh-arabic`, `sonner`.
 - Dev/test: `jest`, `supertest` (Nest defaults), `tsup` for shared.
-- Env (`apps/api/.env`, validated by Zod at boot): `DATABASE_URL`, `PORT=8080`, `SESSION_SECRET`, `DEVICE_PREFIX=D1`.
+- Env (`apps/api/.env`, validated by Zod at boot): `DATABASE_URL` (as `sms_app`), `PORT=8080`, `SESSION_SECRET`, `DEVICE_PREFIX=D1`. Scripts (`db:migrate`, `db:seed`) also need `DATABASE_ADMIN_URL` (owner role). `SMS_ENV_FILE` selects the file; tests use `apps/api/.env.test` → DB `sms_test`, port 8090.
 
 ## §3 Global rules
 - Every table: `id`, `school_id` (except `permission`), `created_at`; mutable tables add `updated_at`, `deleted_at`.

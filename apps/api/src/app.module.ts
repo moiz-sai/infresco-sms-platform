@@ -6,7 +6,11 @@ import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: process.env.SMS_ENV_FILE ?? '.env',
+      validate: validateEnv,
+    }),
     DatabaseModule,
   ],
   controllers: [HealthController],

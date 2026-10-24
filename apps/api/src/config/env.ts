@@ -4,7 +4,10 @@ export const envSchema = z.object({
   DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
   PORT: z.coerce.number().int().positive().default(8080),
   SESSION_SECRET: z.string().min(32),
-  DEVICE_PREFIX: z.string().regex(/^[A-Z0-9]{1,4}$/).default('D1'),
+  DEVICE_PREFIX: z
+    .string()
+    .regex(/^[A-Z0-9]{1,4}$/)
+    .default('D1'),
 });
 
 export type Env = z.infer<typeof envSchema>;
