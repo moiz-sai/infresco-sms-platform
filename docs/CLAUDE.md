@@ -1,1 +1,0 @@
-Read docs/STATUS.md first. Then docs/SPEC.md §0–§8 once, ONLY the §T section named in the prompt, and only the docs/progress/ files STATUS.md lists under "Read next". Obey §1. End every task with the §8 handoff.

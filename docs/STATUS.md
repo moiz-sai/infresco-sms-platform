@@ -11,7 +11,6 @@ Updated: 2026-10-24 20:00 · Last task: T3 Auth, RBAC, PIN switch, audit · Resu
 ## Open issues
 - Yearly/once fee charge period undecided → T6
 - Windows test round 1 due after T5 → docs/WINDOWS_TEST.md (refine Round 1 list at end of T5)
-- Duplicate old specs: requirements/SMS_AGENT_SPEC.md, docs/SMS_AGENT_SPEC (1).md → delete (docs/SPEC.md is canonical)
 ## How to run
 - api: pnpm --filter api start:dev · web: pnpm --filter web dev
 - db: pnpm --filter api db:migrate · seed: pnpm --filter api db:seed
