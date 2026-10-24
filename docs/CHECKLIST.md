@@ -8,9 +8,9 @@ How to use:
 - If a later task changes an area, the agent unticks that area's items so you check them again.
 
 ## T1–T3 (API only, no screens yet)
-- [ ] `pnpm dev:api` and `pnpm dev:web` both start without errors
-- [ ] Browser: http://localhost:5173/api/health shows `{"status":"ok"}`
-- [ ] Browser: http://localhost:5173/api/auth/me shows `{"code":"UNAUTHENTICATED",...}`
+- [x] `pnpm dev:api` and `pnpm dev:web` both start without errors
+- [x] Browser: http://localhost:5173/api/health shows `{"status":"ok"}`
+- [x] Browser: http://localhost:5173/api/auth/me shows `{"code":"UNAUTHENTICATED",...}`
 
 ## Windows PC (before the demo)
 - [ ] `pnpm install` succeeds (incl. `@node-rs/argon2` prebuilt binary)
