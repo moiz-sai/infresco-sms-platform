@@ -147,6 +147,7 @@ export const person = pgTable(
     searchText: text().notNull().default(''),
     ...mutable(),
   },
+  // GIN trigram index on search_text: migration 0002 (needs pg_trgm).
   (t) => [index().on(t.schoolId, t.kind)],
 );
 

@@ -1,0 +1,132 @@
+{
+  "app": {
+    "name": "اسکول آفس",
+    "language": "English",
+    "logout": "لاگ آؤٹ",
+    "switchUser": "صارف تبدیل کریں",
+    "loading": "لوڈ ہو رہا ہے…",
+    "save": "محفوظ کریں",
+    "saveHint": "محفوظ کرنے کے لیے Ctrl+Enter",
+    "cancel": "منسوخ",
+    "delete": "حذف کریں",
+    "add": "شامل کریں",
+    "edit": "ترمیم",
+    "yes": "ہاں",
+    "no": "نہیں",
+    "none": "—",
+    "notFound": "صفحہ نہیں ملا",
+    "saved": "محفوظ ہو گیا",
+    "deleted": "حذف ہو گیا",
+    "confirmDelete": "کیا یہ حذف کرنا ہے؟"
+  },
+  "nav": {
+    "students": "طلبہ",
+    "admission": "نیا داخلہ",
+    "setup": "سیٹ اپ"
+  },
+  "login": {
+    "title": "سائن اِن",
+    "username": "یوزر نیم",
+    "password": "پاس ورڈ",
+    "submit": "سائن اِن",
+    "failed": "سائن اِن ناکام"
+  },
+  "switch": {
+    "title": "صارف تبدیل کریں",
+    "pin": "پن",
+    "submit": "تبدیل کریں",
+    "done": "اب {{name}} کے طور پر سائن اِن"
+  },
+  "setup": {
+    "school": "اسکول",
+    "years": "تعلیمی سال",
+    "classes": "جماعتیں اور سیکشن",
+    "nameEn": "نام (انگریزی)",
+    "nameUr": "نام (اردو)",
+    "address": "پتہ",
+    "phone": "فون",
+    "prefix": "ڈیوائس پریفکس",
+    "label": "عنوان",
+    "startsOn": "آغاز",
+    "endsOn": "اختتام",
+    "current": "موجودہ",
+    "makeCurrent": "موجودہ بنائیں",
+    "level": "درجہ",
+    "sections": "سیکشن",
+    "sectionName": "سیکشن",
+    "addSection": "سیکشن شامل کریں",
+    "noYear": "پہلے تعلیمی سال بنائیں اور اسے موجودہ قرار دیں۔"
+  },
+  "students": {
+    "title": "طلبہ",
+    "search": "نام، والد، داخلہ نمبر، فون تلاش کریں…",
+    "allClasses": "تمام جماعتیں",
+    "allSections": "تمام سیکشن",
+    "status": {
+      "active": "فعال",
+      "left": "چھوڑ گئے",
+      "promoted": "ترقی یافتہ"
+    },
+    "admissionNo": "داخلہ نمبر",
+    "rollNo": "رول",
+    "name": "نام",
+    "fatherName": "والد کا نام",
+    "class": "جماعت",
+    "section": "سیکشن",
+    "phone": "فون",
+    "empty": "کوئی طالب علم نہیں ملا",
+    "page": "صفحہ {{page}} از {{pages}}",
+    "prev": "پچھلا",
+    "next": "اگلا",
+    "total": "{{count}} طلبہ"
+  },
+  "student": {
+    "nameEn": "نام (انگریزی)",
+    "nameUr": "نام (اردو)",
+    "fatherName": "والد کا نام",
+    "gender": "جنس",
+    "m": "لڑکا",
+    "f": "لڑکی",
+    "dob": "تاریخ پیدائش",
+    "bForm": "ب فارم نمبر",
+    "phone": "فون",
+    "address": "پتہ",
+    "details": "تفصیلات",
+    "guardians": "سرپرست",
+    "history": "تاریخچہ",
+    "attendance": "حاضری",
+    "fees": "فیس",
+    "comingSoon": "اگلی اپ ڈیٹ میں دستیاب ہوگا",
+    "leave": "خارج قرار دیں",
+    "leftOn": "تاریخ اخراج",
+    "reason": "وجہ",
+    "leftDone": "طالب علم خارج قرار دیا گیا",
+    "joinedOn": "تاریخ داخلہ",
+    "year": "سال",
+    "noGuardians": "کوئی سرپرست درج نہیں",
+    "statusCol": "حیثیت"
+  },
+  "admission": {
+    "title": "نیا داخلہ",
+    "student": "طالب علم",
+    "guardians": "سرپرست",
+    "enrollment": "داخلہ",
+    "addGuardian": "سرپرست شامل کریں",
+    "remove": "ہٹائیں",
+    "relation": "رشتہ",
+    "primary": "بنیادی رابطہ",
+    "cnic": "شناختی کارڈ",
+    "relations": {
+      "father": "والد",
+      "mother": "والدہ",
+      "guardian": "سرپرست"
+    },
+    "chooseSection": "جماعت اور سیکشن منتخب کریں",
+    "done": "داخلہ مکمل — داخلہ نمبر {{no}}"
+  },
+  "errors": {
+    "required": "ضروری ہے",
+    "invalid": "یہ خانہ چیک کریں",
+    "generic": "کچھ غلط ہو گیا"
+  }
+}

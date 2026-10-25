@@ -25,6 +25,17 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   catch(exception: unknown, host: ArgumentsHost) {
     const res = host.switchToHttp().getResponse<Response>();
+    const pgCode = pgErrorCode(exception);
+    if (pgCode === '23505' || pgCode === '23503') {
+      res.status(HttpStatus.CONFLICT).json({
+        code: pgCode === '23505' ? 'DUPLICATE' : 'IN_USE',
+        message:
+          pgCode === '23505'
+            ? 'A record with these values already exists'
+            : 'Record is referenced by other records',
+      });
+      return;
+    }
     if (!(exception instanceof HttpException)) {
       this.logger.error(exception);
       res
@@ -50,4 +61,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message,
     });
   }
+}
+
+// Drizzle wraps driver errors; the pg error (with SQLSTATE) is the cause.
+function pgErrorCode(err: unknown): string | undefined {
+  for (let e = err, i = 0; e && typeof e === 'object' && i < 3; i++) {
+    const code = (e as { code?: unknown }).code;
+    if (typeof code === 'string' && /^[0-9A-Z]{5}$/.test(code)) return code;
+    e = (e as { cause?: unknown }).cause;
+  }
+  return undefined;
 }

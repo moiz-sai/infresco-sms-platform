@@ -3,3 +3,4 @@ dist
 pnpm-lock.yaml
 coverage
 drizzle
+apps/web/src/components/ui

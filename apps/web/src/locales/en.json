@@ -1,0 +1,132 @@
+{
+  "app": {
+    "name": "School Office",
+    "language": "اردو",
+    "logout": "Log out",
+    "switchUser": "Switch user",
+    "loading": "Loading…",
+    "save": "Save",
+    "saveHint": "Ctrl+Enter to save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "add": "Add",
+    "edit": "Edit",
+    "yes": "Yes",
+    "no": "No",
+    "none": "—",
+    "notFound": "Page not found",
+    "saved": "Saved",
+    "deleted": "Deleted",
+    "confirmDelete": "Delete this item?"
+  },
+  "nav": {
+    "students": "Students",
+    "admission": "New admission",
+    "setup": "Setup"
+  },
+  "login": {
+    "title": "Sign in",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in",
+    "failed": "Sign-in failed"
+  },
+  "switch": {
+    "title": "Switch user",
+    "pin": "PIN",
+    "submit": "Switch",
+    "done": "Now signed in as {{name}}"
+  },
+  "setup": {
+    "school": "School",
+    "years": "Academic years",
+    "classes": "Classes & sections",
+    "nameEn": "Name (English)",
+    "nameUr": "Name (Urdu)",
+    "address": "Address",
+    "phone": "Phone",
+    "prefix": "Device prefix",
+    "label": "Label",
+    "startsOn": "Starts on",
+    "endsOn": "Ends on",
+    "current": "Current",
+    "makeCurrent": "Make current",
+    "level": "Level",
+    "sections": "Sections",
+    "sectionName": "Section",
+    "addSection": "Add section",
+    "noYear": "Create an academic year and mark it current first."
+  },
+  "students": {
+    "title": "Students",
+    "search": "Search name, father, admission no, phone…",
+    "allClasses": "All classes",
+    "allSections": "All sections",
+    "status": {
+      "active": "Active",
+      "left": "Left",
+      "promoted": "Promoted"
+    },
+    "admissionNo": "Adm. no",
+    "rollNo": "Roll",
+    "name": "Name",
+    "fatherName": "Father's name",
+    "class": "Class",
+    "section": "Section",
+    "phone": "Phone",
+    "empty": "No students found",
+    "page": "Page {{page}} of {{pages}}",
+    "prev": "Previous",
+    "next": "Next",
+    "total": "{{count}} students"
+  },
+  "student": {
+    "nameEn": "Name (English)",
+    "nameUr": "Name (Urdu)",
+    "fatherName": "Father's name",
+    "gender": "Gender",
+    "m": "Male",
+    "f": "Female",
+    "dob": "Date of birth",
+    "bForm": "B-Form no",
+    "phone": "Phone",
+    "address": "Address",
+    "details": "Details",
+    "guardians": "Guardians",
+    "history": "History",
+    "attendance": "Attendance",
+    "fees": "Fees",
+    "comingSoon": "Available in a later update",
+    "leave": "Mark as left",
+    "leftOn": "Left on",
+    "reason": "Reason",
+    "leftDone": "Student marked as left",
+    "joinedOn": "Joined on",
+    "year": "Year",
+    "noGuardians": "No guardians recorded",
+    "statusCol": "Status"
+  },
+  "admission": {
+    "title": "New admission",
+    "student": "Student",
+    "guardians": "Guardians",
+    "enrollment": "Enrollment",
+    "addGuardian": "Add guardian",
+    "remove": "Remove",
+    "relation": "Relation",
+    "primary": "Primary contact",
+    "cnic": "CNIC",
+    "relations": {
+      "father": "Father",
+      "mother": "Mother",
+      "guardian": "Guardian"
+    },
+    "chooseSection": "Choose class & section",
+    "done": "Admitted — admission no {{no}}"
+  },
+  "errors": {
+    "required": "Required",
+    "invalid": "Check this field",
+    "generic": "Something went wrong"
+  }
+}
