@@ -9,6 +9,7 @@ Updated: 2026-10-26 01:30 · Last task: T10 Demo seed, production build, backup 
 - docs/progress/T10.md
 - docs/progress/T9.md
 ## Open issues
+- docs/USER_MANUAL.md: user manual for staff (added on request, beyond SPEC §1.8); update it when behaviour changes
 - Windows rounds 1 and 2 not run yet → docs/WINDOWS_TEST.md
 - Checklist: 3 items need a real phone / print dialog / clerk promote by hand → docs/CHECKLIST.md
 ## How to run
