@@ -88,7 +88,7 @@ jobs:
           $url = (Get-Content C:\ProgramData\InfrescoSMS\app-url.txt).Trim()
           "App at $url"
           WaitHealthy $url
-          $n = Students $url; "Students: $n"; if ($n -lt 300) { throw 'demo data missing' }
+          $n = Students $url; "Students: $n"; if ($n -lt 290) { throw 'demo data missing' }  # 300 admitted, 2 marked as left
           $page = Invoke-WebRequest "$url/students/new" -UseBasicParsing
           if ($page.Content -notmatch 'id="root"') { throw 'web app not served' }
           Get-Service InfrescoSMS-DB, InfrescoSMS-App | Format-Table Name, Status, StartType
