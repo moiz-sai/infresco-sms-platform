@@ -37,7 +37,7 @@ export function StatementTable({ entries }: { entries: StatementEntry[] }) {
               <TableCell>{name(e.headNameEn, e.headNameUr)}</TableCell>
               <TableCell>{t(`fees.types.${e.type}`)}</TableCell>
               <TableCell
-                className={cn('text-end tabular-nums', e.amountPaisa < 0 && 'text-emerald-700')}
+                className={cn('text-end tabular-nums', e.amountPaisa < 0 && 'text-success')}
               >
                 {formatPaisa(e.amountPaisa)}
               </TableCell>

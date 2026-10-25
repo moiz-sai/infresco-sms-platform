@@ -13,6 +13,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { Loading } from '@/components/Loading'
 import { Field } from '@/components/Field'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -51,6 +52,7 @@ export function FeeSetupPage() {
   return (
     <div className="grid max-w-5xl gap-4">
       <h1 className="text-xl font-semibold">{t('fees.setup')}</h1>
+      {!(heads.data && structures.data && classes.data && year) && <Loading rows={6} />}
       {heads.data && structures.data && classes.data && year && (
         <FeeGrid
           // Re-initialise the editable cells whenever fresh data arrives.
@@ -292,7 +294,7 @@ function Heads({ heads }: { heads: FeeHead[] }) {
             <Input name="priority" inputMode="numeric" placeholder="30" />
           </Field>
           <Field label={t('setup.nameEn')} error={errors.nameEn}>
-            <Input name="nameEn" placeholder="Transport" />
+            <Input name="nameEn" placeholder={t('fees.headExample')} />
           </Field>
           <Field label={t('setup.nameUr')} error={errors.nameUr}>
             <Input name="nameUr" dir="rtl" lang="ur" className="font-urdu" />

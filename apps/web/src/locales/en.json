@@ -33,7 +33,8 @@
     "defaulters": "Defaulters",
     "settings": "Settings",
     "users": "Users & roles",
-    "audit": "Audit log"
+    "audit": "Audit log",
+    "promote": "Promote"
   },
   "login": {
     "title": "Sign in",
@@ -66,7 +67,8 @@
     "sections": "Sections",
     "sectionName": "Section",
     "addSection": "Add section",
-    "noYear": "Create an academic year and mark it current first."
+    "noYear": "Create an academic year and mark it current first.",
+    "classExample": "Class 6"
   },
   "students": {
     "title": "Students",
@@ -140,7 +142,41 @@
   "errors": {
     "required": "Required",
     "invalid": "Check this field",
-    "generic": "Something went wrong"
+    "generic": "Something went wrong",
+    "pin": "PIN must be 4–6 digits",
+    "password": "At least 8 characters",
+    "pickRole": "Pick at least one role",
+    "passwordOrPin": "Give a new password or PIN",
+    "startBeforeEnd": "Start must be before end",
+    "percent": "Percent must be 0–100",
+    "code": "2–6 capital letters or digits",
+    "username": "3–32 letters, digits, dot, dash or underscore",
+    "codes": {
+      "INVALID_CREDENTIALS": "Wrong username or password",
+      "ACCOUNT_LOCKED": "Too many wrong passwords — try again in 5 minutes",
+      "ACCOUNT_DISABLED": "This account is disabled",
+      "INVALID_PIN": "Wrong username or PIN",
+      "PIN_LOCKED": "Too many wrong PINs — log in with the password",
+      "FORBIDDEN": "You do not have permission for this",
+      "NOT_FOUND": "Not found",
+      "VALIDATION": "Some fields are not valid",
+      "DUPLICATE": "This already exists",
+      "IN_USE": "In use — it cannot be deleted",
+      "CASH_CLOSED": "Today's cash is closed — record it as bank/online or tomorrow",
+      "ALREADY_CLOSED": "Cash for this date is already closed",
+      "ALREADY_REVERSED": "This receipt is already cancelled",
+      "EXCEEDS_DUE": "Discount is more than the amount due",
+      "STALE": "The amount due has changed — check again",
+      "NOT_PENDING": "This request was already decided",
+      "FUTURE_DATE": "Future dates are not allowed",
+      "NO_CURRENT_YEAR": "No current academic year — set one in Setup",
+      "NOT_IN_SECTION": "Some students are not in this section",
+      "SAME_SECTION": "Choose a different section to promote to",
+      "SELF": "You cannot do this to your own account",
+      "UNKNOWN_ROLE": "Unknown role",
+      "DB_UNAVAILABLE": "Database is not reachable",
+      "INTERNAL": "Something went wrong"
+    }
   },
   "attendance": {
     "title": "Attendance",
@@ -251,7 +287,8 @@
       "cut": "cut here",
       "printAgain": "Print",
       "totalPaid": "Total paid"
-    }
+    },
+    "headExample": "Transport"
   },
   "approvals": {
     "title": "Approvals",
@@ -315,7 +352,20 @@
     "children": "Children: {{names}}"
   },
   "promote": {
-    "pending": "{{promoted}} promoted · {{count}} waiting for approval (unpaid fees)"
+    "pending": "{{promoted}} promoted · {{count}} waiting for approval (unpaid fees)",
+    "title": "Promote students",
+    "from": "From (this year)",
+    "toYear": "To year",
+    "to": "To section",
+    "hint": "All students are ticked. Untick anyone who stays behind.",
+    "owes": "owes {{amount}}",
+    "owingNote": "Students who owe fees go to the principal for approval.",
+    "selectAll": "Select all",
+    "count": "{{selected}} of {{total}} selected",
+    "submit": "Promote",
+    "done": "{{count}} promoted",
+    "empty": "No active students in this section",
+    "sameSection": "Choose a different section"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -403,7 +453,66 @@
     "empty": "Nothing recorded for this filter",
     "system": "System",
     "prev": "Previous page",
-    "next": "Next page"
+    "next": "Next page",
+    "actions": {
+      "auth": {
+        "login": "Logged in",
+        "logout": "Logged out",
+        "login_failed": "Failed login for \"{{username}}\" ({{reason}})",
+        "switch": "Switched user with PIN",
+        "pin_failed": "Wrong PIN for \"{{username}}\""
+      },
+      "student": {
+        "admit": "Admitted {{name}} ({{no}})",
+        "update": "Edited student {{name}}",
+        "leave": "Marked student as left from {{date}}"
+      },
+      "guardian": {
+        "create": "Added guardian {{name}}"
+      },
+      "enrollment": {
+        "create": "Enrolled student in a section",
+        "promote": "Promoted student"
+      },
+      "attendance": {
+        "mark": "Attendance {{date}}: {{count}} change(s)"
+      },
+      "fees": {
+        "payment": "Payment {{amount}} ({{method}}), receipt {{no}}",
+        "discount": "Discount {{amount}} for {{period}}: {{reason}}",
+        "reverse": "Cancelled receipt: {{reason}}",
+        "post_charges": "Posted {{count}} charges for {{period}}",
+        "carry_forward": "Carried unpaid fees to the new class"
+      },
+      "cash": {
+        "close": "Closed cash for {{date}}: system {{system}}, counted {{counted}}"
+      },
+      "approval": {
+        "request": "Requested approval: {{action}}",
+        "approve": "Approved {{action}}",
+        "reject": "Rejected {{action}}: {{reason}}"
+      },
+      "school": {
+        "update": "Edited school details ({{name}})"
+      },
+      "settings": {
+        "update": "Settings: lock days {{fromDays}} → {{toDays}}, discount limit {{fromLimit}} → {{toLimit}}"
+      },
+      "user": {
+        "create": "Created user \"{{username}}\"",
+        "update": "Edited user {{name}}",
+        "enable": "Enabled user {{name}}",
+        "disable": "Disabled user {{name}} (logged out)",
+        "roles": "Changed user roles",
+        "reset": "Reset {{what}}",
+        "delete": "Deleted user \"{{username}}\""
+      },
+      "other": "{{action}} on {{entity}}"
+    },
+    "words": {
+      "password": "password",
+      "PIN": "PIN"
+    }
   },
   "settings": {
     "title": "Settings",

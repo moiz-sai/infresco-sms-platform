@@ -12,6 +12,7 @@ const steps = [
   ['typecheck api', 'pnpm --filter api typecheck'],
   ['lint api', 'pnpm --filter api lint:check'],
   ['lint web', 'pnpm --filter web lint'],
+  ['i18n (no hard-coded UI text, en/ur keys match)', 'node scripts/check-i18n.mjs'],
   ['build api', 'pnpm --filter api build'],
   ['build web (incl. typecheck)', 'pnpm --filter web build'],
   ['reset sms_test', 'pnpm --filter api db:reset-test'],

@@ -13,6 +13,7 @@ import { FeeCollectionPage } from '@/pages/FeeCollectionPage'
 import { FeeSetupPage } from '@/pages/FeeSetupPage'
 import { ReceiptPrintPage } from '@/pages/ReceiptPrintPage'
 import { LoginPage } from '@/pages/LoginPage'
+import { PromotePage } from '@/pages/PromotePage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { SetupPage } from '@/pages/SetupPage'
 import { StudentProfilePage } from '@/pages/StudentProfilePage'
@@ -45,7 +46,10 @@ export const router = createBrowserRouter([
           },
           {
             element: <RequirePermission perm="students.edit" />,
-            children: [{ path: 'students/new', element: <AdmissionPage /> }],
+            children: [
+              { path: 'students/new', element: <AdmissionPage /> },
+              { path: 'students/promote', element: <PromotePage /> },
+            ],
           },
           {
             element: <RequirePermission perm="attendance.mark" />,

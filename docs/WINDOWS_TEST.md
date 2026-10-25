@@ -5,7 +5,7 @@ Do **Part 1 once**. For each **test round**, do Part 2, then that round's checks
 
 | Round | When | What gets tested |
 |---|---|---|
-| 1 | Now (after T8) | Install, login, students, attendance from a phone, fee collection and receipts, approvals, dashboard |
+| 1 | Now (after T9) | Install, login, students, attendance from a phone, fee collection and receipts, approvals, dashboard |
 | 2 | After T10 | Production build, receipt printing, backups (before the demo) |
 
 ---
@@ -67,7 +67,7 @@ Logins: `principal` or `clerk`, password `Admin@123`, PIN `1234`.
 
 ## Part 3 — Test rounds
 
-### Round 1 (after T8)
+### Round 1 (after T9)
 Base
 - [ ] `pnpm install` finishes without red errors
 - [ ] `pnpm verify` ends with `verify passed`
@@ -85,7 +85,7 @@ Screens on the PC (browser: Edge or Chrome, http://localhost:5173)
 Fees and approvals on the PC
 - [ ] Fee collection: type a student's name, press **↓** then **Enter** → dues show and the amount box is filled in
 - [ ] Press **Ctrl+Enter** → the Windows print dialog opens with the receipt. In the preview, "Receipt 80 mm" is one narrow page; switch the receipt format to **A4 (2 copies)**, pay again → one A4 page with two copies and a cut line. (Cancel the dialog or "Microsoft Print to PDF" is fine; a real 80 mm printer is round 2)
-- [ ] The Urdu name on the receipt is readable (not boxes)
+- [ ] The Urdu name on the receipt is readable (not boxes). In Urdu mode the amount in words is Urdu and readable
 - [ ] Switch user to `clerk` (PIN `1234`): give a discount above Rs 1,000 → "sent to the principal"
 - [ ] Switch back to `principal`: **Approvals** shows a red count → Approve → the student's dues drop
 - [ ] **Dashboard** opens after login with numbers and charts; **Defaulters → Print** shows an A4 table with no sidebar

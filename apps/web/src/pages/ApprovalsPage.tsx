@@ -4,6 +4,7 @@ import { Check, X } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { Loading } from '@/components/Loading'
 import { Field } from '@/components/Field'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -17,6 +18,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { api } from '@/lib/api'
+import { useFormatDate } from '@/lib/date'
 import { submitOnCtrlEnter } from '@/lib/form'
 import { useLocalName } from '@/lib/i18n-helpers'
 
@@ -47,6 +49,7 @@ export function ApprovalsPage() {
           {t('approvals.empty')}
         </p>
       )}
+      {list.isPending && <Loading />}
       {list.data?.items.map((item) => (
         <ApprovalCard key={item.id} item={item} />
       ))}
@@ -56,6 +59,7 @@ export function ApprovalsPage() {
 
 function ApprovalCard({ item }: { item: ApprovalItem }) {
   const { t } = useTranslation()
+  const fmt = useFormatDate()
   const name = useLocalName()
   const qc = useQueryClient()
   const [rejecting, setRejecting] = useState(false)
@@ -93,7 +97,7 @@ function ApprovalCard({ item }: { item: ApprovalItem }) {
         <Badge variant="secondary">{t(`approvals.actions.${item.action}`)}</Badge>
         <span className="text-sm text-muted-foreground">
           {t('approvals.requestedBy', { name: item.requestedByName })} ·{' '}
-          {new Date(item.createdAt).toLocaleString('en-GB', {
+          {fmt(item.createdAt, {
             dateStyle: 'medium',
             timeStyle: 'short',
           })}

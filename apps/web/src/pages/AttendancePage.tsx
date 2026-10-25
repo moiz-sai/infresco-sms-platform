@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
+import { Loading } from '@/components/Loading'
 import { Field } from '@/components/Field'
 import { SectionSelect } from '@/components/SectionSelect'
 import { Button } from '@/components/ui/button'
@@ -33,10 +34,10 @@ const KEY_TO_STATUS: Record<string, AttendanceStatus> = {
 }
 
 const STATUS_STYLE: Record<AttendanceStatus, string> = {
-  P: 'bg-emerald-600 text-white border-emerald-600',
-  A: 'bg-red-600 text-white border-red-600',
-  L: 'bg-amber-500 text-white border-amber-500',
-  V: 'bg-sky-600 text-white border-sky-600',
+  P: 'bg-success text-white border-success',
+  A: 'bg-danger text-white border-danger',
+  L: 'bg-warning text-white border-warning',
+  V: 'bg-info text-white border-info',
 }
 
 const draftKey = (sectionId: string, date: string) => `sms.att.${sectionId}.${date}`
@@ -189,7 +190,7 @@ function AttendanceGrid({ sectionId, date }: { sectionId: string; date: string }
   return (
     <>
       {day.data?.locked && (
-        <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+        <p className="rounded-lg border border-warning-border bg-warning-muted p-3 text-sm text-warning-foreground">
           {t('attendance.locked', { days: day.data.lockDays })}
         </p>
       )}
@@ -199,6 +200,7 @@ function AttendanceGrid({ sectionId, date }: { sectionId: string; date: string }
         </p>
       )}
 
+      {day.isPending && <Loading rows={6} />}
       {day.data && rows.length === 0 && (
         <p className="py-8 text-center text-muted-foreground">{t('attendance.empty')}</p>
       )}
@@ -235,14 +237,14 @@ function AttendanceGrid({ sectionId, date }: { sectionId: string; date: string }
                   onKeyDown={(e) => onRowKey(e, i)}
                   className={cn(
                     'flex items-center gap-3 px-3 py-2 outline-none focus:bg-accent',
-                    changed && 'bg-amber-50/60',
+                    changed && 'bg-warning-muted/60',
                   )}
                 >
                   <span className="w-8 shrink-0 text-sm text-muted-foreground tabular-nums">
                     {r.rollNo ?? ''}
                   </span>
                   <span className="min-w-0 flex-1 truncate">
-                    {name(r.nameEn, r.nameUr)}
+                    <bdi>{name(r.nameEn, r.nameUr)}</bdi>
                     <span className="ms-2 hidden text-xs text-muted-foreground sm:inline">
                       {r.admissionNo}
                     </span>

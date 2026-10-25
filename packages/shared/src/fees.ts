@@ -253,6 +253,39 @@ export function amountInWords(paisa: number): string {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
+// Urdu number words 0–99 are irregular, so they are listed whole.
+const UR_0_99 = (
+  'صفر ایک دو تین چار پانچ چھ سات آٹھ نو دس گیارہ بارہ تیرہ چودہ پندرہ سولہ سترہ اٹھارہ انیس ' +
+  'بیس اکیس بائیس تیئیس چوبیس پچیس چھبیس ستائیس اٹھائیس انتیس تیس اکتیس بتیس تینتیس چونتیس ' +
+  'پینتیس چھتیس سینتیس اڑتیس انتالیس چالیس اکتالیس بیالیس تینتالیس چوالیس پینتالیس چھیالیس ' +
+  'سینتالیس اڑتالیس انچاس پچاس اکاون باون ترپن چون پچپن چھپن ستاون اٹھاون انسٹھ ساٹھ اکسٹھ ' +
+  'باسٹھ ترسٹھ چونسٹھ پینسٹھ چھیاسٹھ سڑسٹھ اڑسٹھ انہتر ستر اکہتر بہتر تہتر چوہتر پچھتر ' +
+  'چھہتر ستتر اٹھہتر اناسی اسی اکیاسی بیاسی تراسی چوراسی پچاسی چھیاسی ستاسی اٹھاسی نواسی ' +
+  'نوے اکیانوے بانوے ترانوے چورانوے پچانوے چھیانوے ستانوے اٹھانوے ننانوے'
+).split(' ');
+
+function rupeesInWordsUr(n: number): string {
+  if (n === 0) return UR_0_99[0];
+  const parts: string[] = [];
+  const crore = Math.floor(n / 10_000_000);
+  const lakh = Math.floor((n % 10_000_000) / 100_000);
+  const thousand = Math.floor((n % 100_000) / 1000);
+  const hundred = Math.floor((n % 1000) / 100);
+  const rest = n % 100;
+  if (crore) parts.push(`${rupeesInWordsUr(crore)} کروڑ`);
+  if (lakh) parts.push(`${UR_0_99[lakh]} لاکھ`);
+  if (thousand) parts.push(`${UR_0_99[thousand]} ہزار`);
+  if (hundred) parts.push(`${UR_0_99[hundred]} سو`);
+  if (rest) parts.push(UR_0_99[rest]);
+  return parts.join(' ');
+}
+
+export function amountInWordsUr(paisa: number): string {
+  const rupees = Math.floor(Math.abs(paisa) / 100);
+  const p = Math.abs(paisa) % 100;
+  return `${rupeesInWordsUr(rupees)} روپے${p ? ` اور ${UR_0_99[p]} پیسے` : ''} صرف`;
+}
+
 export const discountSchema = z.object({
   enrollmentId: z.uuid(),
   headId: z.uuid(),

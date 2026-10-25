@@ -414,6 +414,31 @@ export class StudentsService {
       );
   }
 
+  // Students currently active in a section, roll order (promote page).
+  async activeRoster(schoolId: string, sectionId: string) {
+    return this.db
+      .select({
+        enrollmentId: enrollment.id,
+        studentId: person.id,
+        admissionNo: enrollment.admissionNo,
+        rollNo: enrollment.rollNo,
+        nameEn: person.nameEn,
+        nameUr: person.nameUr,
+        fatherName: person.fatherName,
+      })
+      .from(enrollment)
+      .innerJoin(person, eq(person.id, enrollment.studentId))
+      .where(
+        and(
+          eq(enrollment.schoolId, schoolId),
+          eq(enrollment.sectionId, sectionId),
+          eq(enrollment.status, 'active'),
+          isNull(enrollment.deletedAt),
+        ),
+      )
+      .orderBy(sql`${enrollment.rollNo} asc nulls last`, asc(person.nameEn));
+  }
+
   // Core of promotion, run inside the caller's tx (PromotionService adds fee carry-forward).
   async promoteTx(tx: Tx, actor: Actor, input: PromoteInput) {
     const [from, to] = await Promise.all([

@@ -13,6 +13,7 @@ import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { toast } from 'sonner'
+import { Loading } from '@/components/Loading'
 import { DiscountDialog } from '@/components/DiscountDialog'
 import { Field } from '@/components/Field'
 import { StatementTable } from '@/components/StatementTable'
@@ -155,7 +156,7 @@ function CollectPanel({
     queryKey: ['statement', enrollmentId],
     queryFn: () => api.get<Statement>(`/fees/students/${enrollmentId}/statement`),
   })
-  if (!statement.data) return null
+  if (!statement.data) return <Loading rows={5} />
   return <CollectForm s={statement.data} onSelect={onSelect} onDone={onDone} />
 }
 
@@ -245,7 +246,7 @@ function CollectForm({
               </div>
             ))}
             {s.advancePaisa > 0 && (
-              <div className="flex justify-between gap-2 text-emerald-700">
+              <div className="flex justify-between gap-2 text-success">
                 <span>{t('fees.advance')}</span>
                 <span className="tabular-nums">−{formatPaisa(s.advancePaisa)}</span>
               </div>
@@ -326,7 +327,7 @@ function CollectForm({
               >
                 {name(sib.nameEn, sib.nameUr)} · {name(sib.classNameEn, sib.classNameUr)} —{' '}
                 {sib.sectionName}
-                <span className={cn('tabular-nums', sib.balancePaisa > 0 && 'text-red-600')}>
+                <span className={cn('tabular-nums', sib.balancePaisa > 0 && 'text-danger')}>
                   {formatPaisa(sib.balancePaisa)}
                 </span>
               </Button>

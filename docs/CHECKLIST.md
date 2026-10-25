@@ -73,5 +73,14 @@ First run `pnpm --filter api db:migrate` (new migration).
 - [x] Audit log: filters by user/area/date; click a line → details
 - [x] As clerk: no Users, Audit, Settings in the sidebar; Dashboard and Defaulters visible
 
+## T9 Urdu pass, polish, promote page (agent-checked headless, ticked)
+- [x] Wrong password shows "Wrong username or password"; wrong PIN shows an error and keeps you logged in
+- [x] Urdu: every page mirrors, nothing sticks out sideways (PC and phone width)
+- [x] Urdu: form errors are Urdu (e.g. empty admission → "لازمی"); API errors are Urdu
+- [x] Urdu: audit log lines and dates are Urdu
+- [x] Urdu receipt: amount in Urdu words, Urdu class name, "-Rs" amounts read correctly
+- [x] Urdu prints: register (A4 landscape) and defaulters list
+- [ ] Promote: pick from-section and to-section → everyone ticked, owing amounts in red; untick → only ticked students move (clerk + owing students → Approvals is covered by the automated Z6 test; try it once by hand)
+
 ## Windows PC
-See docs/WINDOWS_TEST.md (separate guide for the Windows tester; round 1 now (covers T4–T8), round 2 after T10).
+See docs/WINDOWS_TEST.md (separate guide for the Windows tester; round 1 now (covers T4–T9), round 2 after T10).

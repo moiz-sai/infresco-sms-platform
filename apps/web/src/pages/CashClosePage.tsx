@@ -3,17 +3,20 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { Loading } from '@/components/Loading'
 import { Field } from '@/components/Field'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { api } from '@/lib/api'
+import { useFormatDate } from '@/lib/date'
 import { submitOnCtrlEnter, today } from '@/lib/form'
 import { rupeesToPaisa } from '@/lib/money'
 import { cn } from '@/lib/utils'
 
 export function CashClosePage() {
   const { t } = useTranslation()
+  const fmt = useFormatDate()
   const qc = useQueryClient()
   const [date, setDate] = useState(today())
   const [counted, setCounted] = useState('')
@@ -51,6 +54,7 @@ export function CashClosePage() {
           onChange={(e) => e.target.value && setDate(e.target.value)}
         />
       </Field>
+      {view.isPending && <Loading rows={2} />}
       {v && (
         <Card>
           <CardContent className="grid gap-3 pt-6">
@@ -72,7 +76,7 @@ export function CashClosePage() {
                 <div
                   className={cn(
                     'flex justify-between gap-2 font-semibold',
-                    v.close.differencePaisa !== 0 && 'text-red-600',
+                    v.close.differencePaisa !== 0 && 'text-danger',
                   )}
                 >
                   <span>{t('cashClose.difference')}</span>
@@ -81,7 +85,7 @@ export function CashClosePage() {
                 <span className="text-sm text-muted-foreground">
                   {t('cashClose.closedBy', {
                     name: v.close.closedByName,
-                    time: new Date(v.close.createdAt).toLocaleTimeString('en-GB', {
+                    time: fmt(v.close.createdAt, {
                       timeStyle: 'short',
                     }),
                   })}

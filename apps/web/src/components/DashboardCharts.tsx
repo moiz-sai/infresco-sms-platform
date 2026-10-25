@@ -13,8 +13,8 @@ import {
 } from 'recharts'
 import { useLocalName } from '@/lib/i18n-helpers'
 
-const BAR = '#2563eb'
-const LINE = '#059669'
+const BAR = 'var(--info)'
+const LINE = 'var(--success)'
 
 // Loaded with React.lazy so recharts stays out of the main bundle (SPEC §T8).
 // SVG text breaks under dir=rtl, so charts render LTR and mirror via reversed axes in Urdu.

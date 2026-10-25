@@ -10,6 +10,7 @@ import { KeyRound, Pencil, Trash2, UserPlus } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { Loading } from '@/components/Loading'
 import { Field } from '@/components/Field'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -51,6 +52,7 @@ export function UsersPage() {
           {t('users.add')}
         </Button>
       </div>
+      {users.isPending && <Loading />}
       <Table>
         <TableHeader>
           <TableRow>

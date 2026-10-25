@@ -1,4 +1,10 @@
-import { amountInWords, formatPaisa, type ApprovalOutcome, type ReceiptView } from '@sms/shared'
+import {
+  amountInWords,
+  amountInWordsUr,
+  formatPaisa,
+  type ApprovalOutcome,
+  type ReceiptView,
+} from '@sms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Ban, Printer } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
@@ -16,6 +22,8 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { api } from '@/lib/api'
+import { useFormatDate } from '@/lib/date'
+import { useLocalName } from '@/lib/i18n-helpers'
 import { useCan } from '@/lib/auth'
 import { submitOnCtrlEnter } from '@/lib/form'
 import { cn } from '@/lib/utils'
@@ -94,11 +102,15 @@ export function ReceiptPrintPage() {
 
 // Printed receipts always show English and Urdu names side by side, whatever the UI language.
 function ReceiptBody({ r, copy, wide }: { r: ReceiptView; copy?: string; wide?: boolean }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const fmt = useFormatDate()
+  const name = useLocalName()
+  const urdu = i18n.language === 'ur'
+  // <bdi> keeps "-Rs 1,000" and English names intact inside Urdu (RTL) lines.
   const row = (label: string, value: React.ReactNode) => (
     <div className="flex justify-between gap-2">
       <span className="text-neutral-600">{label}</span>
-      <span className="text-end font-medium">{value}</span>
+      <bdi className="text-end font-medium">{value}</bdi>
     </div>
   )
   return (
@@ -112,7 +124,7 @@ function ReceiptBody({ r, copy, wide }: { r: ReceiptView; copy?: string; wide?: 
     >
       {r.cancelled && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <span className="-rotate-12 rounded border-4 border-red-600 px-3 text-3xl font-bold text-red-600 opacity-70">
+          <span className="-rotate-12 rounded border-4 border-danger px-3 text-3xl font-bold text-danger opacity-70">
             {t('fees.print.cancelled')}
           </span>
         </div>
@@ -136,7 +148,7 @@ function ReceiptBody({ r, copy, wide }: { r: ReceiptView; copy?: string; wide?: 
         {row(t('fees.print.receiptNo'), r.receiptNo)}
         {row(
           t('fees.print.date'),
-          new Date(r.createdAt).toLocaleString('en-GB', {
+          fmt(r.createdAt, {
             dateStyle: 'medium',
             timeStyle: 'short',
           }),
@@ -153,7 +165,10 @@ function ReceiptBody({ r, copy, wide }: { r: ReceiptView; copy?: string; wide?: 
           </>,
         )}
         {row(t('fees.print.admissionNo'), r.student.admissionNo)}
-        {row(t('fees.print.class'), `${r.student.classNameEn} — ${r.student.sectionName}`)}
+        {row(
+          t('fees.print.class'),
+          `${name(r.student.classNameEn, r.student.classNameUr)} — ${r.student.sectionName}`,
+        )}
         {r.student.fatherName && row(t('fees.print.father'), r.student.fatherName)}
       </div>
 
@@ -180,14 +195,18 @@ function ReceiptBody({ r, copy, wide }: { r: ReceiptView; copy?: string; wide?: 
                   </>
                 )}
               </td>
-              <td className="py-0.5 text-end tabular-nums">{formatPaisa(l.amountPaisa)}</td>
+              <td className="py-0.5 text-end tabular-nums">
+                <bdi>{formatPaisa(l.amountPaisa)}</bdi>
+              </td>
             </tr>
           ))}
           <tr className="border-t border-black font-bold">
             <td className="py-1" colSpan={2}>
               {t('fees.print.totalPaid')}
             </td>
-            <td className="py-1 text-end tabular-nums">{formatPaisa(r.totalPaisa)}</td>
+            <td className="py-1 text-end tabular-nums">
+              <bdi>{formatPaisa(r.totalPaisa)}</bdi>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -195,7 +214,7 @@ function ReceiptBody({ r, copy, wide }: { r: ReceiptView; copy?: string; wide?: 
       <div className="grid gap-0.5">
         <div className="text-[0.9em]">
           <span className="text-neutral-600">{t('fees.print.inWords')}: </span>
-          <em>{amountInWords(r.totalPaisa)}</em>
+          <em>{urdu ? amountInWordsUr(r.totalPaisa) : amountInWords(r.totalPaisa)}</em>
         </div>
         {row(t('fees.print.method'), t(`fees.methods.${r.method}`))}
         {row(t('fees.print.balanceAfter'), formatPaisa(r.balanceAfterPaisa))}

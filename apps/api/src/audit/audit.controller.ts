@@ -31,18 +31,23 @@ export class AuditController {
     ]);
     return {
       total,
-      items: rows.map((r) => ({
-        id: r.id,
-        createdAt: r.createdAt.toISOString(),
-        userId: r.userId,
-        userName: r.userId ? (names.get(r.userId) ?? null) : null,
-        action: r.action,
-        entity: r.entity,
-        entityId: r.entityId,
-        summary: auditSummary(r.action, r.entity, r.before, r.after),
-        before: r.before,
-        after: r.after,
-      })),
+      items: rows.map((r) => {
+        const summary = auditSummary(r.action, r.entity, r.before, r.after);
+        return {
+          id: r.id,
+          createdAt: r.createdAt.toISOString(),
+          userId: r.userId,
+          userName: r.userId ? (names.get(r.userId) ?? null) : null,
+          action: r.action,
+          entity: r.entity,
+          entityId: r.entityId,
+          summary: summary.text,
+          summaryKey: summary.key,
+          summaryParams: summary.params,
+          before: r.before,
+          after: r.after,
+        };
+      }),
     };
   }
 }

@@ -4,6 +4,7 @@ import { Printer } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { Field } from '@/components/Field'
+import { Loading } from '@/components/Loading'
 import { SectionSelect } from '@/components/SectionSelect'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,9 +15,9 @@ import { useSections } from '@/lib/setup-queries'
 import { cn } from '@/lib/utils'
 
 const LETTER_STYLE: Record<string, string> = {
-  A: 'text-red-600 font-semibold',
-  L: 'text-amber-600',
-  V: 'text-sky-600',
+  A: 'text-danger font-semibold',
+  L: 'text-warning',
+  V: 'text-info',
 }
 
 export function AttendanceRegisterPage() {
@@ -64,6 +65,7 @@ export function AttendanceRegisterPage() {
         </Button>
       </div>
 
+      {register.isPending && !!sectionId && <Loading rows={8} />}
       {data && (
         <div className="register-print overflow-x-auto">
           <div className="mb-2 hidden items-baseline justify-between print:flex">

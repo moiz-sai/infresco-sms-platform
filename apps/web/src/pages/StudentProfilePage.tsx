@@ -318,7 +318,7 @@ function FeesTab({ enrollmentId }: { enrollmentId: string }) {
           {formatPaisa(Math.max(0, s.balancePaisa))}
         </span>
         {s.advancePaisa > 0 && (
-          <span className="text-sm text-emerald-700">
+          <span className="text-sm text-success">
             {t('fees.advance')}: {formatPaisa(s.advancePaisa)}
           </span>
         )}

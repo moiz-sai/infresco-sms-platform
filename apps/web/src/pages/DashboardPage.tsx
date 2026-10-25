@@ -206,7 +206,7 @@ function StatCard({
   const body = (
     <>
       <span className="text-sm text-muted-foreground">{label}</span>
-      <span className={cn('text-2xl font-semibold tabular-nums', alert && 'text-red-600')}>
+      <span className={cn('text-2xl font-semibold tabular-nums', alert && 'text-danger')}>
         {value}
       </span>
       <span className="grid text-xs text-muted-foreground">{children}</span>

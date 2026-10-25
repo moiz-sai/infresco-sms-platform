@@ -17,10 +17,10 @@ export function useClasses() {
   return useQuery({ queryKey: ['classes'], queryFn: () => api.get<SchoolClass[]>('/classes') })
 }
 
-// Sections of the current year (optionally one class).
-export function useSections(classId?: string) {
+// Sections of the current year, or of `yearId` (optionally one class).
+export function useSections(classId?: string, yearId?: string) {
   return useQuery({
-    queryKey: ['sections', classId ?? 'all'],
-    queryFn: () => api.get<SectionInfo[]>('/sections', { classId }),
+    queryKey: ['sections', classId ?? 'all', yearId ?? 'current'],
+    queryFn: () => api.get<SectionInfo[]>('/sections', { classId, yearId }),
   })
 }

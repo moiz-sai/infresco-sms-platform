@@ -3,11 +3,13 @@ import { useQuery } from '@tanstack/react-query'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
+import { Loading } from '@/components/Loading'
 import { Field } from '@/components/Field'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { api } from '@/lib/api'
+import { useFormatDate } from '@/lib/date'
 import { useCan } from '@/lib/auth'
 import { useLocalName } from '@/lib/i18n-helpers'
 
@@ -31,6 +33,7 @@ const SIZE = 50
 
 export function AuditPage() {
   const { t } = useTranslation()
+  const fmt = useFormatDate()
   const name = useLocalName()
   const can = useCan()
   const [params, setParams] = useSearchParams()
@@ -58,6 +61,22 @@ export function AuditPage() {
       if (k !== 'page') next.delete('page')
       return next
     })
+  // Server sends a template key + params (English line as fallback); codes inside params are translated too.
+  const summary = (a: AuditItem) => {
+    const p: Record<string, string | number> = { ...a.summaryParams }
+    if (typeof p.action === 'string')
+      p.action = t(`approvals.actions.${p.action}`, { defaultValue: p.action })
+    if (typeof p.method === 'string')
+      p.method = t(`fees.methods.${p.method}`, { defaultValue: p.method })
+    if (typeof p.what === 'string')
+      p.what = p.what
+        .split(' + ')
+        .map((w) => t(`audit.words.${w}`, { defaultValue: w }))
+        .join(' + ')
+    if (typeof p.entity === 'string')
+      p.entity = t(`audit.entities.${p.entity}`, { defaultValue: p.entity })
+    return t(`audit.actions.${a.summaryKey}`, { ...p, defaultValue: a.summary })
+  }
   const pages = Math.max(1, Math.ceil((audit.data?.total ?? 0) / SIZE))
 
   return (
@@ -101,6 +120,7 @@ export function AuditPage() {
         </Field>
       </div>
 
+      {audit.isPending && <Loading rows={8} />}
       {audit.data?.items.length === 0 && (
         <p className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
           {t('audit.empty')}
@@ -112,7 +132,7 @@ export function AuditPage() {
             <details className="group px-3 py-2">
               <summary className="flex cursor-pointer list-none flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span className="w-36 shrink-0 text-xs text-muted-foreground tabular-nums">
-                  {new Date(a.createdAt).toLocaleString('en-GB', {
+                  {fmt(a.createdAt, {
                     dateStyle: 'short',
                     timeStyle: 'medium',
                   })}
@@ -120,8 +140,8 @@ export function AuditPage() {
                 <span className="w-32 shrink-0 text-sm font-medium">
                   {a.userName ?? t('audit.system')}
                 </span>
-                <span className="min-w-0 flex-1 text-sm">
-                  <bdi>{a.summary}</bdi>
+                <span className="min-w-0 basis-full text-sm sm:flex-1 sm:basis-0">
+                  <bdi>{summary(a)}</bdi>
                 </span>
               </summary>
               <pre

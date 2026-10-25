@@ -1,6 +1,7 @@
 import type { ApprovalItem, Page, School } from '@sms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  ArrowRightLeft,
   Banknote,
   BadgeCheck,
   Calculator,
@@ -39,6 +40,13 @@ const NAV = [
   },
   { to: '/students', key: 'nav.students', perm: 'students.view', icon: Users, end: true },
   { to: '/students/new', key: 'nav.admission', perm: 'students.edit', icon: UserPlus, end: true },
+  {
+    to: '/students/promote',
+    key: 'nav.promote',
+    perm: 'students.edit',
+    icon: ArrowRightLeft,
+    end: true,
+  },
   {
     to: '/attendance',
     key: 'nav.attendance',
@@ -121,7 +129,7 @@ export function Shell() {
       <n.icon className="size-4" />
       {t(n.key)}
       {n.to === '/approvals' && !!pending.data?.total && (
-        <span className="ms-auto rounded-full bg-red-600 px-1.5 text-xs font-semibold text-white">
+        <span className="ms-auto rounded-full bg-danger px-1.5 text-xs font-semibold text-white">
           {pending.data.total}
         </span>
       )}

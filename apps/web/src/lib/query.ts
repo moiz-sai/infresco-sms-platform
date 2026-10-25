@@ -1,5 +1,6 @@
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import i18n from '@/i18n'
 import { ApiError } from './api'
 
 // A 401 that means the session ended clears `me`, so RequireAuth redirects to /login.
@@ -13,11 +14,19 @@ function onAuthError(error: unknown) {
   return false
 }
 
+// API errors carry a stable code; show its translation, or the server's English message.
+export function errorText(error: Error) {
+  if (error instanceof ApiError) {
+    return i18n.t(`errors.codes.${error.code}`, { defaultValue: error.message })
+  }
+  return error.message
+}
+
 export const queryClient: QueryClient = new QueryClient({
   queryCache: new QueryCache({ onError: onAuthError }),
   mutationCache: new MutationCache({
     onError: (error) => {
-      if (!onAuthError(error)) toast.error(error.message)
+      if (!onAuthError(error)) toast.error(errorText(error))
     },
   }),
   defaultOptions: {

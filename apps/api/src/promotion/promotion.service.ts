@@ -1,5 +1,9 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import type { PromoteInput, PromoteResult } from '@sms/shared';
+import type {
+  PromoteCandidate,
+  PromoteInput,
+  PromoteResult,
+} from '@sms/shared';
 import { ApprovalsService } from '../approvals/approvals.service';
 import type { Actor } from '../common/actor';
 import { DB, type Db } from '../db/database.module';
@@ -34,6 +38,22 @@ export class PromotionService implements OnModuleInit {
         });
       },
     );
+  }
+
+  // Active students of a section with their fee balance (owing ones need approval for a clerk).
+  async candidates(
+    schoolId: string,
+    sectionId: string,
+  ): Promise<PromoteCandidate[]> {
+    await this.setup.getSection(schoolId, sectionId);
+    const roster = await this.students.activeRoster(schoolId, sectionId);
+    const balances = await this.fees.balances(
+      roster.map((r) => r.enrollmentId),
+    );
+    return roster.map((r) => ({
+      ...r,
+      balancePaisa: balances.get(r.enrollmentId) ?? 0,
+    }));
   }
 
   private async execute(tx: Tx, actor: Actor, input: PromoteInput) {

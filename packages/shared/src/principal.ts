@@ -43,7 +43,11 @@ export interface Absentee {
 export interface Dashboard {
   date: string;
   period: string;
-  todayCollection: { method: PaymentMethod; totalPaisa: number; count: number }[];
+  todayCollection: {
+    method: PaymentMethod;
+    totalPaisa: number;
+    count: number;
+  }[];
   month: { collectedPaisa: number; expectedPaisa: number };
   collectionByClass: ClassRate[];
   attendanceByClass: ClassRate[];
@@ -57,7 +61,9 @@ export interface Dashboard {
 }
 
 // Present share of marked students; vacation days are not counted.
-export function attendancePct(counts: Partial<Record<AttendanceStatus, number>>) {
+export function attendancePct(
+  counts: Partial<Record<AttendanceStatus, number>>,
+) {
   const p = counts.P ?? 0;
   const base = p + (counts.A ?? 0) + (counts.L ?? 0);
   return base === 0 ? null : Math.round((p * 1000) / base) / 10;
@@ -95,7 +101,11 @@ export interface AttendanceSummary {
   to: string;
   pct: number | null;
   counts: Record<AttendanceStatus, number>;
-  months: { month: string; pct: number | null; counts: Record<AttendanceStatus, number> }[];
+  months: {
+    month: string;
+    pct: number | null;
+    counts: Record<AttendanceStatus, number>;
+  }[];
 }
 
 // ---------- users
@@ -106,7 +116,10 @@ const username = z
   .string()
   .trim()
   .toLowerCase()
-  .regex(/^[a-z0-9._-]{3,32}$/, '3–32 letters, digits, dot, dash or underscore');
+  .regex(
+    /^[a-z0-9._-]{3,32}$/,
+    '3–32 letters, digits, dot, dash or underscore',
+  );
 
 export const userCreateSchema = z.object({
   username,
@@ -128,12 +141,16 @@ export const userUpdateSchema = userCreateSchema
   .extend({ isActive: z.boolean() });
 export type UserUpdate = z.infer<typeof userUpdateSchema>;
 
-export const userRolesSchema = z.object({ roleIds: z.array(z.uuid()).min(1, 'Pick at least one role') });
+export const userRolesSchema = z.object({
+  roleIds: z.array(z.uuid()).min(1, 'Pick at least one role'),
+});
 export type UserRolesInput = z.infer<typeof userRolesSchema>;
 
 export const userResetSchema = z
   .object({ password: password.optional(), pin: pin.optional() })
-  .refine((v) => v.password || v.pin, { message: 'Give a new password or PIN' });
+  .refine((v) => v.password || v.pin, {
+    message: 'Give a new password or PIN',
+  });
 export type UserReset = z.infer<typeof userResetSchema>;
 
 export interface RoleItem {
@@ -174,7 +191,10 @@ export interface AuditItem {
   action: string;
   entity: string;
   entityId: string | null;
+  // English line; the UI prefers t(`audit.actions.${summaryKey}`, summaryParams)
   summary: string;
+  summaryKey: string;
+  summaryParams: Record<string, string | number>;
   before: unknown;
   after: unknown;
 }

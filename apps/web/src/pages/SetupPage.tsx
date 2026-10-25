@@ -4,6 +4,7 @@ import { Plus, Trash2, X } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { Loading } from '@/components/Loading'
 import { Field } from '@/components/Field'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -69,7 +70,7 @@ function SchoolForm() {
   const school = useQuery({ queryKey: ['school'], queryFn: () => api.get<School>('/school') })
   const [errors, setErrors] = useState<FieldErrors>({})
   const save = useSetupMutation((body: unknown) => api.put('/school', body))
-  if (!school.data) return null
+  if (!school.data) return <Loading rows={5} />
   const s = school.data
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -341,7 +342,7 @@ function Classes() {
             onKeyDown={submitOnCtrlEnter}
           >
             <Field label={t('setup.nameEn')} error={errors.nameEn}>
-              <Input name="nameEn" placeholder="Class 6" />
+              <Input name="nameEn" placeholder={t('setup.classExample')} />
             </Field>
             <Field label={t('setup.nameUr')} error={errors.nameUr}>
               <Input name="nameUr" dir="rtl" lang="ur" className="font-urdu" />

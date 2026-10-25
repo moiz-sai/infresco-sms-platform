@@ -143,6 +143,19 @@ export interface GuardianSearchResult {
   children: string[];
 }
 
+export const promoteCandidatesQuerySchema = z.object({ sectionId: z.uuid() });
+
+export interface PromoteCandidate {
+  studentId: string;
+  enrollmentId: string;
+  admissionNo: string;
+  rollNo: number | null;
+  nameEn: string;
+  nameUr: string | null;
+  fatherName: string | null;
+  balancePaisa: number;
+}
+
 export interface PromoteResult {
   promoted: number;
   pendingApprovalId?: string;

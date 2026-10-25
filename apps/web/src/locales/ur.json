@@ -33,7 +33,8 @@
     "defaulters": "نادہندگان",
     "settings": "ترتیبات",
     "users": "صارفین و کردار",
-    "audit": "آڈٹ لاگ"
+    "audit": "آڈٹ لاگ",
+    "promote": "ترقی"
   },
   "login": {
     "title": "سائن اِن",
@@ -66,7 +67,8 @@
     "sections": "سیکشن",
     "sectionName": "سیکشن",
     "addSection": "سیکشن شامل کریں",
-    "noYear": "پہلے تعلیمی سال بنائیں اور اسے موجودہ قرار دیں۔"
+    "noYear": "پہلے تعلیمی سال بنائیں اور اسے موجودہ قرار دیں۔",
+    "classExample": "جماعت ۶"
   },
   "students": {
     "title": "طلبہ",
@@ -138,9 +140,43 @@
     "done": "داخلہ مکمل — داخلہ نمبر {{no}}"
   },
   "errors": {
-    "required": "ضروری ہے",
-    "invalid": "یہ خانہ چیک کریں",
-    "generic": "کچھ غلط ہو گیا"
+    "required": "لازمی",
+    "invalid": "یہ خانہ دیکھیں",
+    "generic": "کچھ غلط ہو گیا",
+    "pin": "پن ۴ سے ۶ ہندسوں کا ہو",
+    "password": "کم از کم ۸ حروف",
+    "pickRole": "کم از کم ایک کردار چنیں",
+    "passwordOrPin": "نیا پاس ورڈ یا پن دیں",
+    "startBeforeEnd": "شروع کی تاریخ اختتام سے پہلے ہو",
+    "percent": "فیصد ۰ سے ۱۰۰ تک",
+    "code": "۲ سے ۶ بڑے انگریزی حروف یا ہندسے",
+    "username": "۳ سے ۳۲ انگریزی حروف، ہندسے، نقطہ یا ڈیش",
+    "codes": {
+      "INVALID_CREDENTIALS": "غلط یوزر نیم یا پاس ورڈ",
+      "ACCOUNT_LOCKED": "بہت زیادہ غلط پاس ورڈ — ۵ منٹ بعد کوشش کریں",
+      "ACCOUNT_DISABLED": "یہ اکاؤنٹ غیر فعال ہے",
+      "INVALID_PIN": "غلط یوزر نیم یا پن",
+      "PIN_LOCKED": "بہت زیادہ غلط پن — پاس ورڈ سے لاگ اِن کریں",
+      "FORBIDDEN": "آپ کو اس کی اجازت نہیں",
+      "NOT_FOUND": "نہیں ملا",
+      "VALIDATION": "کچھ خانے درست نہیں",
+      "DUPLICATE": "یہ پہلے سے موجود ہے",
+      "IN_USE": "زیرِ استعمال ہے — حذف نہیں ہو سکتا",
+      "CASH_CLOSED": "آج کا کیش بند ہے — بینک/آن لائن درج کریں یا کل",
+      "ALREADY_CLOSED": "اس تاریخ کا کیش پہلے ہی بند ہے",
+      "ALREADY_REVERSED": "یہ رسید پہلے ہی منسوخ ہے",
+      "EXCEEDS_DUE": "رعایت واجب رقم سے زیادہ ہے",
+      "STALE": "واجب رقم بدل چکی ہے — دوبارہ دیکھیں",
+      "NOT_PENDING": "اس درخواست کا فیصلہ ہو چکا",
+      "FUTURE_DATE": "آئندہ تاریخ کی اجازت نہیں",
+      "NO_CURRENT_YEAR": "کوئی موجودہ تعلیمی سال نہیں — سیٹ اپ میں منتخب کریں",
+      "NOT_IN_SECTION": "کچھ طلبہ اس سیکشن میں نہیں",
+      "SAME_SECTION": "ترقی کے لیے کوئی دوسرا سیکشن چنیں",
+      "SELF": "آپ اپنے اکاؤنٹ کے ساتھ یہ نہیں کر سکتے",
+      "UNKNOWN_ROLE": "نامعلوم کردار",
+      "DB_UNAVAILABLE": "ڈیٹا بیس دستیاب نہیں",
+      "INTERNAL": "کچھ غلط ہو گیا"
+    }
   },
   "attendance": {
     "title": "حاضری",
@@ -251,7 +287,8 @@
       "cut": "یہاں سے کاٹیں",
       "printAgain": "پرنٹ",
       "totalPaid": "کل ادا شدہ"
-    }
+    },
+    "headExample": "ٹرانسپورٹ"
   },
   "approvals": {
     "title": "منظوریاں",
@@ -315,7 +352,20 @@
     "children": "بچے: {{names}}"
   },
   "promote": {
-    "pending": "{{promoted}} ترقی یافتہ · {{count}} منظوری کے منتظر (بقایا فیس)"
+    "pending": "{{promoted}} ترقی یافتہ · {{count}} منظوری کے منتظر (بقایا فیس)",
+    "title": "طلبہ کی ترقی",
+    "from": "سے (اس سال)",
+    "toYear": "سال",
+    "to": "سیکشن میں",
+    "hint": "سب طلبہ پر نشان ہے۔ جو اسی جماعت میں رہیں ان کا نشان ہٹا دیں۔",
+    "owes": "بقایا {{amount}}",
+    "owingNote": "بقایا دار طلبہ کی ترقی پرنسپل کی منظوری سے ہوگی۔",
+    "selectAll": "سب چنیں",
+    "count": "{{total}} میں سے {{selected}} منتخب",
+    "submit": "ترقی دیں",
+    "done": "{{count}} کو ترقی دی گئی",
+    "empty": "اس سیکشن میں کوئی فعال طالب علم نہیں",
+    "sameSection": "کوئی دوسرا سیکشن چنیں"
   },
   "dashboard": {
     "title": "ڈیش بورڈ",
@@ -403,7 +453,66 @@
     "empty": "اس فلٹر میں کچھ درج نہیں",
     "system": "سسٹم",
     "prev": "پچھلا صفحہ",
-    "next": "اگلا صفحہ"
+    "next": "اگلا صفحہ",
+    "actions": {
+      "auth": {
+        "login": "لاگ اِن کیا",
+        "logout": "لاگ آؤٹ کیا",
+        "login_failed": "\"{{username}}\" کا لاگ اِن ناکام ({{reason}})",
+        "switch": "پن سے صارف تبدیل کیا",
+        "pin_failed": "\"{{username}}\" کا غلط پن"
+      },
+      "student": {
+        "admit": "{{name}} کا داخلہ ({{no}})",
+        "update": "طالب علم {{name}} میں ترمیم",
+        "leave": "{{date}} سے طالب علم خارج"
+      },
+      "guardian": {
+        "create": "سرپرست {{name}} شامل کیا"
+      },
+      "enrollment": {
+        "create": "طالب علم سیکشن میں درج",
+        "promote": "طالب علم کو ترقی دی"
+      },
+      "attendance": {
+        "mark": "حاضری {{date}}: {{count}} تبدیلیاں"
+      },
+      "fees": {
+        "payment": "وصولی {{amount}} ({{method}})، رسید {{no}}",
+        "discount": "رعایت {{amount}} برائے {{period}}: {{reason}}",
+        "reverse": "رسید منسوخ: {{reason}}",
+        "post_charges": "{{period}} کے {{count}} واجبات درج کیے",
+        "carry_forward": "بقایا فیس نئی جماعت میں منتقل"
+      },
+      "cash": {
+        "close": "{{date}} کا کیش بند: سسٹم {{system}}، گنا گیا {{counted}}"
+      },
+      "approval": {
+        "request": "منظوری کی درخواست: {{action}}",
+        "approve": "منظور کیا: {{action}}",
+        "reject": "مسترد کیا: {{action}}: {{reason}}"
+      },
+      "school": {
+        "update": "اسکول کی تفصیل میں ترمیم ({{name}})"
+      },
+      "settings": {
+        "update": "ترتیبات: لاک دن {{fromDays}} ← {{toDays}}، رعایت حد {{fromLimit}} ← {{toLimit}}"
+      },
+      "user": {
+        "create": "صارف \"{{username}}\" بنایا",
+        "update": "صارف {{name}} میں ترمیم",
+        "enable": "صارف {{name}} فعال کیا",
+        "disable": "صارف {{name}} غیر فعال (لاگ آؤٹ)",
+        "roles": "صارف کے کردار بدلے",
+        "reset": "{{what}} تبدیل کیا",
+        "delete": "صارف \"{{username}}\" حذف کیا"
+      },
+      "other": "{{entity}} پر {{action}}"
+    },
+    "words": {
+      "password": "پاس ورڈ",
+      "PIN": "پن"
+    }
   },
   "settings": {
     "title": "ترتیبات",
