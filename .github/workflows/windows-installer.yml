@@ -127,6 +127,10 @@ jobs:
           New-Item -ItemType Directory -Force installer/output/logs | Out-Null
           Get-ChildItem -Force -Recurse C:\ProgramData\InfrescoSMS -Depth 1 -ErrorAction SilentlyContinue | Select-Object FullName, Length | Format-Table -AutoSize | Out-String -Width 200
           icacls C:\ProgramData\InfrescoSMS\config
+          icacls C:\ProgramData\InfrescoSMS\config\app.env
+          $n = 'C:\Program Files\Infresco SMS\node\node.exe'
+          & $n -e "const f=process.argv[1]; try { console.log('fs read ok, bytes', require('fs').readFileSync(f,'utf8').length) } catch (e) { console.log('fs read FAILED', e.code, e.message) } try { process.loadEnvFile(f); console.log('loadEnvFile ok') } catch (e) { console.log('loadEnvFile FAILED', e.code) }" C:\ProgramData\InfrescoSMS\config\app.env
+          whoami /groups | Select-String -Pattern 'Mandatory|Administrators'
           Copy-Item C:\ProgramData\InfrescoSMS\logs\* installer/output/logs -ErrorAction SilentlyContinue
           foreach ($f in Get-ChildItem installer/output/logs, installer/output/*.log -File -ErrorAction SilentlyContinue) {
             "===== $($f.Name) (last 80 lines)"; Get-Content $f.FullName -Tail 80
