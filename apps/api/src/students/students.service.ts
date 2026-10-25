@@ -18,7 +18,20 @@ import {
   type StudentListItem,
   type StudentListQuery,
 } from '@sms/shared';
-import { and, asc, count, desc, eq, ilike, inArray, isNull } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gt,
+  ilike,
+  inArray,
+  isNull,
+  lte,
+  or,
+  sql,
+} from 'drizzle-orm';
 import type { Actor } from '../common/actor';
 import { AuditService } from '../common/audit.service';
 import { CounterService } from '../common/counter.service';
@@ -27,6 +40,17 @@ import { DB, type Db } from '../db/database.module';
 import { enrollment, guardianStudent, person } from '../db/schema';
 import { withTx, type Tx } from '../db/tx';
 import { SetupService } from '../setup/setup.service';
+
+export interface RosterEntry {
+  enrollmentId: string;
+  studentId: string;
+  admissionNo: string;
+  rollNo: number | null;
+  nameEn: string;
+  nameUr: string | null;
+  joinedOn: string;
+  leftOn: string | null;
+}
 
 const today = () => new Date().toLocaleDateString('en-CA');
 const escapeLike = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
@@ -415,6 +439,38 @@ export class StudentsService {
       }
       return { promoted: current.length };
     });
+  }
+
+  // Enrollments in a section at any point in [from, to]; left_on is the first day away.
+  async sectionRoster(
+    schoolId: string,
+    sectionId: string,
+    from: string,
+    to: string,
+  ): Promise<RosterEntry[]> {
+    return this.db
+      .select({
+        enrollmentId: enrollment.id,
+        studentId: person.id,
+        admissionNo: enrollment.admissionNo,
+        rollNo: enrollment.rollNo,
+        nameEn: person.nameEn,
+        nameUr: person.nameUr,
+        joinedOn: enrollment.joinedOn,
+        leftOn: enrollment.leftOn,
+      })
+      .from(enrollment)
+      .innerJoin(person, eq(person.id, enrollment.studentId))
+      .where(
+        and(
+          eq(enrollment.schoolId, schoolId),
+          eq(enrollment.sectionId, sectionId),
+          isNull(enrollment.deletedAt),
+          lte(enrollment.joinedOn, to),
+          or(isNull(enrollment.leftOn), gt(enrollment.leftOn, from)),
+        ),
+      )
+      .orderBy(sql`${enrollment.rollNo} asc nulls last`, asc(person.nameEn));
   }
 
   private studentWhere(schoolId: string, id: string) {

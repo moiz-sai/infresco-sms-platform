@@ -22,7 +22,9 @@
   "nav": {
     "students": "Students",
     "admission": "New admission",
-    "setup": "Setup"
+    "setup": "Setup",
+    "attendance": "Attendance",
+    "register": "Attendance register"
   },
   "login": {
     "title": "Sign in",
@@ -128,5 +130,40 @@
     "required": "Required",
     "invalid": "Check this field",
     "generic": "Something went wrong"
+  },
+  "attendance": {
+    "title": "Attendance",
+    "register": "Monthly register",
+    "section": "Class & section",
+    "date": "Date",
+    "month": "Month",
+    "save": "Save",
+    "saveHint": "Ctrl+S to save",
+    "keys": "↑↓ move · P A L V set · Space toggles P/A",
+    "status": {
+      "P": "Present",
+      "A": "Absent",
+      "L": "Leave",
+      "V": "Vacation"
+    },
+    "short": {
+      "P": "P",
+      "A": "A",
+      "L": "L",
+      "V": "V"
+    },
+    "unsaved": "{{count}} unsaved changes",
+    "notMarked": "Not saved yet for this day — everyone shows Present until you save.",
+    "locked": "This date is older than {{days}} days. Saving sends the changes to the principal for approval.",
+    "saved": "Attendance saved",
+    "nothingChanged": "No changes to save",
+    "sentForApproval": "Sent to the principal for approval",
+    "empty": "No students in this section on this date",
+    "print": "Print",
+    "total": "Total",
+    "roll": "Roll",
+    "name": "Name",
+    "chooseSection": "Choose a section",
+    "draftRestored": "Unsaved changes restored from this device"
   }
 }

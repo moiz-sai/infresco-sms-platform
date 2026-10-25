@@ -8,6 +8,7 @@ import { CommonModule } from './common/common.module';
 import { ApprovalsModule } from './approvals/approvals.module';
 import { SetupModule } from './setup/setup.module';
 import { StudentsModule } from './students/students.module';
+import { AttendanceModule } from './attendance/attendance.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { StudentsModule } from './students/students.module';
     ApprovalsModule,
     SetupModule,
     StudentsModule,
+    AttendanceModule,
   ],
   controllers: [HealthController],
 })

@@ -59,7 +59,7 @@ pnpm verify
 Then start the app in **two** PowerShell windows, both inside `infresco-sms`:
 ```powershell
 pnpm dev:api      # window 1 — wait for "Nest application successfully started"
-pnpm dev:web      # window 2 — wait for "Local: http://localhost:5173/"
+pnpm dev:web --host   # window 2 — wait for "Local: http://localhost:5173/" and a "Network:" line
 ```
 The first time, Windows Firewall asks about Node.js. Tick **Private networks** and click Allow.
 
@@ -73,16 +73,21 @@ Base
 - [ ] `pnpm verify` ends with `verify passed`
 - [ ] Browser http://localhost:5173/api/health shows `{"status":"ok"}`
 
-Screens on the PC (the developer refines this list when T5 is done)
-- [ ] Login works as `clerk` and as `principal`. A wrong password 5× locks the account for 5 min
-- [ ] English ↔ Urdu toggle: Urdu text renders correctly and the layout mirrors right-to-left
-- [ ] Admit a student with two guardians, then find them in the students list by typing their Urdu name
-- [ ] Mark attendance for a section using only the keyboard (↑↓, P/A/L/V, Ctrl+S)
+Screens on the PC (browser: Edge or Chrome, http://localhost:5173)
+- [ ] Log in as `principal`. Then type a wrong password 5× for `clerk`: the 6th try says the account is locked
+- [ ] Urdu button: the page mirrors right-to-left and the Urdu text is readable (not boxes or question marks)
+- [ ] New admission: student with an Urdu name + 2 guardians, choose class/section, press **Ctrl+Enter** → green message with an admission number
+- [ ] Students: type part of that Urdu name in search → the student is found
+- [ ] Attendance: click the first student row, then press **A**, **L**, **Space** on the keyboard → statuses change; **Ctrl+S** saves (the browser must NOT open a "Save page" dialog)
+- [ ] Switch the Windows keyboard to Urdu (if installed) and repeat: the **P/A/L/V** keys still work
+- [ ] Attendance register → **Print**: the print preview shows A4 **landscape** with only the table (no sidebar)
 
 Phone (same Wi-Fi as the PC)
 - [ ] Run `ipconfig` and note the PC's **IPv4 Address** (e.g. 192.168.1.20)
-- [ ] Phone browser opens `http://<IPv4>:8080/api/health` and shows `{"status":"ok"}`
-- [ ] Phone: log in and mark attendance with the big P/A buttons
+- [ ] Phone browser opens `http://<IPv4>:8080/api/health` → `{"status":"ok"}`
+- [ ] Phone browser opens `http://<IPv4>:5173` → login page; log in as `clerk`
+- [ ] Phone: Attendance → tap the big P/A buttons → **Save** at the bottom → "Attendance saved"
+- [ ] The PC's Attendance page (same section and date, after reload) shows the phone's changes
 
 ### Round 2 (after T10, before the demo)
 Filled in when T10 is done: production build + start script, phone access to the built app, 80 mm and A4 receipt printing, backup and restore script.

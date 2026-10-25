@@ -139,3 +139,24 @@ html[lang="ur"] body {
   font-family: 'Noto Naskh Arabic', 'Inter Variable', sans-serif;
   line-height: 1.9;
 }
+
+/* Month register: A4 landscape, 8 pt (SPEC §T5). Named page so receipts can use their own size later. */
+@page register {
+  size: A4 landscape;
+  margin: 8mm;
+}
+@media print {
+  .register-print {
+    page: register;
+    overflow: visible;
+    font-size: 8pt;
+  }
+  .register-print table {
+    font-size: 8pt;
+  }
+  .register-print th,
+  .register-print td {
+    border-color: #444;
+    padding: 1px 2px;
+  }
+}

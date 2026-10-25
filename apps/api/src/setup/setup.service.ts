@@ -16,7 +16,14 @@ import { and, asc, desc, eq, inArray, isNull, type SQL } from 'drizzle-orm';
 import type { Actor } from '../common/actor';
 import { AuditService } from '../common/audit.service';
 import { DB, type Db } from '../db/database.module';
-import { academicYear, school, schoolClass, section } from '../db/schema';
+import {
+  academicYear,
+  DEFAULT_SCHOOL_SETTINGS,
+  school,
+  schoolClass,
+  section,
+  type SchoolSettings,
+} from '../db/schema';
 import { withTx } from '../db/tx';
 
 export interface SectionInfo {
@@ -56,6 +63,15 @@ export class SetupService {
       .where(eq(school.id, schoolId));
     if (!row) throw notFound('School');
     return row;
+  }
+
+  async getSettings(schoolId: string): Promise<SchoolSettings> {
+    const [row] = await this.db
+      .select({ settings: school.settings })
+      .from(school)
+      .where(eq(school.id, schoolId));
+    if (!row) throw notFound('School');
+    return { ...DEFAULT_SCHOOL_SETTINGS, ...row.settings };
   }
 
   async updateSchool(actor: Actor, input: SchoolUpdate): Promise<School> {

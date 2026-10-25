@@ -20,7 +20,11 @@ describe('T3 auth and RBAC', () => {
   it('principal → 200 on /api/approvals', async () => {
     const principal = await loginAs(app, 'principal');
     const res = await principal.get('/api/approvals').expect(200);
-    expect(res.body).toMatchObject({ items: [], total: 0 });
+    // Other suites may have created requests; only the list shape is T3's concern.
+    expect(res.body).toEqual({
+      items: expect.any(Array) as unknown,
+      total: expect.any(Number) as unknown,
+    });
   });
 
   it('logout → /auth/me 401', async () => {
