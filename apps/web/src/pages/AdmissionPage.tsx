@@ -1,11 +1,12 @@
-import { admitSchema, type AdmitResult } from '@sms/shared'
+import { admitSchema, type AdmitResult, type GuardianSearchResult } from '@sms/shared'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Trash2 } from 'lucide-react'
+import { Link2, Plus, Trash2 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { Field } from '@/components/Field'
+import { GuardianPicker } from '@/components/GuardianPicker'
 import { StudentFieldsForm } from '@/components/StudentFieldsForm'
 import { emptyStudent, fromDraft, type StudentDraft } from '@/lib/student-draft'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,9 @@ import { useClasses, useSections } from '@/lib/setup-queries'
 const RELATIONS = ['father', 'mother', 'guardian'] as const
 
 interface GuardianDraft {
+  // Set when an existing guardian was picked; the name fields are then ignored.
+  existing?: GuardianSearchResult
+  searching?: boolean
   nameEn: string
   nameUr: string
   phone: string
@@ -74,7 +78,13 @@ export function AdmissionPage() {
     const result = validate(admitSchema, {
       student: fromDraft(student),
       // Untouched guardian rows are dropped instead of failing validation.
-      guardians: guardians.filter((g) => g.nameEn.trim()),
+      guardians: guardians
+        .filter((g) => g.existing || g.nameEn.trim())
+        .map((g) =>
+          g.existing
+            ? { guardianId: g.existing.id, relation: g.relation, isPrimary: g.isPrimary }
+            : g,
+        ),
       sectionId,
       rollNo: rollNo || null,
       joinedOn,
@@ -123,35 +133,77 @@ export function AdmissionPage() {
                   ))}
                 </NativeSelect>
               </Field>
-              <Field label={t('student.nameEn')} error={errors[`guardians.${i}.nameEn`]}>
-                <Input
-                  value={g.nameEn}
-                  onChange={(e) => setGuardian(i, { nameEn: e.target.value })}
-                />
-              </Field>
-              <Field label={t('student.nameUr')}>
-                <Input
-                  value={g.nameUr}
-                  dir="rtl"
-                  lang="ur"
-                  className="font-urdu"
-                  onChange={(e) => setGuardian(i, { nameUr: e.target.value })}
-                />
-              </Field>
-              <Field label={t('student.phone')}>
-                <Input
-                  value={g.phone}
-                  inputMode="tel"
-                  onChange={(e) => setGuardian(i, { phone: e.target.value })}
-                />
-              </Field>
-              <Field label={t('admission.cnic')}>
-                <Input
-                  value={g.cnic}
-                  inputMode="numeric"
-                  onChange={(e) => setGuardian(i, { cnic: e.target.value })}
-                />
-              </Field>
+              {g.existing ? (
+                <div className="flex items-center justify-between gap-2 rounded-md border bg-muted/50 px-3 py-2 sm:col-span-2">
+                  <div className="text-sm">
+                    <div className="flex items-center gap-1.5 font-medium">
+                      <Link2 className="size-3.5" />
+                      {name(g.existing.nameEn, g.existing.nameUr)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {t('guardianSearch.linked')}
+                      {g.existing.children.length > 0 &&
+                        ` · ${t('guardianSearch.children', { names: g.existing.children.join(', ') })}`}
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setGuardian(i, { existing: undefined })}
+                  >
+                    {t('guardianSearch.change')}
+                  </Button>
+                </div>
+              ) : g.searching ? (
+                <div className="sm:col-span-2">
+                  <GuardianPicker
+                    onPick={(found) => setGuardian(i, { existing: found, searching: false })}
+                  />
+                </div>
+              ) : (
+                <>
+                  <Field label={t('student.nameEn')} error={errors[`guardians.${i}.nameEn`]}>
+                    <Input
+                      value={g.nameEn}
+                      onChange={(e) => setGuardian(i, { nameEn: e.target.value })}
+                    />
+                  </Field>
+                  <Field label={t('student.nameUr')}>
+                    <Input
+                      value={g.nameUr}
+                      dir="rtl"
+                      lang="ur"
+                      className="font-urdu"
+                      onChange={(e) => setGuardian(i, { nameUr: e.target.value })}
+                    />
+                  </Field>
+                  <Field label={t('student.phone')}>
+                    <Input
+                      value={g.phone}
+                      inputMode="tel"
+                      onChange={(e) => setGuardian(i, { phone: e.target.value })}
+                    />
+                  </Field>
+                  <Field label={t('admission.cnic')}>
+                    <Input
+                      value={g.cnic}
+                      inputMode="numeric"
+                      onChange={(e) => setGuardian(i, { cnic: e.target.value })}
+                    />
+                  </Field>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="self-end"
+                    onClick={() => setGuardian(i, { searching: true })}
+                  >
+                    <Link2 />
+                    {t('guardianSearch.find')}
+                  </Button>
+                </>
+              )}
               <div className="flex items-end justify-between gap-2">
                 <label className="flex items-center gap-2 pb-2 text-sm">
                   <Checkbox

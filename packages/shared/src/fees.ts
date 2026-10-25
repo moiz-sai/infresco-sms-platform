@@ -252,3 +252,38 @@ export function amountInWords(paisa: number): string {
   const words = `${rupeesInWords(rupees)} rupees${p ? ` and ${belowHundred(p)} paisa` : ''} only`;
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
+
+export const discountSchema = z.object({
+  enrollmentId: z.uuid(),
+  headId: z.uuid(),
+  period: periodSchema,
+  amountPaisa: z.coerce.number().int().min(1).max(MAX_PAISA),
+  reason: z.string().trim().min(1).max(300),
+});
+export type DiscountInput = z.infer<typeof discountSchema>;
+
+export const reverseSchema = z.object({
+  reason: z.string().trim().min(1).max(300),
+});
+
+export const cashCloseSchema = z.object({
+  countedTotalPaisa: z.coerce.number().int().min(0).max(MAX_PAISA),
+});
+
+// Result of an action that may need the principal: applied now, or waiting in the inbox.
+export interface ApprovalOutcome {
+  applied: boolean;
+  pendingApprovalId?: string;
+}
+
+export interface CashCloseView {
+  date: string;
+  systemTotalPaisa: number;
+  receiptCount: number;
+  close: {
+    countedTotalPaisa: number;
+    differencePaisa: number;
+    closedByName: string;
+    createdAt: string;
+  } | null;
+}

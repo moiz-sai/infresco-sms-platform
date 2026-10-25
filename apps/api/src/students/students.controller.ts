@@ -12,12 +12,11 @@ import {
 import {
   admitSchema,
   leaveSchema,
-  promoteSchema,
+  guardianSearchSchema,
   studentFieldsSchema,
   studentListQuerySchema,
   type AdmitInput,
   type LeaveInput,
-  type PromoteInput,
   type StudentFields,
   type StudentListQuery,
 } from '@sms/shared';
@@ -78,17 +77,16 @@ export class StudentsController {
   }
 }
 
-@Controller('enrollments')
-export class EnrollmentsController {
+@Controller('guardians')
+export class GuardiansController {
   constructor(private readonly students: StudentsService) {}
 
-  @Post('promote')
-  @HttpCode(200)
-  @RequirePermission('students.edit')
-  promote(
-    @Body(new ZodPipe(promoteSchema)) body: PromoteInput,
+  @Get()
+  @RequirePermission('students.view')
+  search(
+    @Query(new ZodPipe(guardianSearchSchema)) q: { q: string },
     @CurrentActor() actor: Actor,
   ) {
-    return this.students.promote(actor, body);
+    return this.students.searchGuardians(actor.schoolId, q.q);
   }
 }

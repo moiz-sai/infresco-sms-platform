@@ -1,7 +1,9 @@
-import type { School } from '@sms/shared'
+import type { ApprovalItem, Page, School } from '@sms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Banknote,
+  BadgeCheck,
+  Calculator,
   CalendarDays,
   ClipboardCheck,
   Coins,
@@ -41,6 +43,14 @@ const NAV = [
   },
   { to: '/fees/collect', key: 'nav.feeCollect', perm: 'fees.collect', icon: Banknote, end: true },
   { to: '/fees/setup', key: 'nav.feeSetup', perm: 'fees.configure', icon: Coins, end: true },
+  {
+    to: '/fees/cash-close',
+    key: 'nav.cashClose',
+    perm: 'fees.collect',
+    icon: Calculator,
+    end: true,
+  },
+  { to: '/approvals', key: 'nav.approvals', perm: 'approvals.decide', icon: BadgeCheck, end: true },
   { to: '/setup', key: 'nav.setup', perm: 'settings.manage', icon: Settings, end: false },
 ] as const
 
@@ -52,6 +62,13 @@ export function Shell() {
   const navigate = useNavigate()
   const [switchOpen, setSwitchOpen] = useState(false)
   const school = useQuery({ queryKey: ['school'], queryFn: () => api.get<School>('/school') })
+  const canApprove = !!me?.permissions.includes('approvals.decide')
+  const pending = useQuery({
+    queryKey: ['approvals-count'],
+    queryFn: () => api.get<Page<ApprovalItem>>('/approvals', { status: 'pending', size: 1 }),
+    enabled: canApprove,
+    refetchInterval: 60_000,
+  })
   const logout = useMutation({
     mutationFn: () => api.post('/auth/logout'),
     onSettled: () => {
@@ -75,6 +92,11 @@ export function Shell() {
     >
       <n.icon className="size-4" />
       {t(n.key)}
+      {n.to === '/approvals' && !!pending.data?.total && (
+        <span className="ms-auto rounded-full bg-red-600 px-1.5 text-xs font-semibold text-white">
+          {pending.data.total}
+        </span>
+      )}
     </NavLink>
   ))
 

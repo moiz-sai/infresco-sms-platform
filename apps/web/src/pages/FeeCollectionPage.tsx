@@ -8,11 +8,12 @@ import {
   type StudentListItem,
 } from '@sms/shared'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Search, Users } from 'lucide-react'
+import { Percent, Search, Users } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { toast } from 'sonner'
+import { DiscountDialog } from '@/components/DiscountDialog'
 import { Field } from '@/components/Field'
 import { StatementTable } from '@/components/StatementTable'
 import { Button } from '@/components/ui/button'
@@ -20,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { api } from '@/lib/api'
+import { useCan } from '@/lib/auth'
 import { submitOnCtrlEnter, validate } from '@/lib/form'
 import { useLocalName } from '@/lib/i18n-helpers'
 import { paisaToRupees, rupeesToPaisa } from '@/lib/money'
@@ -173,6 +175,8 @@ function CollectForm({
   const [method, setMethod] = useState<PaymentMethod>('cash')
   const [format, setFormat] = useState<ReceiptFormat>(receiptFormat.get())
   const [error, setError] = useState('')
+  const can = useCan()
+  const [discounting, setDiscounting] = useState(false)
 
   const pay = useMutation({
     mutationFn: (body: unknown) =>
@@ -216,8 +220,19 @@ function CollectForm({
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
             <CardTitle>{t('fees.dues')}</CardTitle>
+            {can('fees.discount') && s.dues.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                onClick={() => setDiscounting(true)}
+              >
+                <Percent />
+                {t('discount.button')}
+              </Button>
+            )}
           </CardHeader>
           <CardContent className="grid gap-1 text-sm">
             {s.dues.length === 0 && <p className="text-muted-foreground">{t('fees.noDues')}</p>}
@@ -320,6 +335,12 @@ function CollectForm({
         </Card>
       )}
 
+      <DiscountDialog
+        enrollmentId={s.student.enrollmentId}
+        dues={s.dues}
+        open={discounting}
+        onOpenChange={setDiscounting}
+      />
       {s.entries.length > 0 && (
         <div className="grid gap-2">
           <h3 className="font-medium">{t('fees.recent')}</h3>

@@ -11,6 +11,9 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  attendanceDateSchema,
+  cashCloseSchema,
+  discountSchema,
   feeHeadSchema,
   feePlanQuerySchema,
   feePlanSchema,
@@ -18,6 +21,8 @@ import {
   feeStructureSchema,
   paymentSchema,
   postChargesSchema,
+  reverseSchema,
+  type DiscountInput,
   type FeeHeadInput,
   type FeePlanInput,
   type FeeStructureInput,
@@ -116,7 +121,7 @@ export class FeePlansController {
   @RequirePermission(CONFIGURE)
   save(
     @Body(new ZodPipe(feePlanSchema)) body: FeePlanInput,
-    @CurrentActor() actor: Actor,
+    @CurrentActor() actor: Actor & { userId: string },
   ) {
     return this.fees.savePlan(actor, body);
   }
@@ -165,5 +170,44 @@ export class FeesController {
   @RequirePermission(VIEW)
   receipt(@Param('id', id) receiptId: string, @CurrentActor() actor: Actor) {
     return this.fees.receipt(actor.schoolId, receiptId);
+  }
+
+  @Post('discounts')
+  @RequirePermission('fees.discount')
+  discount(
+    @Body(new ZodPipe(discountSchema)) body: DiscountInput,
+    @CurrentActor() actor: Actor & { userId: string },
+  ) {
+    return this.fees.discount(actor, body);
+  }
+
+  @Post('receipts/:id/reverse')
+  @HttpCode(200)
+  @RequirePermission('fees.reverse.request')
+  reverse(
+    @Param('id', id) receiptId: string,
+    @Body(new ZodPipe(reverseSchema)) body: { reason: string },
+    @CurrentActor() actor: Actor & { userId: string },
+  ) {
+    return this.fees.reverse(actor, receiptId, body.reason);
+  }
+
+  @Get('cash-close/:date')
+  @RequirePermission(VIEW)
+  cashClose(
+    @Param('date', new ZodPipe(attendanceDateSchema)) date: string,
+    @CurrentActor() actor: Actor,
+  ) {
+    return this.fees.cashCloseView(actor.schoolId, date);
+  }
+
+  @Post('cash-close/:date')
+  @RequirePermission(VIEW)
+  closeCash(
+    @Param('date', new ZodPipe(attendanceDateSchema)) date: string,
+    @Body(new ZodPipe(cashCloseSchema)) body: { countedTotalPaisa: number },
+    @CurrentActor() actor: Actor & { userId: string },
+  ) {
+    return this.fees.closeCash(actor, date, body.countedTotalPaisa);
   }
 }

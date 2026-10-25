@@ -26,7 +26,9 @@
     "attendance": "حاضری",
     "register": "حاضری رجسٹر",
     "feeCollect": "فیس وصولی",
-    "feeSetup": "فیس سیٹ اپ"
+    "feeSetup": "فیس سیٹ اپ",
+    "approvals": "منظوریاں",
+    "cashClose": "کیش بندش"
   },
   "login": {
     "title": "سائن اِن",
@@ -243,5 +245,69 @@
       "printAgain": "پرنٹ",
       "totalPaid": "کل ادا شدہ"
     }
+  },
+  "approvals": {
+    "title": "منظوریاں",
+    "pending": "زیر التوا",
+    "approved": "منظور شدہ",
+    "rejected": "مسترد",
+    "empty": "یہاں کچھ نہیں",
+    "approve": "منظور کریں",
+    "reject": "مسترد کریں",
+    "rejectReason": "مسترد کرنے کی وجہ",
+    "requestedBy": "درخواست: {{name}}",
+    "decidedBy": "{{status}}: {{name}}",
+    "approvedToast": "منظور اور نافذ ہو گیا",
+    "rejectedToast": "مسترد کر دیا گیا",
+    "actions": {
+      "fees.discount": "رعایت",
+      "fees.reverse": "رسید منسوخی",
+      "attendance.edit_old": "پرانی حاضری میں تبدیلی",
+      "students.promote": "بقایا فیس کے ساتھ ترقی"
+    },
+    "planDiscount": "مستقل ماہانہ رعایت (پلان)",
+    "changes": "{{count}} تبدیلیاں",
+    "studentsOwing": "{{count}} طلبہ کی فیس بقایا",
+    "reason": "وجہ"
+  },
+  "discount": {
+    "title": "رعایت دیں",
+    "button": "رعایت",
+    "line": "فیس کی مد",
+    "amount": "رعایت (روپے)",
+    "reason": "وجہ",
+    "applied": "رعایت لاگو ہو گئی",
+    "sent": "حد سے زیادہ — منظوری کے لیے پرنسپل کو بھیج دیا گیا"
+  },
+  "reverse": {
+    "button": "رسید منسوخ کریں",
+    "title": "کیا یہ رسید منسوخ کرنی ہے؟",
+    "reason": "وجہ",
+    "applied": "رسید منسوخ ہو گئی",
+    "sent": "منظوری کے لیے پرنسپل کو بھیج دیا گیا"
+  },
+  "cashClose": {
+    "title": "کیش بندش",
+    "date": "تاریخ",
+    "system": "وصول شدہ نقد (سسٹم)",
+    "receipts": "{{count}} نقد رسیدیں",
+    "counted": "گنی گئی نقدی (روپے)",
+    "close": "کیش بند کریں",
+    "closed": "بند",
+    "difference": "فرق",
+    "closedBy": "{{name}} نے {{time}} پر بند کیا",
+    "done": "کیش بند ہو گیا",
+    "hint": "اس تاریخ کی بندش حتمی ہے؛ آج مزید نقد وصولی بند ہو جائے گی۔"
+  },
+  "guardianSearch": {
+    "find": "موجودہ سرپرست تلاش کریں",
+    "placeholder": "نام، فون یا شناختی کارڈ…",
+    "none": "کوئی سرپرست نہیں ملا",
+    "linked": "موجودہ سرپرست",
+    "change": "تبدیل کریں",
+    "children": "بچے: {{names}}"
+  },
+  "promote": {
+    "pending": "{{promoted}} ترقی یافتہ · {{count}} منظوری کے منتظر (بقایا فیس)"
   }
 }

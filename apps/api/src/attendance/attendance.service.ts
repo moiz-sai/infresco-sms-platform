@@ -1,4 +1,10 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  OnModuleInit,
+} from '@nestjs/common';
 import type {
   AttendanceDay,
   AttendanceEntry,
@@ -28,7 +34,7 @@ const daysAgo = (n: number) => {
 };
 
 @Injectable()
-export class AttendanceService {
+export class AttendanceService implements OnModuleInit {
   constructor(
     @Inject(DB) private readonly db: Db,
     private readonly audit: AuditService,
@@ -37,6 +43,45 @@ export class AttendanceService {
     private readonly students: StudentsService,
     private readonly approvals: ApprovalsService,
   ) {}
+
+  onModuleInit() {
+    this.approvals.registerHandler(
+      'attendance.edit_old',
+      async (tx, request) => {
+        const p = request.payload as {
+          sectionId: string;
+          date: string;
+          entries: AttendanceEntry[];
+        };
+        const roster = await this.students.sectionRoster(
+          request.schoolId,
+          p.sectionId,
+          p.date,
+          p.date,
+        );
+        const inSection = new Set(roster.map((r) => r.enrollmentId));
+        if (p.entries.some((e) => !inSection.has(e.enrollmentId))) {
+          throw new ConflictException({
+            code: 'STALE',
+            message:
+              'A student in this request is no longer in that section on that date',
+          });
+        }
+        // The clerk who asked is recorded as the marker; the approval itself is audited separately.
+        await this.applyEntries(
+          tx,
+          {
+            schoolId: request.schoolId,
+            userId: request.requestedBy,
+            deviceId: null,
+          },
+          p.sectionId,
+          p.date,
+          p.entries,
+        );
+      },
+    );
+  }
 
   private async lockInfo(schoolId: string, date: string) {
     const { attendanceLockDays } = await this.setup.getSettings(schoolId);
@@ -120,7 +165,7 @@ export class AttendanceService {
         message: 'Attendance cannot be marked for a future date',
       });
     }
-    await this.setup.getSection(actor.schoolId, sectionId);
+    const section = await this.setup.getSection(actor.schoolId, sectionId);
     // Last entry per student wins.
     const entries = [
       ...new Map(input.map((e) => [e.enrollmentId, e])).values(),
@@ -161,6 +206,11 @@ export class AttendanceService {
         sectionId,
         date,
         entries: changes,
+        display: {
+          sectionName: `${section.classNameEn} — ${section.name}`,
+          date,
+          count: changes.length,
+        },
       }),
     );
     return {

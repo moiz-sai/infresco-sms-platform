@@ -205,3 +205,4 @@ Inno Setup installer and Windows services, restore wizard, status page, licensin
 - Z3 Admission form: "find existing guardian" (search name/phone/CNIC) links the new student to that guardian so siblings work. → T7
 - Z4 Student profile Attendance tab: year attendance % + P/A/L/V counts + per-month list. → T8
 - Z5 Promote page: from-section → to-section, students listed and all ticked; untick to keep behind; one tx via POST /enrollments/promote. → T9 (no exams module, so pass/fail is chosen by hand)
+- Z6 Promotion with unpaid fees: students with balance > 0 need approval (`students.promote`) when the clerk promotes; others move at once; principal's promotions apply directly (Z1). On every promotion the old enrollment's open (period, head) amounts move to the new enrollment as paired `adjust` entries (−X old "Carried forward to …", +X new "Carried forward from …"), so arrears show and are paid oldest-first. → T7

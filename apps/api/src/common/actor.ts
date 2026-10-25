@@ -4,6 +4,8 @@ export interface Actor {
   schoolId: string;
   userId: string | null;
   deviceId: string | null;
+  // SPEC §Z1: holders of approvals.decide act directly instead of creating approval requests.
+  canApprove?: boolean;
 }
 
 declare module 'express-session' {

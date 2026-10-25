@@ -49,7 +49,12 @@ export class AuthGuard implements CanActivate {
       });
     }
     const { deviceId } = await this.school.get();
-    req.actor = { schoolId: access.user.schoolId, userId, deviceId };
+    req.actor = {
+      schoolId: access.user.schoolId,
+      userId,
+      deviceId,
+      canApprove: access.can('approvals.decide'),
+    };
 
     const requirement = this.reflector.getAllAndOverride<
       PermissionRequirement | undefined

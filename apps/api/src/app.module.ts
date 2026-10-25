@@ -11,6 +11,7 @@ import { SetupModule } from './setup/setup.module';
 import { StudentsModule } from './students/students.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { FeesModule } from './fees/fees.module';
+import { PromotionModule } from './promotion/promotion.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { FeesModule } from './fees/fees.module';
     StudentsModule,
     AttendanceModule,
     FeesModule,
+    PromotionModule,
   ],
   controllers: [HealthController],
 })

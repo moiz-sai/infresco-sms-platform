@@ -2,6 +2,8 @@ import { createBrowserRouter, Navigate } from 'react-router'
 import { RequireAuth, RequirePermission } from '@/components/RequireAuth'
 import { Shell } from '@/components/Shell'
 import { AdmissionPage } from '@/pages/AdmissionPage'
+import { ApprovalsPage } from '@/pages/ApprovalsPage'
+import { CashClosePage } from '@/pages/CashClosePage'
 import { AttendancePage } from '@/pages/AttendancePage'
 import { AttendanceRegisterPage } from '@/pages/AttendanceRegisterPage'
 import { FeeCollectionPage } from '@/pages/FeeCollectionPage'
@@ -46,11 +48,18 @@ export const router = createBrowserRouter([
           },
           {
             element: <RequirePermission perm="fees.collect" />,
-            children: [{ path: 'fees/collect', element: <FeeCollectionPage /> }],
+            children: [
+              { path: 'fees/collect', element: <FeeCollectionPage /> },
+              { path: 'fees/cash-close', element: <CashClosePage /> },
+            ],
           },
           {
             element: <RequirePermission perm="fees.configure" />,
             children: [{ path: 'fees/setup', element: <FeeSetupPage /> }],
+          },
+          {
+            element: <RequirePermission perm="approvals.decide" />,
+            children: [{ path: 'approvals', element: <ApprovalsPage /> }],
           },
           {
             element: <RequirePermission perm="settings.manage" />,

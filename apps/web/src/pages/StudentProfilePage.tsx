@@ -6,11 +6,12 @@ import {
   type StudentDetail,
 } from '@sms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Banknote, Pencil, UserMinus } from 'lucide-react'
+import { Banknote, Pencil, Percent, UserMinus } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { toast } from 'sonner'
+import { DiscountDialog } from '@/components/DiscountDialog'
 import { Field } from '@/components/Field'
 import { StatementTable } from '@/components/StatementTable'
 import { StudentFieldsForm } from '@/components/StudentFieldsForm'
@@ -296,6 +297,8 @@ function LeaveDialog({
 
 function FeesTab({ enrollmentId }: { enrollmentId: string }) {
   const { t } = useTranslation()
+  const can = useCan()
+  const [discounting, setDiscounting] = useState(false)
   const statement = useQuery({
     queryKey: ['statement', enrollmentId],
     queryFn: () => api.get<Statement>(`/fees/students/${enrollmentId}/statement`),
@@ -314,13 +317,34 @@ function FeesTab({ enrollmentId }: { enrollmentId: string }) {
             {t('fees.advance')}: {formatPaisa(s.advancePaisa)}
           </span>
         )}
-        <Button size="sm" className="ms-auto" asChild>
+        {can('fees.discount') && s.dues.length > 0 && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="ms-auto"
+            onClick={() => setDiscounting(true)}
+          >
+            <Percent />
+            {t('discount.button')}
+          </Button>
+        )}
+        <Button
+          size="sm"
+          className={s.dues.length > 0 && can('fees.discount') ? '' : 'ms-auto'}
+          asChild
+        >
           <Link to={`/fees/collect?enrollmentId=${enrollmentId}`}>
             <Banknote />
             {t('fees.collectFee')}
           </Link>
         </Button>
       </div>
+      <DiscountDialog
+        enrollmentId={enrollmentId}
+        dues={s.dues}
+        open={discounting}
+        onOpenChange={setDiscounting}
+      />
       {s.entries.length > 0 ? (
         <StatementTable entries={s.entries} />
       ) : (

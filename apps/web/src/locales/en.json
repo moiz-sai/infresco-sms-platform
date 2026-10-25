@@ -26,7 +26,9 @@
     "attendance": "Attendance",
     "register": "Attendance register",
     "feeCollect": "Fee collection",
-    "feeSetup": "Fee setup"
+    "feeSetup": "Fee setup",
+    "approvals": "Approvals",
+    "cashClose": "Cash close"
   },
   "login": {
     "title": "Sign in",
@@ -243,5 +245,69 @@
       "printAgain": "Print",
       "totalPaid": "Total paid"
     }
+  },
+  "approvals": {
+    "title": "Approvals",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "empty": "Nothing here",
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectReason": "Reason for rejecting",
+    "requestedBy": "Requested by {{name}}",
+    "decidedBy": "{{status}} by {{name}}",
+    "approvedToast": "Approved and applied",
+    "rejectedToast": "Rejected",
+    "actions": {
+      "fees.discount": "Discount",
+      "fees.reverse": "Cancel receipt",
+      "attendance.edit_old": "Old attendance change",
+      "students.promote": "Promotion with unpaid fees"
+    },
+    "planDiscount": "Standing monthly discount (plan)",
+    "changes": "{{count}} change(s)",
+    "studentsOwing": "{{count}} student(s) owing fees",
+    "reason": "Reason"
+  },
+  "discount": {
+    "title": "Give discount",
+    "button": "Discount",
+    "line": "Fee line",
+    "amount": "Discount (Rs)",
+    "reason": "Reason",
+    "applied": "Discount applied",
+    "sent": "Above the limit — sent to the principal for approval"
+  },
+  "reverse": {
+    "button": "Cancel receipt",
+    "title": "Cancel this receipt?",
+    "reason": "Reason",
+    "applied": "Receipt cancelled",
+    "sent": "Sent to the principal for approval"
+  },
+  "cashClose": {
+    "title": "Cash close",
+    "date": "Date",
+    "system": "Cash received (system)",
+    "receipts": "{{count}} cash receipts",
+    "counted": "Cash counted (Rs)",
+    "close": "Close cash",
+    "closed": "Closed",
+    "difference": "Difference",
+    "closedBy": "Closed by {{name}} at {{time}}",
+    "done": "Cash closed",
+    "hint": "Closing is final for this date; later cash payments today are blocked."
+  },
+  "guardianSearch": {
+    "find": "Find existing guardian",
+    "placeholder": "Name, phone or CNIC…",
+    "none": "No guardian found",
+    "linked": "Existing guardian",
+    "change": "Change",
+    "children": "Children: {{names}}"
+  },
+  "promote": {
+    "pending": "{{promoted}} promoted · {{count}} waiting for approval (unpaid fees)"
   }
 }

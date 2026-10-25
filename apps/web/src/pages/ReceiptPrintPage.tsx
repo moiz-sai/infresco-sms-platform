@@ -1,11 +1,23 @@
-import { amountInWords, formatPaisa, type ReceiptView } from '@sms/shared'
-import { useQuery } from '@tanstack/react-query'
-import { Printer } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import { amountInWords, formatPaisa, type ApprovalOutcome, type ReceiptView } from '@sms/shared'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Ban, Printer } from 'lucide-react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams, useSearchParams } from 'react-router'
+import { toast } from 'sonner'
+import { Field } from '@/components/Field'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { api } from '@/lib/api'
+import { useCan } from '@/lib/auth'
+import { submitOnCtrlEnter } from '@/lib/form'
 import { cn } from '@/lib/utils'
 
 export function ReceiptPrintPage() {
@@ -59,6 +71,7 @@ export function ReceiptPrintPage() {
           <Printer />
           {t('fees.print.printAgain')}
         </Button>
+        <CancelReceipt receiptId={r.id} cancelled={r.cancelled} />
       </div>
       <div ref={contentRef}>
         {format === 'a4' ? (
@@ -189,5 +202,56 @@ function ReceiptBody({ r, copy, wide }: { r: ReceiptView; copy?: string; wide?: 
         {row(t('fees.print.receivedBy'), r.receivedBy)}
       </div>
     </section>
+  )
+}
+
+function CancelReceipt({ receiptId, cancelled }: { receiptId: string; cancelled: boolean }) {
+  const { t } = useTranslation()
+  const can = useCan()
+  const qc = useQueryClient()
+  const [open, setOpen] = useState(false)
+  const [reason, setReason] = useState('')
+  const reverse = useMutation({
+    mutationFn: () => api.post<ApprovalOutcome>(`/fees/receipts/${receiptId}/reverse`, { reason }),
+    onSuccess: (res) => {
+      void qc.invalidateQueries({ queryKey: ['receipt', receiptId] })
+      void qc.invalidateQueries({ queryKey: ['statement'] })
+      toast[res.applied ? 'success' : 'info'](t(res.applied ? 'reverse.applied' : 'reverse.sent'))
+      setOpen(false)
+    },
+  })
+  if (cancelled || !can('fees.reverse.request')) return null
+  function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (reason.trim()) reverse.mutate()
+  }
+  return (
+    <>
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+        <Ban />
+        {t('reverse.button')}
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{t('reverse.title')}</DialogTitle>
+          </DialogHeader>
+          <form className="grid gap-4" onSubmit={onSubmit} onKeyDown={submitOnCtrlEnter}>
+            <Field label={t('reverse.reason')}>
+              <Input value={reason} autoFocus onChange={(e) => setReason(e.target.value)} />
+            </Field>
+            <DialogFooter>
+              <Button
+                type="submit"
+                variant="destructive"
+                disabled={reverse.isPending || !reason.trim()}
+              >
+                {t('reverse.button')}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

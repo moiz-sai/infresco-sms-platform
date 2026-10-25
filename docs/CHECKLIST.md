@@ -47,5 +47,18 @@ Start: `pnpm dev:api` + `pnpm dev:web`, open http://localhost:5173
 - [ ] Student profile → Fees tab: statement with running balance; receipt numbers open the receipt
 - [ ] Urdu: collection and setup screens mirror correctly
 
+## T7 Approvals, discounts, cancellations, cash close
+First run `pnpm --filter api db:migrate` (new migration).
+- [ ] As clerk: New admission → guardian row → "Find existing guardian" → search a father's name → pick → the new child shows that father's other children
+- [ ] Fee collection for that child: "Siblings" lists the brother/sister with their balance
+- [ ] As clerk: Discount ≤ Rs 1,000 → "Discount applied" at once; Discount > Rs 1,000 → "sent to the principal"
+- [ ] As clerk: open a receipt → "Cancel receipt" + reason → "Sent to the principal"
+- [ ] Clerk sidebar has no Approvals and no Setup
+- [ ] Switch to principal: sidebar "Approvals" shows a red count. Approve the discount → dues drop. Approve the cancellation → receipt shows CANCELLED, balance goes back up
+- [ ] Reject a request with a reason → it moves to the Rejected tab with the reason
+- [ ] As principal: Discount > Rs 1,000 applies at once (no request)
+- [ ] Cash close for YESTERDAY: system total shown → enter counted → difference shown; closing again is not possible. (Closing TODAY blocks cash payments for the rest of today — only do that at end of day)
+- [ ] Urdu: Approvals and Cash close mirror correctly
+
 ## Windows PC
 See docs/WINDOWS_TEST.md (separate guide for the Windows tester; round 1 after T5, round 2 after T10).

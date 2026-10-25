@@ -107,6 +107,8 @@ export const approvalAction = pgEnum('approval_action', [
   'fees.discount',
   'fees.reverse',
   'attendance.edit_old',
+  // SPEC §Z6: promoting students who still owe fees
+  'students.promote',
 ]);
 export const approvalStatus = pgEnum('approval_status', [
   'pending',

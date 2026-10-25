@@ -61,6 +61,7 @@ export interface EnrollmentInfo {
   fatherName: string | null;
   classNameEn: string;
   classNameUr: string | null;
+  sectionId: string;
   sectionName: string;
   status: 'active' | 'left' | 'promoted';
 }
@@ -397,61 +398,124 @@ export class StudentsService {
     });
   }
 
-  async promote(actor: Actor, input: PromoteInput) {
+  // Active enrollments of these students in a section (for promotion pre-checks).
+  async activeIn(schoolId: string, sectionId: string, studentIds: string[]) {
+    if (studentIds.length === 0) return [];
+    return this.db
+      .select({ enrollmentId: enrollment.id, studentId: enrollment.studentId })
+      .from(enrollment)
+      .where(
+        and(
+          eq(enrollment.schoolId, schoolId),
+          eq(enrollment.sectionId, sectionId),
+          eq(enrollment.status, 'active'),
+          inArray(enrollment.studentId, studentIds),
+        ),
+      );
+  }
+
+  // Core of promotion, run inside the caller's tx (PromotionService adds fee carry-forward).
+  async promoteTx(tx: Tx, actor: Actor, input: PromoteInput) {
     const [from, to] = await Promise.all([
       this.setup.getSection(actor.schoolId, input.fromSectionId),
       this.setup.getSection(actor.schoolId, input.toSectionId),
     ]);
+    if (from.id === to.id) {
+      throw new BadRequestException({
+        code: 'SAME_SECTION',
+        message: 'Choose a different section to promote to',
+      });
+    }
     const studentIds = [...new Set(input.studentIds)];
     const now = today();
     const joinedOn = to.yearStartsOn > now ? to.yearStartsOn : now;
 
-    return withTx(this.db, async (tx) => {
-      const current = await tx
-        .select()
-        .from(enrollment)
-        .where(
-          and(
-            eq(enrollment.sectionId, from.id),
-            eq(enrollment.status, 'active'),
-            inArray(enrollment.studentId, studentIds),
-          ),
-        )
-        .for('update');
-      if (current.length !== studentIds.length) {
-        const found = new Set(current.map((e) => e.studentId));
-        throw new BadRequestException({
-          code: 'NOT_IN_SECTION',
-          message: `Not active in the source section: ${studentIds.filter((s) => !found.has(s)).join(', ')}`,
-        });
-      }
-      for (const e of current) {
-        await tx
-          .update(enrollment)
-          .set({ status: 'promoted', leftOn: now })
-          .where(eq(enrollment.id, e.id));
-        const [next] = await tx
-          .insert(enrollment)
-          .values({
-            schoolId: actor.schoolId,
-            studentId: e.studentId,
-            sectionId: to.id,
-            yearId: to.yearId,
-            rollNo: e.rollNo,
-            admissionNo: e.admissionNo,
-            joinedOn,
-          })
-          .returning({ id: enrollment.id });
-        await this.audit.record(tx, actor, {
-          action: 'enrollment.promote',
-          entity: 'enrollment',
-          entityId: next.id,
-          before: { enrollmentId: e.id, sectionId: from.id },
-          after: { enrollmentId: next.id, sectionId: to.id },
-        });
-      }
-      return { promoted: current.length };
-    });
+    const current = await tx
+      .select()
+      .from(enrollment)
+      .where(
+        and(
+          eq(enrollment.sectionId, from.id),
+          eq(enrollment.status, 'active'),
+          inArray(enrollment.studentId, studentIds),
+        ),
+      )
+      .for('update');
+    if (current.length !== studentIds.length) {
+      const found = new Set(current.map((e) => e.studentId));
+      throw new BadRequestException({
+        code: 'NOT_IN_SECTION',
+        message: `Not active in the source section: ${studentIds.filter((s) => !found.has(s)).join(', ')}`,
+      });
+    }
+    const moves: {
+      studentId: string;
+      fromEnrollmentId: string;
+      toEnrollmentId: string;
+    }[] = [];
+    for (const e of current) {
+      await tx
+        .update(enrollment)
+        .set({ status: 'promoted', leftOn: now })
+        .where(eq(enrollment.id, e.id));
+      const [next] = await tx
+        .insert(enrollment)
+        .values({
+          schoolId: actor.schoolId,
+          studentId: e.studentId,
+          sectionId: to.id,
+          yearId: to.yearId,
+          rollNo: e.rollNo,
+          admissionNo: e.admissionNo,
+          joinedOn,
+        })
+        .returning({ id: enrollment.id });
+      await this.audit.record(tx, actor, {
+        action: 'enrollment.promote',
+        entity: 'enrollment',
+        entityId: next.id,
+        before: { enrollmentId: e.id, sectionId: from.id },
+        after: { enrollmentId: next.id, sectionId: to.id },
+      });
+      moves.push({
+        studentId: e.studentId,
+        fromEnrollmentId: e.id,
+        toEnrollmentId: next.id,
+      });
+    }
+    return {
+      moves,
+      fromLabel: `${from.classNameEn} — ${from.name} (${from.yearLabel})`,
+      toLabel: `${to.classNameEn} — ${to.name} (${to.yearLabel})`,
+    };
+  }
+
+  async searchGuardians(schoolId: string, q: string) {
+    const term = normalizeUrdu(q);
+    const rows = await this.db
+      .select({
+        id: person.id,
+        nameEn: person.nameEn,
+        nameUr: person.nameUr,
+        phone: person.phone,
+        cnic: person.cnic,
+        children: sql<string[]>`coalesce((
+          select array_agg(c.name_en order by c.name_en)
+          from guardian_student gs join person c on c.id = gs.student_id
+          where gs.guardian_id = "person"."id" and gs.deleted_at is null), '{}')`,
+      })
+      .from(person)
+      .where(
+        and(
+          eq(person.schoolId, schoolId),
+          eq(person.kind, 'guardian'),
+          isNull(person.deletedAt),
+          ilike(person.searchText, `%${escapeLike(term)}%`),
+        ),
+      )
+      .orderBy(asc(person.nameEn))
+      .limit(10);
+    return rows;
   }
 
   // Enrollments in a section at any point in [from, to]; left_on is the first day away.
@@ -553,6 +617,7 @@ export class StudentsService {
             status: r.status,
             classNameEn: s?.classNameEn ?? '',
             classNameUr: s?.classNameUr ?? null,
+            sectionId: r.sectionId,
             sectionName: s?.name ?? '',
           },
         ];

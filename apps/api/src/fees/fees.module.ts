@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ApprovalsModule } from '../approvals/approvals.module';
 import { AuthModule } from '../auth/auth.module';
 import { SetupModule } from '../setup/setup.module';
 import { StudentsModule } from '../students/students.module';
@@ -12,7 +13,7 @@ import { FeesScheduler } from './fees.scheduler';
 import { FeesService } from './fees.service';
 
 @Module({
-  imports: [AuthModule, SetupModule, StudentsModule],
+  imports: [AuthModule, ApprovalsModule, SetupModule, StudentsModule],
   controllers: [
     FeeHeadsController,
     FeeStructuresController,

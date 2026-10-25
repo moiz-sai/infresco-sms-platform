@@ -4,10 +4,15 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   ADVANCE_HEAD,
+  formatPaisa,
+  type ApprovalOutcome,
+  type CashCloseView,
+  type DiscountInput,
   type DueLine,
   type FeeHead,
   type FeeHeadInput,
@@ -19,6 +24,7 @@ import {
   type Statement,
 } from '@sms/shared';
 import { and, asc, eq, inArray, isNull, ne, sql } from 'drizzle-orm';
+import { ApprovalsService } from '../approvals/approvals.service';
 import { AccessService } from '../auth/access.service';
 import type { Actor } from '../common/actor';
 import { AuditService } from '../common/audit.service';
@@ -27,6 +33,7 @@ import { HlcService } from '../common/hlc.service';
 import { Env } from '../config/env';
 import { DB, type Db } from '../db/database.module';
 import {
+  cashClose,
   feeHead,
   feeStructure,
   ledgerEntry,
@@ -48,6 +55,17 @@ const lastDayOf = (period: string) => {
 const notFound = (what: string) =>
   new NotFoundException({ code: 'NOT_FOUND', message: `${what} not found` });
 const CHUNK = 1000;
+const today = () => localDate(new Date());
+const dayRange = (date: string) => {
+  const start = new Date(`${date}T00:00:00`);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+  return [start, end] as const;
+};
+const lockEnrollment = (tx: Tx, enrollmentId: string) =>
+  tx.execute(
+    sql`select pg_advisory_xact_lock(hashtext(${`fees:${enrollmentId}`}))`,
+  );
 
 function applyPlan(
   amount: number,
@@ -60,7 +78,7 @@ function applyPlan(
 }
 
 @Injectable()
-export class FeesService {
+export class FeesService implements OnModuleInit {
   constructor(
     @Inject(DB) private readonly db: Db,
     private readonly audit: AuditService,
@@ -69,8 +87,44 @@ export class FeesService {
     private readonly setup: SetupService,
     private readonly students: StudentsService,
     private readonly access: AccessService,
+    private readonly approvals: ApprovalsService,
     private readonly config: ConfigService<Env, true>,
   ) {}
+
+  onModuleInit() {
+    this.approvals.registerHandler(
+      'fees.discount',
+      async (tx, request, decider) => {
+        const p = request.payload as Record<string, unknown> & {
+          kind?: string;
+        };
+        if (p.kind === 'plan') {
+          await this.applyPlan(tx, decider, {
+            enrollmentId: p.enrollmentId as string,
+            headId: p.headId as string,
+            discountType: p.discountType as 'pct' | 'fixed',
+            value: p.value as number,
+            reason: (p.reason as string | null) ?? null,
+          });
+        } else {
+          await this.applyDiscount(tx, decider, {
+            enrollmentId: p.enrollmentId as string,
+            headId: p.headId as string,
+            period: p.period as string,
+            amountPaisa: p.amountPaisa as number,
+            reason: p.reason as string,
+          });
+        }
+      },
+    );
+    this.approvals.registerHandler(
+      'fees.reverse',
+      async (tx, request, decider) => {
+        const p = request.payload as { receiptId: string; reason: string };
+        await this.applyReversal(tx, decider, p.receiptId, p.reason);
+      },
+    );
+  }
 
   // ---------- heads
 
@@ -274,29 +328,80 @@ export class FeesService {
       );
   }
 
-  savePlan(actor: Actor, input: FeePlanInput) {
-    return withTx(this.db, async (tx) => {
-      const [row] = await tx
-        .insert(studentFeePlan)
-        .values({ ...input, schoolId: actor.schoolId })
-        .onConflictDoUpdate({
-          target: [studentFeePlan.enrollmentId, studentFeePlan.headId],
-          set: {
-            discountType: input.discountType,
-            value: input.value,
-            reason: input.reason ?? null,
-            deletedAt: null,
-            updatedAt: new Date(),
-          },
-        })
-        .returning();
-      await this.audit.record(tx, actor, {
-        action: 'fee_plan.save',
-        entity: 'student_fee_plan',
-        entityId: row.id,
-        after: input,
-      });
-      return row;
+  // SPEC §Z2: plans whose monthly discount exceeds the threshold need approval (principal applies directly).
+  async savePlan(
+    actor: UserActor,
+    input: FeePlanInput,
+  ): Promise<ApprovalOutcome> {
+    const student = await this.studentOrThrow(
+      actor.schoolId,
+      input.enrollmentId,
+    );
+    const sec = await this.setup.getSection(actor.schoolId, student.sectionId);
+    const [structure] = await this.db
+      .select({ amountPaisa: feeStructure.amountPaisa })
+      .from(feeStructure)
+      .where(
+        and(
+          eq(feeStructure.classId, sec.classId),
+          eq(feeStructure.yearId, sec.yearId),
+          eq(feeStructure.headId, input.headId),
+        ),
+      );
+    const fee = structure?.amountPaisa ?? 0;
+    const discount =
+      input.discountType === 'pct'
+        ? Math.round((fee * input.value) / 100)
+        : Math.min(fee, input.value);
+    const { discountThresholdPaisa } = await this.setup.getSettings(
+      actor.schoolId,
+    );
+    if (actor.canApprove || discount <= discountThresholdPaisa) {
+      await withTx(this.db, (tx) => this.applyPlan(tx, actor, input));
+      return { applied: true };
+    }
+    const headCode = (await this.listHeads(actor.schoolId)).find(
+      (h) => h.id === input.headId,
+    )?.code;
+    const { id } = await withTx(this.db, (tx) =>
+      this.approvals.request(tx, actor, 'fees.discount', {
+        kind: 'plan',
+        ...input,
+        reason: input.reason ?? null,
+        display: {
+          kind: 'plan',
+          studentNameEn: student.nameEn,
+          studentNameUr: student.nameUr,
+          admissionNo: student.admissionNo,
+          headCode,
+          amountPaisa: discount,
+          reason: input.reason ?? null,
+        },
+      }),
+    );
+    return { applied: false, pendingApprovalId: id };
+  }
+
+  private async applyPlan(tx: Tx, actor: Actor, input: FeePlanInput) {
+    const [row] = await tx
+      .insert(studentFeePlan)
+      .values({ ...input, schoolId: actor.schoolId })
+      .onConflictDoUpdate({
+        target: [studentFeePlan.enrollmentId, studentFeePlan.headId],
+        set: {
+          discountType: input.discountType,
+          value: input.value,
+          reason: input.reason ?? null,
+          deletedAt: null,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    await this.audit.record(tx, actor, {
+      action: 'fee_plan.save',
+      entity: 'student_fee_plan',
+      entityId: row.id,
+      after: input,
     });
   }
 
@@ -342,41 +447,40 @@ export class FeesService {
       );
       const yearIds = [...new Set(enrollments.map((e) => e.yearId))];
       const enrollmentIds = enrollments.map((e) => e.enrollmentId);
-      const [structures, plans, oneOff] = await Promise.all([
-        tx
-          .select()
-          .from(feeStructure)
-          .where(
-            and(
-              eq(feeStructure.schoolId, actor.schoolId),
-              inArray(feeStructure.yearId, yearIds),
-              isNull(feeStructure.deletedAt),
-            ),
+      // Sequential: these run on the transaction's single connection.
+      const structures = await tx
+        .select()
+        .from(feeStructure)
+        .where(
+          and(
+            eq(feeStructure.schoolId, actor.schoolId),
+            inArray(feeStructure.yearId, yearIds),
+            isNull(feeStructure.deletedAt),
           ),
-        tx
-          .select()
-          .from(studentFeePlan)
-          .where(
-            and(
-              inArray(studentFeePlan.enrollmentId, enrollmentIds),
-              isNull(studentFeePlan.deletedAt),
-            ),
+        );
+      const plans = await tx
+        .select()
+        .from(studentFeePlan)
+        .where(
+          and(
+            inArray(studentFeePlan.enrollmentId, enrollmentIds),
+            isNull(studentFeePlan.deletedAt),
           ),
-        tx
-          .select({
-            enrollmentId: ledgerEntry.enrollmentId,
-            headId: ledgerEntry.headId,
-          })
-          .from(ledgerEntry)
-          .innerJoin(feeStructure, eq(feeStructure.headId, ledgerEntry.headId))
-          .where(
-            and(
-              inArray(ledgerEntry.enrollmentId, enrollmentIds),
-              eq(ledgerEntry.type, 'charge'),
-              ne(feeStructure.frequency, 'monthly'),
-            ),
+        );
+      const oneOff = await tx
+        .select({
+          enrollmentId: ledgerEntry.enrollmentId,
+          headId: ledgerEntry.headId,
+        })
+        .from(ledgerEntry)
+        .innerJoin(feeStructure, eq(feeStructure.headId, ledgerEntry.headId))
+        .where(
+          and(
+            inArray(ledgerEntry.enrollmentId, enrollmentIds),
+            eq(ledgerEntry.type, 'charge'),
+            ne(feeStructure.frequency, 'monthly'),
           ),
-      ]);
+        );
       const planOf = new Map(
         plans.map((p) => [`${p.enrollmentId}:${p.headId}`, p]),
       );
@@ -473,7 +577,7 @@ export class FeesService {
       .orderBy(asc(ledgerEntry.period), asc(feeHead.priority));
   }
 
-  private async balances(enrollmentIds: string[]) {
+  async balances(enrollmentIds: string[]) {
     if (enrollmentIds.length === 0) return new Map<string, number>();
     const rows = await this.db
       .select({
@@ -552,12 +656,20 @@ export class FeesService {
       await this.students.enrollmentInfo(actor.schoolId, [input.enrollmentId])
     ).get(input.enrollmentId);
     if (!student) throw notFound('Enrollment');
+    if (
+      input.method === 'cash' &&
+      (await this.closedOn(actor.schoolId, today()))
+    ) {
+      throw new ConflictException({
+        code: 'CASH_CLOSED',
+        message:
+          "Today's cash is already closed; record it as bank/online or tomorrow",
+      });
+    }
     const prefix = this.config.get('DEVICE_PREFIX', { infer: true });
 
     return withTx(this.db, async (tx) => {
-      await tx.execute(
-        sql`select pg_advisory_xact_lock(hashtext(${`fees:${input.enrollmentId}`}))`,
-      );
+      await lockEnrollment(tx, input.enrollmentId);
       const dues = await this.dues(tx, input.enrollmentId);
       let remaining = input.amountPaisa;
       const lines: { headId: string; period: string; amount: number }[] = [];
@@ -690,5 +802,353 @@ export class FeesService {
         amountPaisa: -l.amountPaisa,
       })),
     };
+  }
+
+  // ---------- discounts, reversal, cash close, carry-forward (T7)
+
+  private async studentOrThrow(schoolId: string, enrollmentId: string) {
+    const s = (
+      await this.students.enrollmentInfo(schoolId, [enrollmentId])
+    ).get(enrollmentId);
+    if (!s) throw notFound('Enrollment');
+    return s;
+  }
+
+  async discount(
+    actor: UserActor,
+    input: DiscountInput,
+  ): Promise<ApprovalOutcome> {
+    const student = await this.studentOrThrow(
+      actor.schoolId,
+      input.enrollmentId,
+    );
+    const line = (await this.dues(this.db, input.enrollmentId)).find(
+      (d) => d.period === input.period && d.headId === input.headId,
+    );
+    if (!line || input.amountPaisa > line.amountPaisa) {
+      throw new BadRequestException({
+        code: 'EXCEEDS_DUE',
+        message: `Discount is more than the ${formatPaisa(line?.amountPaisa ?? 0)} due for that fee`,
+      });
+    }
+    const { discountThresholdPaisa } = await this.setup.getSettings(
+      actor.schoolId,
+    );
+    if (actor.canApprove || input.amountPaisa <= discountThresholdPaisa) {
+      await withTx(this.db, (tx) => this.applyDiscount(tx, actor, input));
+      return { applied: true };
+    }
+    const { id } = await withTx(this.db, (tx) =>
+      this.approvals.request(tx, actor, 'fees.discount', {
+        kind: 'adjust',
+        ...input,
+        display: {
+          kind: 'adjust',
+          studentNameEn: student.nameEn,
+          studentNameUr: student.nameUr,
+          admissionNo: student.admissionNo,
+          headCode: line.headCode,
+          period: input.period,
+          amountPaisa: input.amountPaisa,
+          reason: input.reason,
+        },
+      }),
+    );
+    return { applied: false, pendingApprovalId: id };
+  }
+
+  // Re-checks the due under the enrollment lock: an approval may run long after the request.
+  private async applyDiscount(tx: Tx, actor: Actor, input: DiscountInput) {
+    await lockEnrollment(tx, input.enrollmentId);
+    const line = (await this.dues(tx, input.enrollmentId)).find(
+      (d) => d.period === input.period && d.headId === input.headId,
+    );
+    if (!line || input.amountPaisa > line.amountPaisa) {
+      throw new ConflictException({
+        code: 'STALE',
+        message: `Only ${formatPaisa(line?.amountPaisa ?? 0)} is still due for that fee`,
+      });
+    }
+    const [row] = await tx
+      .insert(ledgerEntry)
+      .values({
+        schoolId: actor.schoolId,
+        enrollmentId: input.enrollmentId,
+        headId: input.headId,
+        period: input.period,
+        type: 'adjust',
+        amountPaisa: -input.amountPaisa,
+        note: input.reason,
+        createdBy: actor.userId,
+        deviceId: actor.deviceId,
+        hlc: this.hlc.now(),
+      })
+      .returning({ id: ledgerEntry.id });
+    await this.audit.record(tx, actor, {
+      action: 'fees.discount',
+      entity: 'ledger_entry',
+      entityId: row.id,
+      after: input,
+    });
+  }
+
+  async reverse(
+    actor: UserActor,
+    receiptId: string,
+    reason: string,
+  ): Promise<ApprovalOutcome> {
+    const view = await this.receipt(actor.schoolId, receiptId);
+    if (view.cancelled) {
+      throw new ConflictException({
+        code: 'ALREADY_REVERSED',
+        message: `Receipt ${view.receiptNo} is already cancelled`,
+      });
+    }
+    if (actor.canApprove) {
+      await withTx(this.db, (tx) =>
+        this.applyReversal(tx, actor, receiptId, reason),
+      );
+      return { applied: true };
+    }
+    const { id } = await withTx(this.db, (tx) =>
+      this.approvals.request(tx, actor, 'fees.reverse', {
+        receiptId,
+        reason,
+        display: {
+          receiptNo: view.receiptNo,
+          amountPaisa: view.totalPaisa,
+          studentNameEn: view.student.nameEn,
+          studentNameUr: view.student.nameUr,
+          admissionNo: view.student.admissionNo,
+          reason,
+        },
+      }),
+    );
+    return { applied: false, pendingApprovalId: id };
+  }
+
+  // reversal = −(original) per payment line; reverses_id is UNIQUE, so a payment can be reversed once.
+  private async applyReversal(
+    tx: Tx,
+    actor: Actor,
+    receiptId: string,
+    reason: string,
+  ) {
+    const lines = await tx
+      .select()
+      .from(ledgerEntry)
+      .where(
+        and(
+          eq(ledgerEntry.schoolId, actor.schoolId),
+          eq(ledgerEntry.receiptId, receiptId),
+          eq(ledgerEntry.type, 'payment'),
+        ),
+      );
+    if (lines.length === 0) throw notFound('Receipt');
+    await lockEnrollment(tx, lines[0].enrollmentId);
+    const [done] = await tx
+      .select({ id: ledgerEntry.id })
+      .from(ledgerEntry)
+      .where(
+        inArray(
+          ledgerEntry.reversesId,
+          lines.map((l) => l.id),
+        ),
+      )
+      .limit(1);
+    if (done) {
+      throw new ConflictException({
+        code: 'ALREADY_REVERSED',
+        message: 'This receipt is already cancelled',
+      });
+    }
+    await tx.insert(ledgerEntry).values(
+      lines.map((l) => ({
+        schoolId: actor.schoolId,
+        enrollmentId: l.enrollmentId,
+        headId: l.headId,
+        period: l.period,
+        type: 'reversal' as const,
+        amountPaisa: -l.amountPaisa,
+        receiptId,
+        reversesId: l.id,
+        note: reason,
+        createdBy: actor.userId,
+        deviceId: actor.deviceId,
+        hlc: this.hlc.now(),
+      })),
+    );
+    await this.audit.record(tx, actor, {
+      action: 'fees.reverse',
+      entity: 'receipt',
+      entityId: receiptId,
+      after: { reason, lines: lines.length },
+    });
+  }
+
+  private async closedOn(schoolId: string, date: string) {
+    const [row] = await this.db
+      .select({ id: cashClose.id })
+      .from(cashClose)
+      .where(and(eq(cashClose.schoolId, schoolId), eq(cashClose.date, date)));
+    return !!row;
+  }
+
+  // Cash receipts taken that day, excluding cancelled ones.
+  private async cashTotal(executor: Db | Tx, schoolId: string, date: string) {
+    const [start, end] = dayRange(date);
+    const [row] = await executor
+      .select({
+        total: sql<number>`coalesce(sum(${receipt.totalPaisa}), 0)`.mapWith(
+          Number,
+        ),
+        count: sql<number>`count(*)`.mapWith(Number),
+      })
+      .from(receipt)
+      .where(
+        and(
+          eq(receipt.schoolId, schoolId),
+          eq(receipt.method, 'cash'),
+          sql`${receipt.createdAt} >= ${start} and ${receipt.createdAt} < ${end}`,
+          sql`not exists (
+            select 1 from ledger_entry rev
+            join ledger_entry pay on pay.id = rev.reverses_id
+            where pay.receipt_id = ${receipt.id})`,
+        ),
+      );
+    return row;
+  }
+
+  async cashCloseView(schoolId: string, date: string): Promise<CashCloseView> {
+    const [{ total, count: receiptCount }, [close]] = await Promise.all([
+      this.cashTotal(this.db, schoolId, date),
+      this.db
+        .select()
+        .from(cashClose)
+        .where(and(eq(cashClose.schoolId, schoolId), eq(cashClose.date, date))),
+    ]);
+    const names = close
+      ? await this.access.displayNames([close.closedBy])
+      : new Map<string, string>();
+    return {
+      date,
+      // Once closed, report the figure that was closed against.
+      systemTotalPaisa: close ? close.systemTotalPaisa : total,
+      receiptCount,
+      close: close
+        ? {
+            countedTotalPaisa: close.countedTotalPaisa,
+            differencePaisa: close.differencePaisa,
+            closedByName: names.get(close.closedBy) ?? '',
+            createdAt: close.createdAt.toISOString(),
+          }
+        : null,
+    };
+  }
+
+  async closeCash(actor: UserActor, date: string, countedTotalPaisa: number) {
+    if (date > today()) {
+      throw new BadRequestException({
+        code: 'FUTURE_DATE',
+        message: 'Cannot close a future date',
+      });
+    }
+    await withTx(this.db, async (tx) => {
+      await tx.execute(
+        sql`select pg_advisory_xact_lock(hashtext(${`cash-close:${actor.schoolId}:${date}`}))`,
+      );
+      const [existing] = await tx
+        .select({ id: cashClose.id })
+        .from(cashClose)
+        .where(
+          and(eq(cashClose.schoolId, actor.schoolId), eq(cashClose.date, date)),
+        );
+      if (existing) {
+        throw new ConflictException({
+          code: 'ALREADY_CLOSED',
+          message: `Cash for ${date} is already closed`,
+        });
+      }
+      const { total } = await this.cashTotal(tx, actor.schoolId, date);
+      const [row] = await tx
+        .insert(cashClose)
+        .values({
+          schoolId: actor.schoolId,
+          date,
+          systemTotalPaisa: total,
+          countedTotalPaisa,
+          differencePaisa: countedTotalPaisa - total,
+          closedBy: actor.userId,
+        })
+        .returning({ id: cashClose.id });
+      await this.audit.record(tx, actor, {
+        action: 'cash.close',
+        entity: 'cash_close',
+        entityId: row.id,
+        after: { date, systemTotalPaisa: total, countedTotalPaisa },
+      });
+    });
+    return this.cashCloseView(actor.schoolId, date);
+  }
+
+  // SPEC §Z6: move every open (period, head) amount of the old enrollment to the new one.
+  async carryForward(
+    tx: Tx,
+    actor: Actor,
+    fromEnrollmentId: string,
+    toEnrollmentId: string,
+    fromLabel: string,
+    toLabel: string,
+  ) {
+    await lockEnrollment(tx, fromEnrollmentId);
+    const open = await tx
+      .select({
+        period: ledgerEntry.period,
+        headId: ledgerEntry.headId,
+        total: sql<number>`sum(${ledgerEntry.amountPaisa})`.mapWith(Number),
+      })
+      .from(ledgerEntry)
+      .where(eq(ledgerEntry.enrollmentId, fromEnrollmentId))
+      .groupBy(ledgerEntry.period, ledgerEntry.headId)
+      .having(sql`sum(${ledgerEntry.amountPaisa}) <> 0`);
+    if (open.length === 0) return;
+    const base = {
+      schoolId: actor.schoolId,
+      type: 'adjust' as const,
+      createdBy: actor.userId,
+      deviceId: actor.deviceId,
+    };
+    await tx.insert(ledgerEntry).values(
+      open.flatMap((o) => [
+        {
+          ...base,
+          enrollmentId: fromEnrollmentId,
+          headId: o.headId,
+          period: o.period,
+          amountPaisa: -o.total,
+          note: `Carried forward to ${toLabel}`,
+          hlc: this.hlc.now(),
+        },
+        {
+          ...base,
+          enrollmentId: toEnrollmentId,
+          headId: o.headId,
+          period: o.period,
+          amountPaisa: o.total,
+          note: `Carried forward from ${fromLabel}`,
+          hlc: this.hlc.now(),
+        },
+      ]),
+    );
+    await this.audit.record(tx, actor, {
+      action: 'fees.carry_forward',
+      entity: 'enrollment',
+      entityId: toEnrollmentId,
+      after: {
+        fromEnrollmentId,
+        lines: open.length,
+        totalPaisa: open.reduce((s, o) => s + o.total, 0),
+      },
+    });
   }
 }

@@ -129,3 +129,22 @@ export interface AdmitResult {
   enrollmentId: string;
   admissionNo: string;
 }
+
+export const guardianSearchSchema = z.object({
+  q: z.string().trim().min(1).max(100),
+});
+
+export interface GuardianSearchResult {
+  id: string;
+  nameEn: string;
+  nameUr: string | null;
+  phone: string | null;
+  cnic: string | null;
+  children: string[];
+}
+
+export interface PromoteResult {
+  promoted: number;
+  pendingApprovalId?: string;
+  pendingCount: number;
+}
