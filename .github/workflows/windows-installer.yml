@@ -120,13 +120,23 @@ jobs:
           if (-not (Test-Path C:\ProgramData\InfrescoSMS\pgdata\PG_VERSION)) { throw 'data was deleted' }
           'All installer checks passed'
 
-      - name: Logs (on failure)
+      - name: Show and collect logs (on failure)
+        if: failure()
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force installer/output/logs | Out-Null
+          Copy-Item C:\ProgramData\InfrescoSMS\logs\* installer/output/logs -ErrorAction SilentlyContinue
+          foreach ($f in Get-ChildItem installer/output/logs, installer/output/*.log -File -ErrorAction SilentlyContinue) {
+            "===== $($f.Name) (last 80 lines)"; Get-Content $f.FullName -Tail 80
+          }
+
+      - name: Upload logs (on failure)
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: installer-logs
           path: |
-            C:\ProgramData\InfrescoSMS\logs
+            installer/output/logs
             installer/output/*.log
 
       - uses: actions/upload-artifact@v4
