@@ -125,6 +125,8 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force installer/output/logs | Out-Null
+          Get-ChildItem -Force -Recurse C:\ProgramData\InfrescoSMS -Depth 1 -ErrorAction SilentlyContinue | Select-Object FullName, Length | Format-Table -AutoSize | Out-String -Width 200
+          icacls C:\ProgramData\InfrescoSMS\config
           Copy-Item C:\ProgramData\InfrescoSMS\logs\* installer/output/logs -ErrorAction SilentlyContinue
           foreach ($f in Get-ChildItem installer/output/logs, installer/output/*.log -File -ErrorAction SilentlyContinue) {
             "===== $($f.Name) (last 80 lines)"; Get-Content $f.FullName -Tail 80

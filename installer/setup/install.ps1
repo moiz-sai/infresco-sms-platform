@@ -77,6 +77,11 @@ try {
     Remove-Item Env:PGPASSWORD
 
     if ($isNew) { Write-Config $cfg }
+    if (-not (Test-Path -LiteralPath $ConfigFile)) {
+        Get-ChildItem -Force $ConfigDir | Format-Table -AutoSize | Out-String | Write-Host
+        & icacls.exe $ConfigDir | Write-Host
+        throw "Settings file was not created: $ConfigFile"
+    }
 
     # ---------- schema, school, users (and demo data)
     $env:SMS_ENV_FILE = $ConfigFile
