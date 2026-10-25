@@ -53,10 +53,12 @@ function Read-Config {
 }
 
 # Settings hold passwords: only Administrators and SYSTEM may read them (the services run as SYSTEM).
+# The folder gets the restricted ACL and the file inherits it ((OI)(CI) flags are folder-only).
 function Write-Config($cfg) {
+    Invoke-Native 'icacls.exe' @($ConfigDir, '/inheritance:r', '/grant:r', '*S-1-5-32-544:(OI)(CI)F', '*S-1-5-18:(OI)(CI)F', '/Q')
     $text = ($cfg.Keys | ForEach-Object { "$_=$($cfg[$_])" }) -join "`r`n"
     [IO.File]::WriteAllText($ConfigFile, $text + "`r`n", (New-Object Text.UTF8Encoding $false))
-    Invoke-Native 'icacls.exe' @($ConfigDir, '/inheritance:r', '/grant:r', '*S-1-5-32-544:(OI)(CI)F', '*S-1-5-18:(OI)(CI)F', '/T', '/Q')
+    Invoke-Native 'icacls.exe' @($ConfigFile, '/reset', '/Q')
 }
 
 function Get-LanIPs {
