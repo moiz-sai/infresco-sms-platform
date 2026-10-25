@@ -82,5 +82,12 @@ First run `pnpm --filter api db:migrate` (new migration).
 - [x] Urdu prints: register (A4 landscape) and defaulters list
 - [ ] Promote: pick from-section and to-section → everyone ticked, owing amounts in red; untick → only ticked students move (clerk + owing students → Approvals is covered by the automated Z6 test; try it once by hand)
 
+## T10 Demo data, production start, backups
+- [x] `pnpm --filter api db:seed-demo` → 300 students, receipts, attendance, 2 pending approvals; a second run does nothing (agent, on the test DB)
+- [x] Production build served by the API: phone-size browser at http://<PC IP>:<port> → login → attendance → Save (agent, headless)
+- [x] Every page fits a 390 px phone screen with demo data, English and Urdu (agent; fixed attendance/promote overflow)
+- [x] backup.ps1 → file in backups/, only the newest N kept; restore.ps1 lists it and restores into a new database; refuses the live one (agent, pwsh on Linux)
+- [ ] On your PC: run `pnpm --filter api db:seed-demo` on sms_dev, then `pwsh scripts/start.ps1` or the Windows `start.cmd`, and click through the demo as principal
+
 ## Windows PC
-See docs/WINDOWS_TEST.md (separate guide for the Windows tester; round 1 now (covers T4–T9), round 2 after T10).
+See docs/WINDOWS_TEST.md (separate guide for the Windows tester; rounds 1 and 2 are both due now).

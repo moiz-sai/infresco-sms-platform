@@ -99,7 +99,7 @@ describe('T8 dashboard, users, audit, settings', () => {
 
     const mid = await dashboard();
     expect(mid.month.expectedPaisa).toBeGreaterThan(before.month.expectedPaisa);
-    expect(mid.absentees.map((a) => a.enrollmentId)).toContain(enrollmentId);
+    expect(mid.absentCount).toBe(before.absentCount + 1);
     expect(mid.enrollment.total).toBe(before.enrollment.total + 1);
     expect(mid.enrollment.girls).toBe(before.enrollment.girls + 1);
     const cls = mid.enrollment.classes.find((c) =>
@@ -120,22 +120,26 @@ describe('T8 dashboard, users, audit, settings', () => {
   });
 
   it('defaulters list: owing 2 months, filtered by minMonths', async () => {
-    const two = (
-      await clerk
-        .get('/api/fees/defaulters')
-        .query({ minMonths: 2 })
-        .expect(200)
-    ).body as Page<Defaulter>;
-    const me = two.items.find((d) => d.enrollmentId === enrollmentId)!;
+    // Demo data may hold hundreds of defaulters, so read every page.
+    const all = async (minMonths: number) => {
+      const items: Defaulter[] = [];
+      for (let page = 1; ; page++) {
+        const res = (
+          await clerk
+            .get('/api/fees/defaulters')
+            .query({ minMonths, page, size: 100 })
+            .expect(200)
+        ).body as Page<Defaulter>;
+        items.push(...res.items);
+        if (items.length >= res.total || res.items.length === 0) return items;
+      }
+    };
+    const me = (await all(2)).find((d) => d.enrollmentId === enrollmentId)!;
     expect(me.months).toBe(2);
     expect(me.oldestPeriod).toBe(prevPeriod());
-    const three = (
-      await clerk
-        .get('/api/fees/defaulters')
-        .query({ minMonths: 3 })
-        .expect(200)
-    ).body as Page<Defaulter>;
-    expect(three.items.map((d) => d.enrollmentId)).not.toContain(enrollmentId);
+    expect((await all(3)).map((d) => d.enrollmentId)).not.toContain(
+      enrollmentId,
+    );
   });
 
   it('Z4 attendance summary counts the year', async () => {

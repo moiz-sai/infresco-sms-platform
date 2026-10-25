@@ -128,7 +128,7 @@ function Candidates({ fromId, toId }: { fromId: string; toId: string }) {
         />
         <span>{t('promote.count', { selected: selected.length, total: rows.length })}</span>
       </div>
-      <ul className="divide-y rounded-lg border">
+      <ul className="min-w-0 divide-y rounded-lg border">
         {rows.map((r) => (
           <li key={r.studentId}>
             <label className="flex cursor-pointer items-center gap-3 px-3 py-2">

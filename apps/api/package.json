@@ -23,6 +23,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "ts-node --transpile-only src/db/migrate.ts",
     "db:seed": "ts-node --transpile-only src/db/seed.ts",
+    "db:seed-demo": "ts-node --transpile-only src/db/seed-demo.ts",
     "db:reset-test": "ts-node --transpile-only src/db/reset-test.ts"
   },
   "dependencies": {
@@ -31,6 +32,7 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/schedule": "^6.1.3",
+    "@nestjs/serve-static": "^5.0.5",
     "@node-rs/argon2": "^2.2.2",
     "@sms/shared": "workspace:*",
     "connect-pg-simple": "^10.0.0",

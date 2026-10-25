@@ -221,7 +221,7 @@ function AttendanceGrid({ sectionId, date }: { sectionId: string; date: string }
             </span>
           </div>
 
-          <div className="divide-y rounded-lg border" role="grid">
+          <div className="min-w-0 divide-y rounded-lg border" role="grid">
             {rows.map((r, i) => {
               const status = statusOf(r.enrollmentId, r.status)
               const changed = !!draft[r.enrollmentId] && draft[r.enrollmentId].status !== r.status

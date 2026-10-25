@@ -53,7 +53,9 @@ export interface Dashboard {
   attendanceByClass: ClassRate[];
   // School-wide % per day over the last 30 days (days nobody marked are left out)
   attendanceTrend: { date: string; pct: number }[];
+  // First 50 by name lookup; absentCount is the full number
   absentees: Absentee[];
+  absentCount: number;
   defaulters: { count: number; totalPaisa: number };
   pendingApprovals: number;
   lastCashClose: { date: string; differencePaisa: number } | null;

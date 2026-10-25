@@ -68,7 +68,8 @@ describe('T2 schema and seed', () => {
         (select count(*)::int from user_account where username in ('principal', 'clerk')) as users,
         (select count(*)::int from user_role r join user_account u on u.id = r.user_id
           where u.username in ('principal', 'clerk') and r.deleted_at is null) as grants,
-        (select count(*)::int from section where name in ('A', 'B')) as sections`);
+        (select count(*)::int from section s join academic_year y on y.id = s.year_id
+          where y.is_current and s.name in ('A', 'B')) as sections`);
     expect(rows[0]).toEqual({ users: 2, grants: 2, sections: 10 });
   });
 

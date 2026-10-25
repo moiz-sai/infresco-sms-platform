@@ -74,7 +74,7 @@ export function DashboardPage() {
           label={t('dashboard.attendanceToday')}
           value={marked ? `${marked.pct}%` : t('app.none')}
         >
-          <span>{t('dashboard.absentCount', { count: d.absentees.length })}</span>
+          <span>{t('dashboard.absentCount', { count: d.absentCount })}</span>
         </StatCard>
         <StatCard
           label={t('dashboard.defaulters')}

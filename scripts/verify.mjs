@@ -19,6 +19,7 @@ const steps = [
   ['migrate from zero', 'pnpm --filter api db:migrate'],
   ['seed #1', 'pnpm --filter api db:seed'],
   ['seed #2 (idempotent)', 'pnpm --filter api db:seed'],
+  ['seed-demo (runs, then refuses a second run)', 'pnpm --filter api db:seed-demo && pnpm --filter api db:seed-demo'],
   ['unit tests', 'pnpm --filter api test'],
   ['e2e tests (all tasks)', 'pnpm --filter api test:e2e'],
 ];
@@ -51,7 +52,18 @@ async function smokeProd() {
       );
       if (res) {
         const body = await res.json();
-        return body.status === 'ok' ? null : JSON.stringify(body);
+        if (body.status !== 'ok') return JSON.stringify(body);
+        // Production serves the web app too: deep links get index.html, /api stays JSON.
+        for (const path of ['/', '/students/new']) {
+          const page = await fetch(`http://localhost:8090${path}`);
+          const html = await page.text();
+          if (!html.includes('<div id="root">')) return `${path} did not serve the web app`;
+        }
+        const missing = await fetch('http://localhost:8090/api/nope');
+        if (missing.status !== 404 || !(await missing.text()).includes('NOT_FOUND')) {
+          return '/api/nope should be a JSON 404';
+        }
+        return null;
       }
     }
     return out || 'no response from :8090';
@@ -76,5 +88,5 @@ for (const [name, cmd] of steps) {
 }
 const smoke = await smokeProd();
 if (smoke) fail('prod boot + /api/health', smoke);
-console.log('✓ prod boot + /api/health');
+console.log('✓ prod boot + /api/health + web app served');
 console.log(`verify passed in ${((Date.now() - started) / 1000).toFixed(0)}s`);

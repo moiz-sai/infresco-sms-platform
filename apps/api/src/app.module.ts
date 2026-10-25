@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { validateEnv } from './config/env';
@@ -14,6 +17,18 @@ import { FeesModule } from './fees/fees.module';
 import { PromotionModule } from './promotion/promotion.module';
 import { AuditModule } from './audit/audit.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+
+// Production: the API also serves the built web app (SPA fallback to index.html; /api excluded).
+// Same relative path from src/ (dev, tests) and dist/ (built).
+const WEB_DIST = join(__dirname, '..', '..', 'web', 'dist');
+const webApp = existsSync(join(WEB_DIST, 'index.html'))
+  ? [
+      ServeStaticModule.forRoot({
+        rootPath: WEB_DIST,
+        exclude: ['/api/{*path}'],
+      }),
+    ]
+  : [];
 
 @Module({
   imports: [
@@ -34,6 +49,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     PromotionModule,
     AuditModule,
     DashboardModule,
+    ...webApp,
   ],
   controllers: [HealthController],
 })

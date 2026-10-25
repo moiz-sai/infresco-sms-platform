@@ -181,6 +181,7 @@ export class DashboardService {
         classNameUr: i.classNameUr,
         sectionName: i.sectionName,
       })),
+      absentCount: absentIds.length,
       defaulters: {
         count: owing.length,
         totalPaisa: owing.reduce((a, b) => a + b, 0),

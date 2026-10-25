@@ -6,7 +6,7 @@ Do **Part 1 once**. For each **test round**, do Part 2, then that round's checks
 | Round | When | What gets tested |
 |---|---|---|
 | 1 | Now (after T9) | Install, login, students, attendance from a phone, fee collection and receipts, approvals, dashboard |
-| 2 | After T10 | Production build, receipt printing, backups (before the demo) |
+| 2 | Now (after T10) | Demo data, production start script, phone on the built app, receipt printing, backup and restore |
 
 ---
 
@@ -99,7 +99,46 @@ Phone (same Wi-Fi as the PC)
 - [ ] The PC's Attendance page (same section and date, after reload) shows the phone's changes
 
 ### Round 2 (after T10, before the demo)
-Filled in when T10 is done: production build + start script, phone access to the built app, 80 mm and A4 receipt printing, backup and restore script.
+Do Part 2 first (`pnpm verify` now takes about 90 s because it also builds demo data). Then close both `pnpm dev:...` windows: this round uses the real start script, not the developer servers.
+
+Demo data
+- [ ] `pnpm --filter api db:seed-demo` ends with `demo data complete` (about a minute). Running it again says `demo data already present`
+  - It adds 300 students to the `sms_dev` database. If that database already has 100+ students it does nothing.
+
+Start like the school will
+- [ ] In File Explorer open `infresco-sms\scripts` and double-click **start.cmd**. The first start builds the app (a few minutes). It ends with:
+  `Backup saved: ...`, `This PC: http://localhost:8080` and a `Phones: http://<IPv4>:8080` line
+- [ ] Windows Firewall asks about Node.js the first time: tick **Private networks**, Allow
+- [ ] Browser http://localhost:8080 (port **8080**, not 5173) → login page. Log in as `principal` → Dashboard with about 300 students, numbers and charts
+- [ ] Close the start window, double-click **start.cmd** again → starts quickly (no build), data is still there
+
+Phone on the built app
+- [ ] Phone browser opens the `Phones:` address from the start window → login as `clerk` → Attendance → choose a class → tap big **P/A** buttons → **Save** → "Attendance saved". Nothing on the screen is cut off at the sides
+- [ ] Phone: switch to Urdu (اردو) → the page mirrors and fits the screen
+
+Printing (connect the school's printers if you have them)
+- [ ] Fee collection → find a student → **Ctrl+Enter** → the Windows print dialog opens with the receipt
+- [ ] 80 mm receipt printer: prints one narrow receipt, nothing cut off, Urdu name readable
+- [ ] Choose **A4 (2 copies)** and pay again → A4 printer: office copy + parent copy with a cut line on one page
+- [ ] Switch to Urdu and print a receipt → labels and the amount in words are Urdu
+- [ ] Attendance register → Print → A4 landscape. Defaulters → Print → table only
+
+Backup and restore
+- [ ] Double-click **backup.cmd** → `Backup saved: ...\backups\sms-<date>.dump`
+- [ ] In PowerShell inside `infresco-sms`:
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File scripts\restore.ps1 -File (Get-ChildItem backups\*.dump | Select-Object -Last 1).FullName
+  ```
+  → `Backup OK: 25 tables with data`
+- [ ] Restore into a test copy (the live database is never touched):
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File scripts\restore.ps1 -File (Get-ChildItem backups\*.dump | Select-Object -Last 1).FullName -Into sms_restore_check
+  ```
+  → `Restored into database 'sms_restore_check'`. Then remove the copy:
+  ```powershell
+  & "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -c "DROP DATABASE sms_restore_check"
+  ```
+- [ ] Every start makes a backup; only the newest 14 are kept in `backups\`
 
 ## Part 4 — Reporting
 
@@ -121,4 +160,6 @@ When the round is done, send this file back with your ticks (`- [x]`) and notes.
 | `psql` is not recognized | Use the full path from Part 1 step 3 |
 | `password authentication failed` | The password in `.env`/`.env.test` doesn't match. Check the `postgres` password in `DATABASE_ADMIN_URL` |
 | `address already in use :8080` | An old window is still running the API. Close it, or restart the PC |
+| `running scripts is disabled on this system` | Use the `.cmd` files, or run with `powershell -ExecutionPolicy Bypass -File scripts\start.ps1` |
+| `pg_dump not found` / `psql not found` | PostgreSQL 18 must be installed in the default folder, or add its `bin` folder to PATH |
 | Phone can't connect | Same Wi-Fi? Firewall allowed on Private? In Windows Settings, the Wi-Fi network must be set to **Private**, not Public |
