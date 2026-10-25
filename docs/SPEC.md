@@ -190,6 +190,10 @@ Accept: `pnpm build && pnpm --filter api start:prod` → phone on same Wi-Fi ope
 
 ---
 
+### §T11 One-click Windows installer (added 2026-10-26, human decision Z8)
+Steps: Inno Setup installer bundling Node (LTS), PostgreSQL 18 binaries, the built app (production deps, no symlinks) and WinSW; setup script creates the cluster (own port, random passwords, settings readable only by Administrators/SYSTEM), DB + app Windows services (auto start, restart on crash), firewall rule, daily backup task (keep 14, optional USB copy), desktop icon (Edge app window), first-login sheet; upgrade keeps data; uninstall keeps data. GitHub Actions builds the .exe and smoke-tests it on Windows; CI runs `pnpm verify` on every push.
+Accept: on a clean Windows machine a silent install with demo data serves the app and API, both services Automatic, killing the app restarts it, a backup file exists and lists with pg_restore, upgrade keeps the data, uninstall removes services and keeps data.
+
 ## §X Not in the 2-day build (do not start)
 Inno Setup installer and Windows services, restore wizard, status page, licensing, Excel import, exams/results, teacher accounts, parent notifications, sync/hosted mode, old-PC power-cut test, field visits, pilot. These follow `School Management System — Build Runbook` Days 11–13 and 44–85.
 
@@ -207,3 +211,4 @@ Inno Setup installer and Windows services, restore wizard, status page, licensin
 - Z5 Promote page: from-section → to-section, students listed and all ticked; untick to keep behind; one tx via POST /enrollments/promote. → T9 (no exams module, so pass/fail is chosen by hand)
 - Z6 Promotion with unpaid fees: students with balance > 0 need approval (`students.promote`) when the clerk promotes; others move at once; principal's promotions apply directly (Z1). On every promotion the old enrollment's open (period, head) amounts move to the new enrollment as paired `adjust` entries (−X old "Carried forward to …", +X new "Carried forward from …"), so arrears show and are paid oldest-first. → T7
 - Z7 Dashboard enrollment summary: active students total, per class and section, boys/girls (gender not set counted apart), joined this month (first-ever enrollment only, so promotions don't count) and left this month. → T8
+- Z8 Schools get a one-click Windows installer (double-click → icon, starts with Windows, automatic backups); no commands on school PCs. Code lives in a private GitHub repo that builds the installer. → T11

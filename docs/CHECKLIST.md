@@ -89,5 +89,9 @@ First run `pnpm --filter api db:migrate` (new migration).
 - [x] backup.ps1 → file in backups/, only the newest N kept; restore.ps1 lists it and restores into a new database; refuses the live one (agent, pwsh on Linux)
 - [ ] On your PC: run `pnpm --filter api db:seed-demo` on sms_dev, then `pwsh scripts/start.ps1` or the Windows `start.cmd`, and click through the demo as principal
 
+## T11 Windows installer
+- [x] GitHub Windows machine: install with demo data, services automatic, crash restart, backup, upgrade keeps data, uninstall keeps data (agent, CI)
+- [ ] Real Windows PC: follow docs/WINDOWS_TEST.md with the downloaded .exe
+
 ## Windows PC
-See docs/WINDOWS_TEST.md (separate guide for the Windows tester; rounds 1 and 2 are both due now).
+See docs/WINDOWS_TEST.md (separate guide for the Windows tester; one installer-based test, Parts 1–4).

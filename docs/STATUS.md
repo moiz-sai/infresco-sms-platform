@@ -1,20 +1,21 @@
 # STATUS
-Updated: 2026-10-26 01:30 · Last task: T10 Demo seed, production build, backup script · Result: DONE
+Updated: 2026-10-26 01:00 · Last task: T11 One-click Windows installer · Result: DONE
 ## Done
-- T1 ✔  T2 ✔  T3 ✔  T4 ✔  T5 ✔  T6 ✔  T7 ✔  T8 ✔  T9 ✔  T10 ✔  (+ SPEC §Z1–Z7)
+- T1 ✔  T2 ✔  T3 ✔  T4 ✔  T5 ✔  T6 ✔  T7 ✔  T8 ✔  T9 ✔  T10 ✔  T11 ✔  (+ SPEC §Z1–Z8)
 ## Next
-- Task: none left in SPEC. Windows test rounds 1+2 → docs/WINDOWS_TEST.md, then the demo run-through (SPEC §Y)
-- Before starting: human runs the Windows rounds; reports go to docs/STATUS.md Open issues
+- Task: Windows test on a real PC with the installer → docs/WINDOWS_TEST.md; then the demo run-through
+- Before starting: download InfrescoSMS-Setup .exe (GitHub Actions artifact or v* Release) and send it to the tester
 ## Read next
+- docs/progress/T11.md
 - docs/progress/T10.md
-- docs/progress/T9.md
 ## Open issues
-- docs/USER_MANUAL.md: user manual for staff (added on request, beyond SPEC §1.8); update it when behaviour changes
-- Windows rounds 1 and 2 not run yet → docs/WINDOWS_TEST.md
-- Checklist: 3 items need a real phone / print dialog / clerk promote by hand → docs/CHECKLIST.md
+- Real-PC Windows test not run yet (CI Windows smoke test passes) → docs/WINDOWS_TEST.md
+- Installer unsigned (SmartScreen warning) → buy a code-signing certificate before selling
+- Checklist: 4 items need a real phone / print dialog / clerk promote / your own click-through → docs/CHECKLIST.md
+- docs/USER_MANUAL.md: staff manual (added on request, beyond SPEC §1.8); keep it updated when behaviour changes
 ## How to run
-- dev: pnpm dev:api + pnpm dev:web (phones: --host) → http://localhost:5173
-- school PC: scripts\start.cmd (or scripts/start.ps1) → http://localhost:8080 and the printed phone address
-- db: pnpm --filter api db:migrate · seed: db:seed · demo data: db:seed-demo · backup: scripts\backup.cmd
+- dev: pnpm dev:api + pnpm dev:web (phones: --host) → http://localhost:5173 · prod on this PC: pnpm build; cd apps/api; node dist/main.js → :8080
+- Windows/school: InfrescoSMS-Setup .exe → desktop icon (no commands)
+- CI: GitHub Actions on every push (CI = pnpm verify; Windows installer = build + install test)
 - gate: pnpm verify (must pass before every commit)
-- login: principal / clerk · password Admin@123 · PIN 1234
+- login (dev/demo): principal / clerk · password Admin@123 · PIN 1234
