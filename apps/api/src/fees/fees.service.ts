@@ -12,18 +12,21 @@ import {
   formatPaisa,
   type ApprovalOutcome,
   type CashCloseView,
+  type Defaulter,
+  type DefaulterQuery,
   type DiscountInput,
   type DueLine,
   type FeeHead,
   type FeeHeadInput,
   type FeePlanInput,
+  type Page,
   type FeeStructureInput,
   type PaymentInput,
   type PostChargesResult,
   type ReceiptView,
   type Statement,
 } from '@sms/shared';
-import { and, asc, eq, inArray, isNull, ne, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull, ne, sql } from 'drizzle-orm';
 import { ApprovalsService } from '../approvals/approvals.service';
 import { AccessService } from '../auth/access.service';
 import type { Actor } from '../common/actor';
@@ -645,6 +648,138 @@ export class FeesService implements OnModuleInit {
         ...s,
         balancePaisa: siblingBalances.get(s.enrollmentId) ?? 0,
       })),
+    };
+  }
+
+  // ---------- principal figures
+
+  // Per enrollment: net billed and collected for one period (ADV excluded) and the overall balance.
+  async periodFigures(schoolId: string, period: string) {
+    const adv = await this.advanceHeadId(this.db, schoolId);
+    const inPeriod = sql`${ledgerEntry.period} = ${period} and ${ledgerEntry.headId} <> ${adv}`;
+    const rows = await this.db
+      .select({
+        enrollmentId: ledgerEntry.enrollmentId,
+        expected:
+          sql<number>`coalesce(sum(${ledgerEntry.amountPaisa}) filter (where ${inPeriod} and ${ledgerEntry.type} in ('charge', 'adjust')), 0)`.mapWith(
+            Number,
+          ),
+        collected:
+          sql<number>`coalesce(-sum(${ledgerEntry.amountPaisa}) filter (where ${inPeriod} and ${ledgerEntry.type} in ('payment', 'reversal')), 0)`.mapWith(
+            Number,
+          ),
+        balance: sql<number>`sum(${ledgerEntry.amountPaisa})`.mapWith(Number),
+      })
+      .from(ledgerEntry)
+      .where(eq(ledgerEntry.schoolId, schoolId))
+      .groupBy(ledgerEntry.enrollmentId);
+    return new Map(rows.map((r) => [r.enrollmentId, r]));
+  }
+
+  // Receipts taken on a day by method, excluding cancelled ones.
+  async collectionOn(schoolId: string, date: string) {
+    const [start, end] = dayRange(date);
+    return this.db
+      .select({
+        method: receipt.method,
+        totalPaisa: sql<number>`sum(${receipt.totalPaisa})`.mapWith(Number),
+        count: sql<number>`count(*)`.mapWith(Number),
+      })
+      .from(receipt)
+      .where(
+        and(
+          eq(receipt.schoolId, schoolId),
+          sql`${receipt.createdAt} >= ${start} and ${receipt.createdAt} < ${end}`,
+          sql`not exists (
+            select 1 from ledger_entry rev
+            join ledger_entry pay on pay.id = rev.reverses_id
+            where pay.receipt_id = ${receipt.id})`,
+        ),
+      )
+      .groupBy(receipt.method);
+  }
+
+  async lastCashClose(schoolId: string) {
+    const [row] = await this.db
+      .select({
+        date: cashClose.date,
+        differencePaisa: cashClose.differencePaisa,
+      })
+      .from(cashClose)
+      .where(eq(cashClose.schoolId, schoolId))
+      .orderBy(desc(cashClose.date))
+      .limit(1);
+    return row ?? null;
+  }
+
+  // Active students of the current year who owe money for at least `minMonths` periods.
+  async defaulters(
+    schoolId: string,
+    q: DefaulterQuery,
+  ): Promise<Page<Defaulter>> {
+    const year = await this.setup.currentYear(schoolId);
+    const active = (
+      await this.students.yearEnrollments(schoolId, year.id)
+    ).filter((e) => e.status === 'active');
+    const sections = await this.setup.describeSections(
+      schoolId,
+      active.map((e) => e.sectionId),
+    );
+    const wanted = new Set(
+      active
+        .filter(
+          (e) => !q.classId || sections.get(e.sectionId)?.classId === q.classId,
+        )
+        .map((e) => e.enrollmentId),
+    );
+    if (wanted.size === 0) return { items: [], total: 0 };
+    const rows = await this.db.execute<{
+      enrollment_id: string;
+      months: number;
+      oldest: string;
+      balance: string;
+    }>(sql`
+      with lines as (
+        select l.enrollment_id, l.period, sum(l.amount_paisa) as due
+        from ledger_entry l join fee_head h on h.id = l.head_id
+        where l.school_id = ${schoolId} and h.code <> ${ADVANCE_HEAD}
+        group by l.enrollment_id, l.period, l.head_id
+        having sum(l.amount_paisa) > 0),
+      bal as (
+        select enrollment_id, sum(amount_paisa) as balance
+        from ledger_entry where school_id = ${schoolId} group by enrollment_id)
+      select lines.enrollment_id, count(distinct lines.period)::int as months,
+             min(lines.period) as oldest, bal.balance
+      from lines join bal using (enrollment_id)
+      where bal.balance > 0
+      group by lines.enrollment_id, bal.balance
+      having count(distinct lines.period) >= ${q.minMonths}
+      order by bal.balance desc`);
+    const hits = rows.rows.filter((r) => wanted.has(r.enrollment_id));
+    const pageRows = hits.slice((q.page - 1) * q.size, q.page * q.size);
+    const info = await this.students.enrollmentInfo(
+      schoolId,
+      pageRows.map((r) => r.enrollment_id),
+    );
+    return {
+      total: hits.length,
+      items: pageRows.map((r) => {
+        const i = info.get(r.enrollment_id)!;
+        return {
+          enrollmentId: r.enrollment_id,
+          studentId: i.studentId,
+          admissionNo: i.admissionNo,
+          nameEn: i.nameEn,
+          nameUr: i.nameUr,
+          fatherName: i.fatherName,
+          classNameEn: i.classNameEn,
+          classNameUr: i.classNameUr,
+          sectionName: i.sectionName,
+          months: r.months,
+          oldestPeriod: r.oldest,
+          balancePaisa: Number(r.balance),
+        };
+      }),
     };
   }
 

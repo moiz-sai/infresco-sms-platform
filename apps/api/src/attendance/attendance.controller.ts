@@ -56,3 +56,17 @@ export class AttendanceController {
     return this.attendance.month(actor, sectionId, month);
   }
 }
+
+@Controller('attendance/enrollments/:id')
+export class AttendanceSummaryController {
+  constructor(private readonly attendance: AttendanceService) {}
+
+  @Get('summary')
+  @RequirePermission('attendance.view')
+  summary(
+    @Param('id', ParseUUIDPipe) enrollmentId: string,
+    @CurrentActor() actor: Actor,
+  ) {
+    return this.attendance.summary(actor.schoolId, enrollmentId);
+  }
+}

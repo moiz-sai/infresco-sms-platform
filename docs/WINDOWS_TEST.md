@@ -5,7 +5,7 @@ Do **Part 1 once**. For each **test round**, do Part 2, then that round's checks
 
 | Round | When | What gets tested |
 |---|---|---|
-| 1 | Now (after T7) | Install, login, students, attendance from a phone, fee collection and receipts, approvals |
+| 1 | Now (after T8) | Install, login, students, attendance from a phone, fee collection and receipts, approvals, dashboard |
 | 2 | After T10 | Production build, receipt printing, backups (before the demo) |
 
 ---
@@ -67,7 +67,7 @@ Logins: `principal` or `clerk`, password `Admin@123`, PIN `1234`.
 
 ## Part 3 — Test rounds
 
-### Round 1 (after T7)
+### Round 1 (after T8)
 Base
 - [ ] `pnpm install` finishes without red errors
 - [ ] `pnpm verify` ends with `verify passed`
@@ -88,6 +88,8 @@ Fees and approvals on the PC
 - [ ] The Urdu name on the receipt is readable (not boxes)
 - [ ] Switch user to `clerk` (PIN `1234`): give a discount above Rs 1,000 → "sent to the principal"
 - [ ] Switch back to `principal`: **Approvals** shows a red count → Approve → the student's dues drop
+- [ ] **Dashboard** opens after login with numbers and charts; **Defaulters → Print** shows an A4 table with no sidebar
+- [ ] Phone: the Dashboard shows one card per row, no sideways scrolling
 
 Phone (same Wi-Fi as the PC)
 - [ ] Run `ipconfig` and note the PC's **IPv4 Address** (e.g. 192.168.1.20)

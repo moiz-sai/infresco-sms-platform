@@ -15,11 +15,13 @@ import {
   schoolUpdateSchema,
   sectionListQuerySchema,
   sectionSchema,
+  settingsSchema,
   yearSchema,
   type ClassInput,
   type SchoolUpdate,
   type SectionInput,
   type SectionListQuery,
+  type SettingsInput,
   type YearInput,
 } from '@sms/shared';
 import type { Actor } from '../common/actor';
@@ -165,5 +167,25 @@ export class SectionsController {
   @RequirePermission(MANAGE)
   remove(@Param('id', id) sectionId: string, @CurrentActor() actor: Actor) {
     return this.setup.deleteSection(actor, sectionId);
+  }
+}
+
+@Controller('settings')
+export class SettingsController {
+  constructor(private readonly setup: SetupService) {}
+
+  @Get()
+  @RequirePermission(MANAGE)
+  get(@CurrentActor() actor: Actor) {
+    return this.setup.getSettings(actor.schoolId);
+  }
+
+  @Put()
+  @RequirePermission(MANAGE)
+  update(
+    @Body(new ZodPipe(settingsSchema)) body: SettingsInput,
+    @CurrentActor() actor: Actor,
+  ) {
+    return this.setup.updateSettings(actor, body);
   }
 }

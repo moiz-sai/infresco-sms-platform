@@ -60,5 +60,17 @@ First run `pnpm --filter api db:migrate` (new migration).
 - [ ] Cash close for YESTERDAY: system total shown → enter counted → difference shown; closing again is not possible. (Closing TODAY blocks cash payments for the rest of today — only do that at end of day)
 - [ ] Urdu: Approvals and Cash close mirror correctly
 
+## T8 Dashboard, users, audit, settings
+- [ ] Log in as principal → lands on Dashboard: cards (collected today, this month, attendance, owing, approvals, cash close diff, students with boys/girls and joined/left)
+- [ ] Take a payment in Fee collection, go back to Dashboard → "Collected today" includes it at once
+- [ ] Charts: fee % and attendance % by class, 30-day attendance line. Urdu: mirrored, labels readable. Phone width: one column
+- [ ] Defaulters: class filter and "owing at least N months" work; click a name → fee collection; Print → table only with school name
+- [ ] Student profile → Attendance tab: % and P/A/L/V counts, one row per month
+- [ ] Users & roles → Add user (role Clerk) → log in as them in another browser/phone → as principal untick "Account active" + save → the other browser is logged out on its next click
+- [ ] Users: reset that user's password; your own account can't be disabled
+- [ ] Settings: change attendance lock days, Ctrl+Enter → Audit log (filter "School & settings") shows "Settings: lock days 3 → …". Change it back
+- [ ] Audit log: filters by user/area/date; click a line → details
+- [ ] As clerk: no Users, Audit, Settings in the sidebar; Dashboard and Defaulters visible
+
 ## Windows PC
-See docs/WINDOWS_TEST.md (separate guide for the Windows tester; round 1 now (covers T4–T7), round 2 after T10).
+See docs/WINDOWS_TEST.md (separate guide for the Windows tester; round 1 now (covers T4–T8), round 2 after T10).

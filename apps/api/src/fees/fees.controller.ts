@@ -13,6 +13,7 @@ import {
 import {
   attendanceDateSchema,
   cashCloseSchema,
+  defaulterQuerySchema,
   discountSchema,
   feeHeadSchema,
   feePlanQuerySchema,
@@ -22,6 +23,7 @@ import {
   paymentSchema,
   postChargesSchema,
   reverseSchema,
+  type DefaulterQuery,
   type DiscountInput,
   type FeeHeadInput,
   type FeePlanInput,
@@ -190,6 +192,15 @@ export class FeesController {
     @CurrentActor() actor: Actor & { userId: string },
   ) {
     return this.fees.reverse(actor, receiptId, body.reason);
+  }
+
+  @Get('defaulters')
+  @RequirePermission(VIEW)
+  defaulters(
+    @Query(new ZodPipe(defaulterQuerySchema)) q: DefaulterQuery,
+    @CurrentActor() actor: Actor,
+  ) {
+    return this.fees.defaulters(actor.schoolId, q);
   }
 
   @Get('cash-close/:date')

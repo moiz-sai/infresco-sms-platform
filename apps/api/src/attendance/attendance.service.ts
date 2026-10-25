@@ -3,14 +3,17 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  NotFoundException,
   OnModuleInit,
 } from '@nestjs/common';
-import type {
-  AttendanceDay,
-  AttendanceEntry,
-  AttendanceSaveResult,
-  AttendanceStatus,
-  MonthRegister,
+import {
+  attendancePct,
+  type AttendanceSummary,
+  type AttendanceDay,
+  type AttendanceEntry,
+  type AttendanceSaveResult,
+  type AttendanceStatus,
+  type MonthRegister,
 } from '@sms/shared';
 import { and, between, eq, inArray, sql } from 'drizzle-orm';
 import type { Actor } from '../common/actor';
@@ -114,6 +117,98 @@ export class AttendanceService implements OnModuleInit {
     return new Map(
       rows.map((r) => [r.enrollmentId!, { id: r.id!, status: r.status! }]),
     );
+  }
+
+  // Effective status per enrollment on a day (unmarked students are absent from the map).
+  async dayStatuses(enrollmentIds: string[], date: string) {
+    const rows = await this.effective(this.db, enrollmentIds, date);
+    return new Map([...rows].map(([id, r]) => [id, r.status]));
+  }
+
+  // Status counts per day for the given enrollments.
+  async dailyCounts(
+    schoolId: string,
+    enrollmentIds: string[],
+    from: string,
+    to: string,
+  ) {
+    if (enrollmentIds.length === 0) return [];
+    return this.db
+      .select({
+        date: attendanceEffective.date,
+        status: attendanceEffective.status,
+        n: sql<number>`count(*)`.mapWith(Number),
+      })
+      .from(attendanceEffective)
+      .where(
+        and(
+          eq(attendanceEffective.schoolId, schoolId),
+          inArray(attendanceEffective.enrollmentId, enrollmentIds),
+          between(attendanceEffective.date, from, to),
+        ),
+      )
+      .groupBy(attendanceEffective.date, attendanceEffective.status)
+      .orderBy(attendanceEffective.date);
+  }
+
+  // SPEC §Z4: year-to-date totals and per-month breakdown for one enrollment.
+  async summary(
+    schoolId: string,
+    enrollmentId: string,
+  ): Promise<AttendanceSummary> {
+    const info = (
+      await this.students.enrollmentInfo(schoolId, [enrollmentId])
+    ).get(enrollmentId);
+    if (!info) {
+      throw new NotFoundException({
+        code: 'NOT_FOUND',
+        message: 'Enrollment not found',
+      });
+    }
+    const section = await this.setup.getSection(schoolId, info.sectionId);
+    const from = section.yearStartsOn;
+    const to = section.yearEndsOn < today() ? section.yearEndsOn : today();
+    const rows = await this.db
+      .select({
+        month: sql<string>`to_char(${attendanceEffective.date}, 'YYYY-MM')`,
+        status: attendanceEffective.status,
+        n: sql<number>`count(*)`.mapWith(Number),
+      })
+      .from(attendanceEffective)
+      .where(
+        and(
+          eq(attendanceEffective.enrollmentId, enrollmentId),
+          between(attendanceEffective.date, from, to),
+        ),
+      )
+      .groupBy(sql`1`, attendanceEffective.status)
+      .orderBy(sql`1`);
+    const zero = (): Record<AttendanceStatus, number> => ({
+      P: 0,
+      A: 0,
+      L: 0,
+      V: 0,
+    });
+    const counts = zero();
+    const byMonth = new Map<string, Record<AttendanceStatus, number>>();
+    for (const r of rows) {
+      const m = byMonth.get(r.month) ?? zero();
+      m[r.status!] += r.n;
+      counts[r.status!] += r.n;
+      byMonth.set(r.month, m);
+    }
+    return {
+      enrollmentId,
+      from,
+      to,
+      pct: attendancePct(counts),
+      counts,
+      months: [...byMonth].map(([month, c]) => ({
+        month,
+        pct: attendancePct(c),
+        counts: c,
+      })),
+    };
   }
 
   async day(

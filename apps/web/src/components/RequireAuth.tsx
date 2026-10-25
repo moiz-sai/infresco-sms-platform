@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { useMe } from '@/lib/auth'
+import { homePath, useMe } from '@/lib/auth'
 
 export function RequireAuth() {
   const { t } = useTranslation()
@@ -20,4 +20,9 @@ export function RequirePermission({ perm }: { perm: string }) {
     return <p className="text-muted-foreground">{t('app.notFound')}</p>
   }
   return <Outlet />
+}
+
+export function Home() {
+  const { data: me } = useMe()
+  return me ? <Navigate to={homePath(me)} replace /> : null
 }

@@ -28,7 +28,12 @@
     "feeCollect": "Fee collection",
     "feeSetup": "Fee setup",
     "approvals": "Approvals",
-    "cashClose": "Cash close"
+    "cashClose": "Cash close",
+    "dashboard": "Dashboard",
+    "defaulters": "Defaulters",
+    "settings": "Settings",
+    "users": "Users & roles",
+    "audit": "Audit log"
   },
   "login": {
     "title": "Sign in",
@@ -110,7 +115,9 @@
     "joinedOn": "Joined on",
     "year": "Year",
     "noGuardians": "No guardians recorded",
-    "statusCol": "Status"
+    "statusCol": "Status",
+    "noAttendance": "No attendance marked this year yet",
+    "month": "Month"
   },
   "admission": {
     "title": "New admission",
@@ -309,5 +316,100 @@
   },
   "promote": {
     "pending": "{{promoted}} promoted · {{count}} waiting for approval (unpaid fees)"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "refresh": "Refresh",
+    "today": "Collected today",
+    "month": "Collected in {{period}}",
+    "ofExpected": "of {{amount}} billed",
+    "attendanceToday": "Attendance today",
+    "absentCount": "{{count}} absent",
+    "defaulters": "Students owing fees",
+    "pending": "Pending approvals",
+    "lastClose": "Last cash close difference",
+    "students": "Students",
+    "boysGirls": "Boys {{boys}} · Girls {{girls}}",
+    "genderUnset": "{{count}} not set",
+    "joinedLeft": "This month: {{joined}} joined · {{left}} left",
+    "collectionByClass": "Fee collection this month by class",
+    "attendanceByClass": "Attendance today by class",
+    "attendanceTrend": "Attendance, last 30 days",
+    "present": "Present",
+    "noData": "No data yet",
+    "classSizes": "Students per class",
+    "absentees": "Absent today",
+    "noAbsentees": "Nobody marked absent today",
+    "openApprovals": "Open approvals"
+  },
+  "defaulters": {
+    "title": "Defaulters",
+    "class": "Class",
+    "allClasses": "All classes",
+    "minMonths": "Owing at least",
+    "months": "{{count}} month(s)",
+    "monthsCol": "Months",
+    "since": "Oldest due",
+    "empty": "No students owe fees for this filter",
+    "count": "{{count}} students",
+    "truncated": "Showing {{shown}} of {{total}}; filter by class to see the rest"
+  },
+  "users": {
+    "title": "Users & roles",
+    "add": "Add user",
+    "username": "Username",
+    "name": "Name",
+    "roles": "Roles",
+    "disabled": "Disabled",
+    "locked": "Locked",
+    "active": "Active",
+    "created": "User created",
+    "pickRole": "Pick at least one role",
+    "resetDone": "Password/PIN reset",
+    "password": "Password (min 8)",
+    "pin": "PIN (4–6 digits)",
+    "permissionCount": "{{count}} permissions",
+    "activeLabel": "Account active",
+    "disableHint": "Unticking logs the user out at once",
+    "reset": "Reset password or PIN",
+    "newPassword": "New password",
+    "newPin": "New PIN",
+    "resetButton": "Reset",
+    "confirmDelete": "Delete this user? They are logged out and cannot log in again."
+  },
+  "audit": {
+    "title": "Audit log",
+    "user": "User",
+    "all": "All",
+    "entity": "Area",
+    "entities": {
+      "person": "Students & people",
+      "enrollment": "Enrollments",
+      "section": "Sections & attendance",
+      "receipt": "Receipts",
+      "ledger_entry": "Fee entries",
+      "cash_close": "Cash close",
+      "approval_request": "Approvals",
+      "user_account": "Users & logins",
+      "school": "School & settings",
+      "class": "Classes",
+      "academic_year": "Academic years",
+      "fee_head": "Fee heads",
+      "fee_structure": "Fee structure",
+      "student_fee_plan": "Fee plans"
+    },
+    "from": "From",
+    "to": "To",
+    "empty": "Nothing recorded for this filter",
+    "system": "System",
+    "prev": "Previous page",
+    "next": "Next page"
+  },
+  "settings": {
+    "title": "Settings",
+    "lockDays": "Attendance lock (days)",
+    "lockDaysHint": "Changing attendance older than this many days needs the principal's approval",
+    "threshold": "Discount limit for the clerk (Rs)",
+    "thresholdHint": "Bigger discounts and fee plans go to the principal for approval"
   }
 }

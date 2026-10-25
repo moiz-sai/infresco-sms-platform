@@ -2,6 +2,7 @@ import {
   formatPaisa,
   leaveSchema,
   studentFieldsSchema,
+  type AttendanceSummary,
   type Statement,
   type StudentDetail,
 } from '@sms/shared'
@@ -179,8 +180,12 @@ export function StudentProfilePage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="attendance" className="pt-2 text-muted-foreground">
-          {t('student.comingSoon')}
+        <TabsContent value="attendance" className="pt-2">
+          {current && can('attendance.view') ? (
+            <AttendanceTab enrollmentId={current.id} />
+          ) : (
+            <p className="text-muted-foreground">{t('app.none')}</p>
+          )}
         </TabsContent>
         <TabsContent value="fees" className="pt-2">
           {current && can('fees.collect') ? (
@@ -350,6 +355,61 @@ function FeesTab({ enrollmentId }: { enrollmentId: string }) {
       ) : (
         <p className="text-muted-foreground">{t('fees.noDues')}</p>
       )}
+    </div>
+  )
+}
+
+// SPEC §Z4: year-to-date attendance % with P/A/L/V counts and a per-month list.
+function AttendanceTab({ enrollmentId }: { enrollmentId: string }) {
+  const { t } = useTranslation()
+  const summary = useQuery({
+    queryKey: ['attendance', 'summary', enrollmentId],
+    queryFn: () => api.get<AttendanceSummary>(`/attendance/enrollments/${enrollmentId}/summary`),
+  })
+  if (!summary.data) return <Skeleton className="h-32 w-full" />
+  const s = summary.data
+  const pct = (v: number | null) => (v === null ? t('app.none') : `${v}%`)
+  const statuses = ['P', 'A', 'L', 'V'] as const
+  if (s.months.length === 0) {
+    return <p className="text-muted-foreground">{t('student.noAttendance')}</p>
+  }
+  return (
+    <div className="grid gap-3">
+      <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
+        <span className="text-2xl font-semibold tabular-nums">{pct(s.pct)}</span>
+        {statuses.map((st) => (
+          <span key={st} className="text-sm">
+            <span className="text-muted-foreground">{t(`attendance.status.${st}`)}: </span>
+            <span className="font-medium tabular-nums">{s.counts[st]}</span>
+          </span>
+        ))}
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{t('student.month')}</TableHead>
+            {statuses.map((st) => (
+              <TableHead key={st} className="text-end">
+                {t(`attendance.short.${st}`)}
+              </TableHead>
+            ))}
+            <TableHead className="text-end">%</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {s.months.map((m) => (
+            <TableRow key={m.month}>
+              <TableCell>{m.month}</TableCell>
+              {statuses.map((st) => (
+                <TableCell key={st} className="text-end tabular-nums">
+                  {m.counts[st]}
+                </TableCell>
+              ))}
+              <TableCell className="text-end font-medium tabular-nums">{pct(m.pct)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   )
 }

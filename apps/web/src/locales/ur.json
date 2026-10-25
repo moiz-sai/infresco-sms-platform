@@ -28,7 +28,12 @@
     "feeCollect": "فیس وصولی",
     "feeSetup": "فیس سیٹ اپ",
     "approvals": "منظوریاں",
-    "cashClose": "کیش بندش"
+    "cashClose": "کیش بندش",
+    "dashboard": "ڈیش بورڈ",
+    "defaulters": "نادہندگان",
+    "settings": "ترتیبات",
+    "users": "صارفین و کردار",
+    "audit": "آڈٹ لاگ"
   },
   "login": {
     "title": "سائن اِن",
@@ -110,7 +115,9 @@
     "joinedOn": "تاریخ داخلہ",
     "year": "سال",
     "noGuardians": "کوئی سرپرست درج نہیں",
-    "statusCol": "حیثیت"
+    "statusCol": "حیثیت",
+    "noAttendance": "اس سال ابھی کوئی حاضری نہیں لگی",
+    "month": "مہینہ"
   },
   "admission": {
     "title": "نیا داخلہ",
@@ -309,5 +316,100 @@
   },
   "promote": {
     "pending": "{{promoted}} ترقی یافتہ · {{count}} منظوری کے منتظر (بقایا فیس)"
+  },
+  "dashboard": {
+    "title": "ڈیش بورڈ",
+    "refresh": "تازہ کریں",
+    "today": "آج کی وصولی",
+    "month": "{{period}} کی وصولی",
+    "ofExpected": "{{amount}} واجب الادا میں سے",
+    "attendanceToday": "آج کی حاضری",
+    "absentCount": "{{count}} غیر حاضر",
+    "defaulters": "بقایا دار طلبہ",
+    "pending": "زیرِ التوا منظوریاں",
+    "lastClose": "آخری کیش بندش کا فرق",
+    "students": "طلبہ",
+    "boysGirls": "لڑکے {{boys}} · لڑکیاں {{girls}}",
+    "genderUnset": "{{count}} درج نہیں",
+    "joinedLeft": "اس مہینے: {{joined}} داخل · {{left}} خارج",
+    "collectionByClass": "اس مہینے کی فیس وصولی جماعت وار",
+    "attendanceByClass": "آج کی حاضری جماعت وار",
+    "attendanceTrend": "حاضری، پچھلے ۳۰ دن",
+    "present": "حاضر",
+    "noData": "ابھی کوئی ڈیٹا نہیں",
+    "classSizes": "ہر جماعت کے طلبہ",
+    "absentees": "آج غیر حاضر",
+    "noAbsentees": "آج کوئی غیر حاضر نہیں",
+    "openApprovals": "منظوریاں کھولیں"
+  },
+  "defaulters": {
+    "title": "نادہندگان",
+    "class": "جماعت",
+    "allClasses": "تمام جماعتیں",
+    "minMonths": "کم از کم بقایا",
+    "months": "{{count}} مہینے",
+    "monthsCol": "مہینے",
+    "since": "سب سے پرانا بقایا",
+    "empty": "اس فلٹر میں کوئی بقایا دار نہیں",
+    "count": "{{count}} طلبہ",
+    "truncated": "{{total}} میں سے {{shown}} دکھائے گئے؛ باقی کے لیے جماعت چنیں"
+  },
+  "users": {
+    "title": "صارفین و کردار",
+    "add": "نیا صارف",
+    "username": "یوزر نیم",
+    "name": "نام",
+    "roles": "کردار",
+    "disabled": "غیر فعال",
+    "locked": "مقفل",
+    "active": "فعال",
+    "created": "صارف بن گیا",
+    "pickRole": "کم از کم ایک کردار چنیں",
+    "resetDone": "پاس ورڈ/پن تبدیل ہو گیا",
+    "password": "پاس ورڈ (کم از کم ۸)",
+    "pin": "پن (۴–۶ ہندسے)",
+    "permissionCount": "{{count}} اجازتیں",
+    "activeLabel": "اکاؤنٹ فعال",
+    "disableHint": "نشان ہٹانے سے صارف فوراً لاگ آؤٹ ہو جائے گا",
+    "reset": "پاس ورڈ یا پن تبدیل کریں",
+    "newPassword": "نیا پاس ورڈ",
+    "newPin": "نیا پن",
+    "resetButton": "تبدیل کریں",
+    "confirmDelete": "یہ صارف حذف کریں؟ وہ لاگ آؤٹ ہو جائے گا اور دوبارہ لاگ اِن نہیں کر سکے گا۔"
+  },
+  "audit": {
+    "title": "آڈٹ لاگ",
+    "user": "صارف",
+    "all": "سب",
+    "entity": "شعبہ",
+    "entities": {
+      "person": "طلبہ و افراد",
+      "enrollment": "اندراج",
+      "section": "سیکشن و حاضری",
+      "receipt": "رسیدیں",
+      "ledger_entry": "فیس اندراجات",
+      "cash_close": "کیش بندش",
+      "approval_request": "منظوریاں",
+      "user_account": "صارفین و لاگ اِن",
+      "school": "اسکول و ترتیبات",
+      "class": "جماعتیں",
+      "academic_year": "تعلیمی سال",
+      "fee_head": "فیس مدات",
+      "fee_structure": "فیس ڈھانچہ",
+      "student_fee_plan": "فیس پلان"
+    },
+    "from": "سے",
+    "to": "تک",
+    "empty": "اس فلٹر میں کچھ درج نہیں",
+    "system": "سسٹم",
+    "prev": "پچھلا صفحہ",
+    "next": "اگلا صفحہ"
+  },
+  "settings": {
+    "title": "ترتیبات",
+    "lockDays": "حاضری لاک (دن)",
+    "lockDaysHint": "اتنے دن سے پرانی حاضری بدلنے کے لیے پرنسپل کی منظوری درکار ہے",
+    "threshold": "کلرک کی رعایت کی حد (روپے)",
+    "thresholdHint": "اس سے بڑی رعایت اور فیس پلان پرنسپل کی منظوری کے لیے جاتے ہیں"
   }
 }

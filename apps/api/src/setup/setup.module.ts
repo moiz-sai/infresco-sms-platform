@@ -3,6 +3,7 @@ import {
   ClassesController,
   SchoolController,
   SectionsController,
+  SettingsController,
   YearsController,
 } from './setup.controller';
 import { SetupService } from './setup.service';
@@ -13,6 +14,7 @@ import { SetupService } from './setup.service';
     YearsController,
     ClassesController,
     SectionsController,
+    SettingsController,
   ],
   providers: [SetupService],
   exports: [SetupService],

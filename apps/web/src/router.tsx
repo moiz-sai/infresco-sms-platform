@@ -1,8 +1,11 @@
-import { createBrowserRouter, Navigate } from 'react-router'
-import { RequireAuth, RequirePermission } from '@/components/RequireAuth'
+import { createBrowserRouter } from 'react-router'
+import { Home, RequireAuth, RequirePermission } from '@/components/RequireAuth'
 import { Shell } from '@/components/Shell'
 import { AdmissionPage } from '@/pages/AdmissionPage'
 import { ApprovalsPage } from '@/pages/ApprovalsPage'
+import { AuditPage } from '@/pages/AuditPage'
+import { DashboardPage } from '@/pages/DashboardPage'
+import { DefaultersPage } from '@/pages/DefaultersPage'
 import { CashClosePage } from '@/pages/CashClosePage'
 import { AttendancePage } from '@/pages/AttendancePage'
 import { AttendanceRegisterPage } from '@/pages/AttendanceRegisterPage'
@@ -10,9 +13,11 @@ import { FeeCollectionPage } from '@/pages/FeeCollectionPage'
 import { FeeSetupPage } from '@/pages/FeeSetupPage'
 import { ReceiptPrintPage } from '@/pages/ReceiptPrintPage'
 import { LoginPage } from '@/pages/LoginPage'
+import { SettingsPage } from '@/pages/SettingsPage'
 import { SetupPage } from '@/pages/SetupPage'
 import { StudentProfilePage } from '@/pages/StudentProfilePage'
 import { StudentsPage } from '@/pages/StudentsPage'
+import { UsersPage } from '@/pages/UsersPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -26,7 +31,11 @@ export const router = createBrowserRouter([
       {
         element: <Shell />,
         children: [
-          { index: true, element: <Navigate to="/students" replace /> },
+          { index: true, element: <Home /> },
+          {
+            element: <RequirePermission perm="dashboard.view" />,
+            children: [{ path: 'dashboard', element: <DashboardPage /> }],
+          },
           {
             element: <RequirePermission perm="students.view" />,
             children: [
@@ -51,6 +60,7 @@ export const router = createBrowserRouter([
             children: [
               { path: 'fees/collect', element: <FeeCollectionPage /> },
               { path: 'fees/cash-close', element: <CashClosePage /> },
+              { path: 'fees/defaulters', element: <DefaultersPage /> },
             ],
           },
           {
@@ -63,9 +73,20 @@ export const router = createBrowserRouter([
           },
           {
             element: <RequirePermission perm="settings.manage" />,
-            children: [{ path: 'setup', element: <SetupPage /> }],
+            children: [
+              { path: 'setup', element: <SetupPage /> },
+              { path: 'settings', element: <SettingsPage /> },
+            ],
           },
-          { path: '*', element: <Navigate to="/students" replace /> },
+          {
+            element: <RequirePermission perm="users.manage" />,
+            children: [{ path: 'users', element: <UsersPage /> }],
+          },
+          {
+            element: <RequirePermission perm="audit.view" />,
+            children: [{ path: 'audit', element: <AuditPage /> }],
+          },
+          { path: '*', element: <Home /> },
         ],
       },
     ],

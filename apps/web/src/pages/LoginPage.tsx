@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { api } from '@/lib/api'
-import { useMe } from '@/lib/auth'
+import { homePath, useMe } from '@/lib/auth'
 import { submitOnCtrlEnter, validate, type FieldErrors } from '@/lib/form'
 
 export function LoginPage() {
@@ -19,16 +19,16 @@ export function LoginPage() {
   const location = useLocation()
   const { data: me } = useMe()
   const [errors, setErrors] = useState<FieldErrors>({})
-  const from = (location.state as { from?: string } | null)?.from ?? '/students'
+  const from = (location.state as { from?: string } | null)?.from
   const login = useMutation({
     mutationFn: (body: unknown) => api.post<Me>('/auth/login', body),
     onSuccess: (user) => {
       qc.setQueryData(['me'], user)
-      void navigate(from, { replace: true })
+      void navigate(from ?? homePath(user), { replace: true })
     },
   })
 
-  if (me) return <Navigate to={from} replace />
+  if (me) return <Navigate to={from ?? homePath(me)} replace />
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()

@@ -10,6 +10,7 @@ import type {
   SchoolUpdate,
   SectionInput,
   SectionListQuery,
+  SettingsInput,
   YearInput,
 } from '@sms/shared';
 import { and, asc, desc, eq, inArray, isNull, type SQL } from 'drizzle-orm';
@@ -73,6 +74,28 @@ export class SetupService {
       .where(eq(school.id, schoolId));
     if (!row) throw notFound('School');
     return { ...DEFAULT_SCHOOL_SETTINGS, ...row.settings };
+  }
+
+  async updateSettings(
+    actor: Actor,
+    input: SettingsInput,
+  ): Promise<SchoolSettings> {
+    const before = await this.getSettings(actor.schoolId);
+    const after = { ...before, ...input };
+    await withTx(this.db, async (tx) => {
+      await tx
+        .update(school)
+        .set({ settings: after })
+        .where(eq(school.id, actor.schoolId));
+      await this.audit.record(tx, actor, {
+        action: 'settings.update',
+        entity: 'school',
+        entityId: actor.schoolId,
+        before,
+        after,
+      });
+    });
+    return after;
   }
 
   async updateSchool(actor: Actor, input: SchoolUpdate): Promise<School> {

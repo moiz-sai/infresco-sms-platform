@@ -550,6 +550,34 @@ export class StudentsService {
       .orderBy(sql`${enrollment.rollNo} asc nulls last`, asc(person.nameEn));
   }
 
+  // All enrollments of a year with the student's gender; isFirst = the student's first enrollment.
+  async yearEnrollments(schoolId: string, yearId: string) {
+    return this.db
+      .select({
+        enrollmentId: enrollment.id,
+        studentId: enrollment.studentId,
+        sectionId: enrollment.sectionId,
+        status: enrollment.status,
+        gender: person.gender,
+        joinedOn: enrollment.joinedOn,
+        leftOn: enrollment.leftOn,
+        isFirst: sql<boolean>`not exists (
+          select 1 from enrollment e2
+          where e2.student_id = ${enrollment.studentId}
+            and e2.created_at < ${enrollment.createdAt}
+            and e2.deleted_at is null)`,
+      })
+      .from(enrollment)
+      .innerJoin(person, eq(person.id, enrollment.studentId))
+      .where(
+        and(
+          eq(enrollment.schoolId, schoolId),
+          eq(enrollment.yearId, yearId),
+          isNull(enrollment.deletedAt),
+        ),
+      );
+  }
+
   // Active enrollments that had joined by the end of a period; isFirst = the student's first enrollment.
   async billableEnrollments(schoolId: string, periodEnd: string) {
     const rows = await this.db

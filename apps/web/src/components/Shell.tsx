@@ -7,8 +7,13 @@ import {
   CalendarDays,
   ClipboardCheck,
   Coins,
+  FileWarning,
+  History,
+  LayoutDashboard,
   LogOut,
   Settings,
+  ShieldUser,
+  SlidersHorizontal,
   UserPlus,
   Users,
   UserRoundCog,
@@ -25,6 +30,13 @@ import { useLocalName } from '@/lib/i18n-helpers'
 import { cn } from '@/lib/utils'
 
 const NAV = [
+  {
+    to: '/dashboard',
+    key: 'nav.dashboard',
+    perm: 'dashboard.view',
+    icon: LayoutDashboard,
+    end: true,
+  },
   { to: '/students', key: 'nav.students', perm: 'students.view', icon: Users, end: true },
   { to: '/students/new', key: 'nav.admission', perm: 'students.edit', icon: UserPlus, end: true },
   {
@@ -50,8 +62,24 @@ const NAV = [
     icon: Calculator,
     end: true,
   },
+  {
+    to: '/fees/defaulters',
+    key: 'nav.defaulters',
+    perm: 'fees.collect',
+    icon: FileWarning,
+    end: true,
+  },
   { to: '/approvals', key: 'nav.approvals', perm: 'approvals.decide', icon: BadgeCheck, end: true },
   { to: '/setup', key: 'nav.setup', perm: 'settings.manage', icon: Settings, end: false },
+  {
+    to: '/settings',
+    key: 'nav.settings',
+    perm: 'settings.manage',
+    icon: SlidersHorizontal,
+    end: true,
+  },
+  { to: '/users', key: 'nav.users', perm: 'users.manage', icon: ShieldUser, end: true },
+  { to: '/audit', key: 'nav.audit', perm: 'audit.view', icon: History, end: true },
 ] as const
 
 export function Shell() {

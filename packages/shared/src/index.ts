@@ -6,3 +6,4 @@ export * from './setup';
 export * from './students';
 export * from './attendance';
 export * from './fees';
+export * from './principal';
