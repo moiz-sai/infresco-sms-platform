@@ -1,7 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq, gte, isNull, lte, or, sql } from 'drizzle-orm';
+import { and, eq, gte, inArray, isNull, lte, or, sql } from 'drizzle-orm';
 import { DB, type Db } from '../db/database.module';
-import { role, rolePermission, userAccount, userRole } from '../db/schema';
+import {
+  person,
+  role,
+  rolePermission,
+  userAccount,
+  userRole,
+} from '../db/schema';
 
 interface Grant {
   code: string | null;
@@ -90,5 +96,15 @@ export class AccessService {
         ),
       );
     return new UserAccess(user, grants);
+  }
+
+  async displayNames(userIds: string[]) {
+    if (userIds.length === 0) return new Map<string, string>();
+    const rows = await this.db
+      .select({ id: userAccount.id, name: person.nameEn })
+      .from(userAccount)
+      .innerJoin(person, eq(person.id, userAccount.personId))
+      .where(inArray(userAccount.id, userIds));
+    return new Map(rows.map((r) => [r.id, r.name]));
   }
 }

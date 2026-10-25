@@ -24,7 +24,9 @@
     "admission": "نیا داخلہ",
     "setup": "سیٹ اپ",
     "attendance": "حاضری",
-    "register": "حاضری رجسٹر"
+    "register": "حاضری رجسٹر",
+    "feeCollect": "فیس وصولی",
+    "feeSetup": "فیس سیٹ اپ"
   },
   "login": {
     "title": "سائن اِن",
@@ -165,5 +167,81 @@
     "name": "نام",
     "chooseSection": "سیکشن منتخب کریں",
     "draftRestored": "اس ڈیوائس سے غیر محفوظ تبدیلیاں بحال کی گئیں"
+  },
+  "fees": {
+    "collect": "فیس وصولی",
+    "setup": "فیس سیٹ اپ",
+    "search": "نام، داخلہ نمبر یا فون سے طالب علم تلاش کریں…",
+    "dues": "واجبات",
+    "noDues": "کوئی واجبات نہیں",
+    "period": "مہینہ",
+    "head": "فیس",
+    "amount": "رقم",
+    "total": "کل واجب",
+    "advance": "پیشگی (کریڈٹ)",
+    "balance": "بقایا",
+    "pay": "وصول شدہ رقم",
+    "method": "طریقہ",
+    "methods": {
+      "cash": "نقد",
+      "bank": "بینک",
+      "online": "آن لائن"
+    },
+    "saveAndPrint": "محفوظ اور پرنٹ",
+    "saveHint": "محفوظ و پرنٹ کے لیے Ctrl+Enter",
+    "received": "رسید {{no}} محفوظ ہو گئی",
+    "siblings": "بہن بھائی",
+    "recent": "حالیہ اندراجات",
+    "printFormat": "رسید کا سائز",
+    "formats": {
+      "80": "80 ملی میٹر",
+      "a4": "A4 (2 کاپیاں)"
+    },
+    "statement": "فیس گوشوارہ",
+    "date": "تاریخ",
+    "type": "قسم",
+    "types": {
+      "charge": "واجب",
+      "payment": "ادائیگی",
+      "adjust": "رعایت",
+      "reversal": "منسوخی"
+    },
+    "receipt": "رسید",
+    "pickStudent": "فیس وصولی کے لیے طالب علم تلاش کر کے منتخب کریں",
+    "heads": "فیس کی مدیں",
+    "code": "کوڈ",
+    "name": "نام",
+    "priority": "ترجیح",
+    "grid": "جماعت وار فیس ({{year}})",
+    "frequency": "دورانیہ",
+    "frequencies": {
+      "monthly": "ماہانہ",
+      "yearly": "سالانہ",
+      "once": "ایک بار"
+    },
+    "postCharges": "واجبات درج کریں",
+    "postFor": "واجبات برائے",
+    "posted": "{{period}} کے {{count}} واجبات درج ہو گئے",
+    "gridHint": "رقم روپوں میں۔ خالی = کوئی فیس نہیں۔ محفوظ کرنے کے لیے Ctrl+Enter۔",
+    "collectFee": "فیس وصول کریں",
+    "print": {
+      "title": "فیس رسید",
+      "receiptNo": "رسید نمبر",
+      "date": "تاریخ",
+      "student": "طالب علم",
+      "admissionNo": "داخلہ نمبر",
+      "class": "جماعت",
+      "father": "والد",
+      "inWords": "الفاظ میں",
+      "method": "ادائیگی بذریعہ",
+      "balanceAfter": "اس ادائیگی کے بعد بقایا",
+      "receivedBy": "وصول کنندہ",
+      "officeCopy": "دفتری کاپی",
+      "parentCopy": "والدین کی کاپی",
+      "cancelled": "منسوخ",
+      "cut": "یہاں سے کاٹیں",
+      "printAgain": "پرنٹ",
+      "totalPaid": "کل ادا شدہ"
+    }
   }
 }

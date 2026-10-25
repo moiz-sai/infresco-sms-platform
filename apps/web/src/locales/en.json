@@ -24,7 +24,9 @@
     "admission": "New admission",
     "setup": "Setup",
     "attendance": "Attendance",
-    "register": "Attendance register"
+    "register": "Attendance register",
+    "feeCollect": "Fee collection",
+    "feeSetup": "Fee setup"
   },
   "login": {
     "title": "Sign in",
@@ -165,5 +167,81 @@
     "name": "Name",
     "chooseSection": "Choose a section",
     "draftRestored": "Unsaved changes restored from this device"
+  },
+  "fees": {
+    "collect": "Fee collection",
+    "setup": "Fee setup",
+    "search": "Search student by name, admission no, phone…",
+    "dues": "Dues",
+    "noDues": "No dues",
+    "period": "Month",
+    "head": "Fee",
+    "amount": "Amount",
+    "total": "Total due",
+    "advance": "Advance (credit)",
+    "balance": "Balance",
+    "pay": "Amount received",
+    "method": "Method",
+    "methods": {
+      "cash": "Cash",
+      "bank": "Bank",
+      "online": "Online"
+    },
+    "saveAndPrint": "Save & print",
+    "saveHint": "Ctrl+Enter to save & print",
+    "received": "Receipt {{no}} saved",
+    "siblings": "Siblings",
+    "recent": "Recent entries",
+    "printFormat": "Receipt size",
+    "formats": {
+      "80": "80 mm",
+      "a4": "A4 (2 copies)"
+    },
+    "statement": "Fee statement",
+    "date": "Date",
+    "type": "Type",
+    "types": {
+      "charge": "Charge",
+      "payment": "Payment",
+      "adjust": "Discount",
+      "reversal": "Reversal"
+    },
+    "receipt": "Receipt",
+    "pickStudent": "Search and choose a student to collect fees",
+    "heads": "Fee heads",
+    "code": "Code",
+    "name": "Name",
+    "priority": "Priority",
+    "grid": "Fees per class ({{year}})",
+    "frequency": "Frequency",
+    "frequencies": {
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "once": "Once"
+    },
+    "postCharges": "Post charges",
+    "postFor": "Post charges for",
+    "posted": "{{count}} charges posted for {{period}}",
+    "gridHint": "Amounts in rupees. Empty = no fee. Ctrl+Enter to save.",
+    "collectFee": "Collect fee",
+    "print": {
+      "title": "Fee receipt",
+      "receiptNo": "Receipt no",
+      "date": "Date",
+      "student": "Student",
+      "admissionNo": "Adm. no",
+      "class": "Class",
+      "father": "Father",
+      "inWords": "In words",
+      "method": "Paid by",
+      "balanceAfter": "Balance after this payment",
+      "receivedBy": "Received by",
+      "officeCopy": "Office copy",
+      "parentCopy": "Parent copy",
+      "cancelled": "CANCELLED",
+      "cut": "cut here",
+      "printAgain": "Print",
+      "totalPaid": "Total paid"
+    }
   }
 }

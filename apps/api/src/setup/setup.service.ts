@@ -36,6 +36,7 @@ export interface SectionInfo {
   yearId: string;
   yearLabel: string;
   yearStartsOn: string;
+  yearEndsOn: string;
 }
 
 const notFound = (what: string) =>
@@ -248,6 +249,7 @@ export class SetupService {
         yearId: section.yearId,
         yearLabel: academicYear.label,
         yearStartsOn: academicYear.startsOn,
+        yearEndsOn: academicYear.endsOn,
       })
       .from(section)
       .innerJoin(schoolClass, eq(schoolClass.id, section.classId))

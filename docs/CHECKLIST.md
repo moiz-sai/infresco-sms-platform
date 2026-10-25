@@ -35,5 +35,17 @@ Start: `pnpm dev:api` + `pnpm dev:web`, open http://localhost:5173
 - [ ] Phone on the same Wi-Fi: run `pnpm dev:web --host`, open the "Network" address it prints, log in, mark attendance with the big buttons
 - [ ] Switch user to `clerk`: Attendance and register are visible, Setup is not
 
+## T6 Fees
+- [ ] Fee setup: grid shows Tuition 3000 / Exam 500 per class. Change one amount, Ctrl+Enter, reload → kept
+- [ ] Fee setup: add a head (e.g. TRN Transport, priority 30) → new grid column; the ADV row has no delete button
+- [ ] Fee setup → Post charges for the current month → "N charges posted"; pressing again posts 0
+- [ ] Fee collection: type a name, ↓ then Enter → dues show, amount is filled in and focused
+- [ ] Ctrl+Enter → print dialog opens with the receipt; after it, the cursor is back in the search box
+- [ ] Receipt 80 mm: one narrow page, English + Urdu names, amount in words, balance after. A4 (choose "A4 (2 copies)"): office + parent copy with a cut line
+- [ ] Pay more than the dues → the extra shows as "Advance (credit)"
+- [ ] Two students admitted with the same guardian (choose the existing guardian is API-only for now, so skip if not set up) → siblings appear on the collection screen
+- [ ] Student profile → Fees tab: statement with running balance; receipt numbers open the receipt
+- [ ] Urdu: collection and setup screens mirror correctly
+
 ## Windows PC
 See docs/WINDOWS_TEST.md (separate guide for the Windows tester; round 1 after T5, round 2 after T10).

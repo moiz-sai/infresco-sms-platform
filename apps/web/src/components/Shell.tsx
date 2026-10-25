@@ -1,8 +1,10 @@
 import type { School } from '@sms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  Banknote,
   CalendarDays,
   ClipboardCheck,
+  Coins,
   LogOut,
   Settings,
   UserPlus,
@@ -37,6 +39,8 @@ const NAV = [
     icon: CalendarDays,
     end: true,
   },
+  { to: '/fees/collect', key: 'nav.feeCollect', perm: 'fees.collect', icon: Banknote, end: true },
+  { to: '/fees/setup', key: 'nav.feeSetup', perm: 'fees.configure', icon: Coins, end: true },
   { to: '/setup', key: 'nav.setup', perm: 'settings.manage', icon: Settings, end: false },
 ] as const
 

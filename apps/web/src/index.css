@@ -160,3 +160,11 @@ html[lang="ur"] body {
     padding: 1px 2px;
   }
 }
+
+/* Receipts (SPEC §T6): page size is set by ReceiptPrintPage just before printing. */
+@media print {
+  .receipt-80,
+  .receipt-a4 {
+    print-color-adjust: exact;
+  }
+}

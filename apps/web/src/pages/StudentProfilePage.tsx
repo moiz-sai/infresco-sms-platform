@@ -1,11 +1,18 @@
-import { leaveSchema, studentFieldsSchema, type StudentDetail } from '@sms/shared'
+import {
+  formatPaisa,
+  leaveSchema,
+  studentFieldsSchema,
+  type Statement,
+  type StudentDetail,
+} from '@sms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Pencil, UserMinus } from 'lucide-react'
+import { Banknote, Pencil, UserMinus } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router'
+import { Link, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { Field } from '@/components/Field'
+import { StatementTable } from '@/components/StatementTable'
 import { StudentFieldsForm } from '@/components/StudentFieldsForm'
 import { fromDraft, toDraft, type StudentDraft } from '@/lib/student-draft'
 import { Badge } from '@/components/ui/badge'
@@ -174,8 +181,12 @@ export function StudentProfilePage() {
         <TabsContent value="attendance" className="pt-2 text-muted-foreground">
           {t('student.comingSoon')}
         </TabsContent>
-        <TabsContent value="fees" className="pt-2 text-muted-foreground">
-          {t('student.comingSoon')}
+        <TabsContent value="fees" className="pt-2">
+          {current && can('fees.collect') ? (
+            <FeesTab enrollmentId={current.id} />
+          ) : (
+            <p className="text-muted-foreground">{t('app.none')}</p>
+          )}
         </TabsContent>
       </Tabs>
 
@@ -280,5 +291,41 @@ function LeaveDialog({
         </form>
       </DialogContent>
     </Dialog>
+  )
+}
+
+function FeesTab({ enrollmentId }: { enrollmentId: string }) {
+  const { t } = useTranslation()
+  const statement = useQuery({
+    queryKey: ['statement', enrollmentId],
+    queryFn: () => api.get<Statement>(`/fees/students/${enrollmentId}/statement`),
+  })
+  if (!statement.data) return <Skeleton className="h-32 w-full" />
+  const s = statement.data
+  return (
+    <div className="grid gap-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="text-sm text-muted-foreground">{t('fees.total')}</span>
+        <span className="text-lg font-semibold tabular-nums">
+          {formatPaisa(Math.max(0, s.balancePaisa))}
+        </span>
+        {s.advancePaisa > 0 && (
+          <span className="text-sm text-emerald-700">
+            {t('fees.advance')}: {formatPaisa(s.advancePaisa)}
+          </span>
+        )}
+        <Button size="sm" className="ms-auto" asChild>
+          <Link to={`/fees/collect?enrollmentId=${enrollmentId}`}>
+            <Banknote />
+            {t('fees.collectFee')}
+          </Link>
+        </Button>
+      </div>
+      {s.entries.length > 0 ? (
+        <StatementTable entries={s.entries} />
+      ) : (
+        <p className="text-muted-foreground">{t('fees.noDues')}</p>
+      )}
+    </div>
   )
 }

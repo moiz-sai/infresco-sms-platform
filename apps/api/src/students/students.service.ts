@@ -52,6 +52,19 @@ export interface RosterEntry {
   leftOn: string | null;
 }
 
+export interface EnrollmentInfo {
+  enrollmentId: string;
+  studentId: string;
+  admissionNo: string;
+  nameEn: string;
+  nameUr: string | null;
+  fatherName: string | null;
+  classNameEn: string;
+  classNameUr: string | null;
+  sectionName: string;
+  status: 'active' | 'left' | 'promoted';
+}
+
 const today = () => new Date().toLocaleDateString('en-CA');
 const escapeLike = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
 const notFound = () =>
@@ -471,6 +484,94 @@ export class StudentsService {
         ),
       )
       .orderBy(sql`${enrollment.rollNo} asc nulls last`, asc(person.nameEn));
+  }
+
+  // Active enrollments that had joined by the end of a period; isFirst = the student's first enrollment.
+  async billableEnrollments(schoolId: string, periodEnd: string) {
+    const rows = await this.db
+      .select({
+        enrollmentId: enrollment.id,
+        studentId: enrollment.studentId,
+        sectionId: enrollment.sectionId,
+        yearId: enrollment.yearId,
+        joinedOn: enrollment.joinedOn,
+        isFirst: sql<boolean>`not exists (
+          select 1 from enrollment e2
+          where e2.student_id = ${enrollment.studentId}
+            and e2.created_at < ${enrollment.createdAt}
+            and e2.deleted_at is null)`,
+      })
+      .from(enrollment)
+      .where(
+        and(
+          eq(enrollment.schoolId, schoolId),
+          eq(enrollment.status, 'active'),
+          isNull(enrollment.deletedAt),
+          lte(enrollment.joinedOn, periodEnd),
+        ),
+      );
+    return rows;
+  }
+
+  async enrollmentInfo(schoolId: string, enrollmentIds: string[]) {
+    if (enrollmentIds.length === 0) return new Map<string, EnrollmentInfo>();
+    const rows = await this.db
+      .select({
+        enrollmentId: enrollment.id,
+        studentId: person.id,
+        admissionNo: enrollment.admissionNo,
+        nameEn: person.nameEn,
+        nameUr: person.nameUr,
+        fatherName: person.fatherName,
+        sectionId: enrollment.sectionId,
+        status: enrollment.status,
+      })
+      .from(enrollment)
+      .innerJoin(person, eq(person.id, enrollment.studentId))
+      .where(
+        and(
+          eq(enrollment.schoolId, schoolId),
+          inArray(enrollment.id, enrollmentIds),
+        ),
+      );
+    const sections = await this.setup.describeSections(
+      schoolId,
+      rows.map((r) => r.sectionId),
+    );
+    return new Map(
+      rows.map((r) => {
+        const s = sections.get(r.sectionId);
+        return [
+          r.enrollmentId,
+          {
+            enrollmentId: r.enrollmentId,
+            studentId: r.studentId,
+            admissionNo: r.admissionNo,
+            nameEn: r.nameEn,
+            nameUr: r.nameUr,
+            fatherName: r.fatherName,
+            status: r.status,
+            classNameEn: s?.classNameEn ?? '',
+            classNameUr: s?.classNameUr ?? null,
+            sectionName: s?.name ?? '',
+          },
+        ];
+      }),
+    );
+  }
+
+  // Latest enrollment of every other student who shares a guardian with this one.
+  async siblingEnrollmentIds(schoolId: string, studentId: string) {
+    const rows = await this.db.execute<{ id: string }>(sql`
+      select distinct on (e.student_id) e.id
+      from guardian_student mine
+      join guardian_student other on other.guardian_id = mine.guardian_id
+        and other.student_id <> mine.student_id and other.deleted_at is null
+      join enrollment e on e.student_id = other.student_id and e.deleted_at is null
+      where mine.student_id = ${studentId} and mine.deleted_at is null
+        and e.school_id = ${schoolId}
+      order by e.student_id, e.created_at desc`);
+    return rows.rows.map((r) => r.id);
   }
 
   private studentWhere(schoolId: string, id: string) {
