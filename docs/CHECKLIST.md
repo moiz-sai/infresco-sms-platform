@@ -29,7 +29,7 @@ Start: `pnpm dev:api` + `pnpm dev:web`, open http://localhost:5173
 - [ ] Click the first row, then press A, L, Space: statuses change, "N unsaved changes" shows. Ctrl+S → "Attendance saved"; reload → still there
 - [ ] Press Ctrl+S again with no changes → "No changes to save"
 - [ ] Change one student, then reload WITHOUT saving → "Unsaved changes restored" and the change is still shown
-- [ ] Pick a date 5+ days ago: yellow "older than 3 days" banner. Change one and save → "Sent to the principal for approval" (the grid shows the old value until the principal approves; that screen comes in T7)
+- [ ] Pick a date 5+ days ago: yellow "older than 3 days" banner. Change one and save → "Sent to the principal for approval". The grid keeps the old value; then as principal: Approvals → Approve → reload the grid → new value shown
 - [ ] Attendance register: this month's letters and P/A/L/V totals match what you saved; Print → A4 landscape, table only
 - [ ] Urdu: grid buttons show ح غ ر ت and the layout mirrors
 - [ ] Phone on the same Wi-Fi: run `pnpm dev:web --host`, open the "Network" address it prints, log in, mark attendance with the big buttons
@@ -43,7 +43,7 @@ Start: `pnpm dev:api` + `pnpm dev:web`, open http://localhost:5173
 - [ ] Ctrl+Enter → print dialog opens with the receipt; after it, the cursor is back in the search box
 - [ ] Receipt 80 mm: one narrow page, English + Urdu names, amount in words, balance after. A4 (choose "A4 (2 copies)"): office + parent copy with a cut line
 - [ ] Pay more than the dues → the extra shows as "Advance (credit)"
-- [ ] Two students admitted with the same guardian (choose the existing guardian is API-only for now, so skip if not set up) → siblings appear on the collection screen
+- [ ] Two students with the same guardian (admit the second one with "Find existing guardian", see T7) → siblings appear on the collection screen
 - [ ] Student profile → Fees tab: statement with running balance; receipt numbers open the receipt
 - [ ] Urdu: collection and setup screens mirror correctly
 
@@ -61,4 +61,4 @@ First run `pnpm --filter api db:migrate` (new migration).
 - [ ] Urdu: Approvals and Cash close mirror correctly
 
 ## Windows PC
-See docs/WINDOWS_TEST.md (separate guide for the Windows tester; round 1 after T5, round 2 after T10).
+See docs/WINDOWS_TEST.md (separate guide for the Windows tester; round 1 now (covers T4–T7), round 2 after T10).

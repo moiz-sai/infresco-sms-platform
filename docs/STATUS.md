@@ -1,5 +1,5 @@
 # STATUS
-Updated: 2026-10-25 21:00 · Last task: T7 Discounts, approvals, reversal, cash close · Result: DONE
+Updated: 2026-10-25 22:00 · Last task: T7 Discounts, approvals, reversal, cash close · Result: DONE
 ## Done
 - T1 ✔  T2 ✔  T3 ✔  T4 ✔  T5 ✔  T6 ✔  T7 ✔  (+ SPEC §Z1, Z2, Z3, Z6)
 ## Next
@@ -10,7 +10,7 @@ Updated: 2026-10-25 21:00 · Last task: T7 Discounts, approvals, reversal, cash 
 - docs/progress/T6.md
 ## Open issues
 - Enrollment summary on the dashboard (totals by class/section, boys/girls, joined/left this month) proposed as Z7 → human to confirm before T8
-- Windows test round 1 due → docs/WINDOWS_TEST.md
+- Windows test round 1 due (now covers T4–T7: students, attendance, fees, receipts, approvals) → docs/WINDOWS_TEST.md
 ## How to run
 - api: pnpm dev:api · web: pnpm dev:web (phones: pnpm dev:web --host) → http://localhost:5173
 - db: pnpm --filter api db:migrate (needed after pulling T7: migration 0003) · seed: pnpm --filter api db:seed

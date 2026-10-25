@@ -5,7 +5,7 @@ Do **Part 1 once**. For each **test round**, do Part 2, then that round's checks
 
 | Round | When | What gets tested |
 |---|---|---|
-| 1 | After T5 | Install, login, students, attendance from a phone |
+| 1 | Now (after T7) | Install, login, students, attendance from a phone, fee collection and receipts, approvals |
 | 2 | After T10 | Production build, receipt printing, backups (before the demo) |
 
 ---
@@ -67,7 +67,7 @@ Logins: `principal` or `clerk`, password `Admin@123`, PIN `1234`.
 
 ## Part 3 — Test rounds
 
-### Round 1 (after T5)
+### Round 1 (after T7)
 Base
 - [ ] `pnpm install` finishes without red errors
 - [ ] `pnpm verify` ends with `verify passed`
@@ -81,6 +81,13 @@ Screens on the PC (browser: Edge or Chrome, http://localhost:5173)
 - [ ] Attendance: click the first student row, then press **A**, **L**, **Space** on the keyboard → statuses change; **Ctrl+S** saves (the browser must NOT open a "Save page" dialog)
 - [ ] Switch the Windows keyboard to Urdu (if installed) and repeat: the **P/A/L/V** keys still work
 - [ ] Attendance register → **Print**: the print preview shows A4 **landscape** with only the table (no sidebar)
+
+Fees and approvals on the PC
+- [ ] Fee collection: type a student's name, press **↓** then **Enter** → dues show and the amount box is filled in
+- [ ] Press **Ctrl+Enter** → the Windows print dialog opens with the receipt. In the preview, "Receipt 80 mm" is one narrow page; switch the receipt format to **A4 (2 copies)**, pay again → one A4 page with two copies and a cut line. (Cancel the dialog or "Microsoft Print to PDF" is fine; a real 80 mm printer is round 2)
+- [ ] The Urdu name on the receipt is readable (not boxes)
+- [ ] Switch user to `clerk` (PIN `1234`): give a discount above Rs 1,000 → "sent to the principal"
+- [ ] Switch back to `principal`: **Approvals** shows a red count → Approve → the student's dues drop
 
 Phone (same Wi-Fi as the PC)
 - [ ] Run `ipconfig` and note the PC's **IPv4 Address** (e.g. 192.168.1.20)
