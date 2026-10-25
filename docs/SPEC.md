@@ -198,3 +198,10 @@ Inno Setup installer and Windows services, restore wizard, status page, licensin
 - Day 2: T6 (3.5 h) · T7 (2 h) · T8 (2 h) · T9 (1.5 h) · T10 (1 h) · full demo run-through (1 h)
 - Total agent budget ≈ 1.06M tokens (approximate). Human checks each Accept block and the new `docs/progress/T<n>.md` before starting the next task.
 - Starting fresh after a break: open a new session and say `Continue.` — the agent reads `docs/STATUS.md` and picks up the next task.
+
+## §Z Human decisions (binding; added after T6, 2026-10-25)
+- Z1 Principal's own discounts/reversals apply immediately (no approval request); still audited. Clerk's still need approval. → T7
+- Z2 Fee plans above `discountThresholdPaisa` (per month) go to approval like one-off discounts (`fees.discount` approval action, same inbox and approve/reject flow); principal's apply directly (Z1). → T7
+- Z3 Admission form: "find existing guardian" (search name/phone/CNIC) links the new student to that guardian so siblings work. → T7
+- Z4 Student profile Attendance tab: year attendance % + P/A/L/V counts + per-month list. → T8
+- Z5 Promote page: from-section → to-section, students listed and all ticked; untick to keep behind; one tx via POST /enrollments/promote. → T9 (no exams module, so pass/fail is chosen by hand)
