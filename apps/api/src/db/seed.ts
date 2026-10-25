@@ -30,8 +30,9 @@ const CLERK_EXCLUDED = [
 ];
 
 export const DEMO_SCHOOL_ID = '019a0000-0000-7000-8000-000000000001';
-const DEMO_PASSWORD = 'Admin@123';
-const DEMO_PIN = '1234';
+// The Windows installer sets private first-login values; development keeps the demo ones.
+const DEMO_PASSWORD = process.env.SMS_INITIAL_PASSWORD || 'Admin@123';
+const DEMO_PIN = process.env.SMS_INITIAL_PIN || '1234';
 const URDU_DIGITS = ['۱', '۲', '۳', '۴', '۵'];
 
 export async function seed(db: Db) {
