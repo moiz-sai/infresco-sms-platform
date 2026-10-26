@@ -18,6 +18,8 @@ jobs:
   installer:
     runs-on: windows-2022
     timeout-minutes: 45
+    permissions:
+      contents: write # gh release create on v* tags
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
