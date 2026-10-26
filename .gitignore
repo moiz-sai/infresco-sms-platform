@@ -6,3 +6,5 @@ backups/
 coverage/
 .vite/
 .env.test
+installer/build/
+installer/output/

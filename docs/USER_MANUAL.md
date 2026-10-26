@@ -39,7 +39,7 @@ There are two built-in roles. A user can hold one or both.
 ## 2. Signing in, switching user, language
 
 ### Sign in
-1. Open the address shown in the start window: `http://localhost:8080` on the office PC, or the `Phones:` address on a phone on the same Wi-Fi.
+1. On the office PC, double-click the **Infresco SMS** icon on the desktop. On a phone (same Wi-Fi), open the **Phones:** address from the first-login sheet; tip: "Add to Home screen" gives the phone an icon too.
 2. Enter your username and password and press **Enter**.
 3. The principal and clerk land on the **Dashboard**.
 
@@ -303,7 +303,7 @@ Every change is recorded in the audit log.
 ## 13. Routines
 
 **Every morning**
-1. Double-click `scripts\start.cmd` on the office PC. It updates the system, **makes a backup**, and shows the PC and phone addresses. Keep the window open.
+1. Turn on the office PC. The system starts by itself in the background (nothing to click). Double-click the desktop icon when you need it.
 2. Teachers or the clerk mark attendance (phone or PC).
 
 **During the day:** admissions, fee collection, discounts.
@@ -311,7 +311,7 @@ Every change is recorded in the audit log.
 **End of day**
 1. **Cash close** for today.
 2. The principal clears **Approvals**.
-3. Optional: `scripts\backup.cmd` for an extra backup. Copy the newest file from `backups\` to a USB drive weekly.
+3. Backups are automatic every day at 2 pm (or later if the PC was off), kept 14 days in `C:\ProgramData\InfrescoSMS\backups`. For an off-PC copy, keep a USB stick with a folder named `InfrescoSMS-Backups` plugged in: each backup is copied there too.
 
 **Month start:** charges post themselves at 07:00. Check **Defaulters** and print the list if needed.
 
@@ -321,7 +321,31 @@ Every change is recorded in the audit log.
 3. Make the new year current.
 4. Set the fee grid for the new year.
 
-**If the PC breaks:** install the system on a new PC (docs/WINDOWS_TEST.md Part 1), then restore the newest backup (`scripts\restore.ps1`). The developer should switch the database name in `apps\api\.env`.
+**If the PC breaks:** install Infresco SMS on the new PC with the installer, then ask support to restore the newest backup from the USB stick.
+
+---
+
+## 13a. Installing on a school PC (support team)
+
+1. Run `InfrescoSMS-Setup-<version>.exe` on the office PC (Windows 10/11, 64-bit). Click **Yes** to the Windows permission prompt; if a blue "Windows protected your PC" box appears, **More info → Run anyway**.
+2. Leave **Load demo data** **unticked** for a real school.
+3. At the end, the **first-login sheet** opens. It has the principal and clerk passwords and PINs (random for a real school) and the phone address. Log in, change the passwords (Users & roles), then delete the sheet (`C:\ProgramData\InfrescoSMS\first-login.txt`).
+4. **Setup:** school name and address, classes and sections, then **Fee setup**.
+
+| What the installer sets up | Where / how |
+|---|---|
+| Program | `C:\Program Files\Infresco SMS` (Node and PostgreSQL included; no internet needed) |
+| Data, settings, backups, logs | `C:\ProgramData\InfrescoSMS` |
+| Two Windows services | "Infresco SMS" + "InfrescoSMS-DB": start with Windows, restart themselves if they crash |
+| Firewall | Port 8080 opened for phones |
+| Daily backup | Task "Infresco SMS daily backup", 2 pm, keeps 14 |
+
+| If… | Then… |
+|---|---|
+| You run the installer again (a newer version) | It updates the program; data, passwords and settings are kept |
+| You uninstall | The program and services are removed; **the school's data stays** in `C:\ProgramData\InfrescoSMS`, and reinstalling picks it up again |
+| Port 8080 is already used by something else on that PC | The installer picks the next free port; the desktop icon and first-login sheet use the right one |
+| The desktop icon says "not answering yet" | The PC has just started: wait a minute. Still failing → restart the PC → still failing → send `C:\ProgramData\InfrescoSMS\logs` to support |
 
 ---
 

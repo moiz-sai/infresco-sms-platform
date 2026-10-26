@@ -1,0 +1,40 @@
+# Regression gate on every push: the same `pnpm verify` as on the developer PC
+# (build, lint, i18n, fresh DB + demo data, all T1-T11 tests, production boot).
+name: CI
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sms_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Test settings (CI-only throwaway values)
+        run: |
+          cat > apps/api/.env.test <<'ENV'
+          DATABASE_URL=postgres://sms_app:ci-app-password@localhost:5432/sms_test
+          DATABASE_ADMIN_URL=postgres://postgres:postgres@localhost:5432/sms_test
+          PORT=8090
+          SESSION_SECRET=ci-only-session-secret-not-used-anywhere-else
+          DEVICE_PREFIX=D1
+          ENV
+      - run: pnpm verify

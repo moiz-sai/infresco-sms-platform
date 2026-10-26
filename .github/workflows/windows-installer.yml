@@ -1,0 +1,161 @@
+# SPEC T11: builds the one-click Windows installer and proves it on a clean Windows machine:
+# silent install with demo data -> health, login, dashboard, web app -> service restart -> backup
+# -> upgrade over itself (data kept) -> uninstall (data kept). The .exe is uploaded as an artifact;
+# tags v* also attach it to a GitHub Release.
+name: Windows installer
+on:
+  push:
+    branches: [main, t11-installer]
+    tags: ['v*']
+  workflow_dispatch:
+
+env:
+  NODE_RUNTIME: '24.22.1'
+  PG_BINARIES: '18.6-2'
+  WINSW: 'v2.12.0'
+
+jobs:
+  installer:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    permissions:
+      contents: write # gh release create on v* tags
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+
+      - name: Assemble the app (production dependencies only, no symlinks)
+        shell: pwsh
+        run: |
+          $b = 'installer/build'
+          pnpm --filter api deploy --prod --config.node-linker=hoisted "$b/app/api"
+          if ($LASTEXITCODE) { throw 'deploy failed' }
+          Remove-Item -Recurse -Force "$b/app/api/src", "$b/app/api/test" -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force "$b/app/web" | Out-Null
+          Copy-Item -Recurse apps/web/dist "$b/app/web/dist"
+
+      - name: Download Node, PostgreSQL, WinSW, VC++ runtime
+        shell: pwsh
+        run: |
+          $ProgressPreference = 'SilentlyContinue'
+          $b = 'installer/build'; $t = $env:RUNNER_TEMP
+          New-Item -ItemType Directory -Force "$b/node", "$b/pgsql", "$b/service", "$b/redist" | Out-Null
+          Invoke-WebRequest "https://nodejs.org/dist/v$env:NODE_RUNTIME/node-v$env:NODE_RUNTIME-win-x64.zip" -OutFile "$t/node.zip"
+          7z x "$t/node.zip" "-o$t/node" -y | Out-Null
+          Copy-Item "$t/node/node-v$env:NODE_RUNTIME-win-x64/node.exe" "$b/node/"
+          Invoke-WebRequest "https://get.enterprisedb.com/postgresql/postgresql-$env:PG_BINARIES-windows-x64-binaries.zip" -OutFile "$t/pg.zip"
+          7z x "$t/pg.zip" "-o$t/pg" -y | Out-Null
+          foreach ($d in 'bin', 'lib', 'share') { Copy-Item -Recurse "$t/pg/pgsql/$d" "$b/pgsql/$d" }
+          Invoke-WebRequest "https://github.com/winsw/winsw/releases/download/$env:WINSW/WinSW-x64.exe" -OutFile "$b/service/InfrescoSMS-App.exe"
+          Invoke-WebRequest 'https://aka.ms/vs/17/release/vc_redist.x64.exe' -OutFile "$b/redist/vc_redist.x64.exe"
+          & "$b/node/node.exe" --version
+          & "$b/pgsql/bin/postgres.exe" --version
+
+      - name: Build the installer
+        shell: pwsh
+        run: |
+          $ver = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } else { "1.0.0-$($env:GITHUB_SHA.Substring(0, 7))" }
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress | Out-Null }
+          & $iscc "/DAppVersion=$ver" installer/infresco-sms.iss
+          if ($LASTEXITCODE) { throw 'ISCC failed' }
+          Get-ChildItem installer/output/*.exe | ForEach-Object { '{0}  {1:N0} MB' -f $_.Name, ($_.Length / 1MB) }
+
+      - name: 'Smoke test: install, use, restart, back up, upgrade, uninstall'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $exe = (Get-ChildItem installer/output/*.exe | Select-Object -First 1).FullName
+          function Install([string[]]$extra) {
+            $p = Start-Process $exe -ArgumentList (@('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/LOG=installer/output/setup.log') + $extra) -Wait -PassThru
+            if ($p.ExitCode -ne 0) { throw "installer exit code $($p.ExitCode)" }
+          }
+          function WaitHealthy($url) {
+            for ($i = 0; $i -lt 60; $i++) { try { if ((Invoke-RestMethod "$url/api/health" -TimeoutSec 3).status -eq 'ok') { return } } catch { }; Start-Sleep 2 }
+            throw 'app not healthy'
+          }
+          function Students($url) {
+            $s = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+            Invoke-RestMethod "$url/api/auth/login" -Method Post -ContentType 'application/json' -Body '{"username":"principal","password":"Admin@123"}' -WebSession $s | Out-Null
+            return (Invoke-RestMethod "$url/api/dashboard" -WebSession $s).enrollment.total
+          }
+
+          Install @('/TASKS=demodata')
+          $url = (Get-Content C:\ProgramData\InfrescoSMS\app-url.txt).Trim()
+          "App at $url"
+          WaitHealthy $url
+          $n = Students $url; "Students: $n"; if ($n -lt 290) { throw 'demo data missing' }  # 300 admitted, 2 marked as left
+          $page = Invoke-WebRequest "$url/students/new" -UseBasicParsing
+          if ($page.Content -notmatch 'id="root"') { throw 'web app not served' }
+          Get-Service InfrescoSMS-DB, InfrescoSMS-App | Format-Table Name, Status, StartType
+          if ((Get-Service InfrescoSMS-App).StartType -ne 'Automatic') { throw 'app service not automatic' }
+          if (-not (Get-NetFirewallRule -Name InfrescoSMS -ErrorAction SilentlyContinue)) { throw 'firewall rule missing' }
+          if (-not (Get-ScheduledTask -TaskName 'Infresco SMS daily backup' -ErrorAction SilentlyContinue)) { throw 'backup task missing' }
+
+          'Crash recovery: kill node, expect automatic restart'
+          Get-Process node -ErrorAction SilentlyContinue | Where-Object { $_.Path -like '*Infresco SMS*' } | Stop-Process -Force
+          Start-Sleep 8
+          WaitHealthy $url
+
+          'Backup + restore check'
+          Start-ScheduledTask -TaskName 'Infresco SMS daily backup'; Start-Sleep 15
+          $dumps = Get-ChildItem C:\ProgramData\InfrescoSMS\backups\*.dump
+          if ($dumps.Count -lt 1) { throw 'no backup file' }
+          & 'C:\Program Files\Infresco SMS\pgsql\bin\pg_restore.exe' --list $dumps[-1].FullName | Select-Object -First 3
+
+          'Upgrade over itself: data must stay'
+          Install @()
+          WaitHealthy $url
+          $n2 = Students $url; "Students after upgrade: $n2"; if ($n2 -ne $n) { throw 'data changed on upgrade' }
+
+          'Uninstall: services go, data stays'
+          Start-Process 'C:\Program Files\Infresco SMS\unins000.exe' -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES' -Wait
+          # The uninstaller re-launches itself from %TEMP%; wait for it to finish.
+          for ($i = 0; $i -lt 60 -and (Test-Path 'C:\Program Files\Infresco SMS\unins000.exe'); $i++) { Start-Sleep 2 }
+          if (Get-Service InfrescoSMS-App -ErrorAction SilentlyContinue) { throw 'app service left behind' }
+          if (-not (Test-Path C:\ProgramData\InfrescoSMS\pgdata\PG_VERSION)) { throw 'data was deleted' }
+          'All installer checks passed'
+
+      - name: Show and collect logs (on failure)
+        if: failure()
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force installer/output/logs | Out-Null
+          Get-ChildItem -Force -Recurse C:\ProgramData\InfrescoSMS -Depth 1 -ErrorAction SilentlyContinue | Select-Object FullName, Length | Format-Table -AutoSize | Out-String -Width 200
+          icacls C:\ProgramData\InfrescoSMS\config
+          icacls C:\ProgramData\InfrescoSMS\config\app.env
+          $n = 'C:\Program Files\Infresco SMS\node\node.exe'
+          & $n -e "const f=process.argv[1]; try { console.log('fs read ok, bytes', require('fs').readFileSync(f,'utf8').length) } catch (e) { console.log('fs read FAILED', e.code, e.message) } try { process.loadEnvFile(f); console.log('loadEnvFile ok') } catch (e) { console.log('loadEnvFile FAILED', e.code) }" C:\ProgramData\InfrescoSMS\config\app.env
+          whoami /groups | Select-String -Pattern 'Mandatory|Administrators'
+          Copy-Item C:\ProgramData\InfrescoSMS\logs\* installer/output/logs -ErrorAction SilentlyContinue
+          foreach ($f in Get-ChildItem installer/output/logs, installer/output/*.log -File -ErrorAction SilentlyContinue) {
+            "===== $($f.Name) (last 80 lines)"; Get-Content $f.FullName -Tail 80
+          }
+
+      - name: Upload logs (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-logs
+          path: |
+            installer/output/logs
+            installer/output/*.log
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: InfrescoSMS-Setup
+          path: installer/output/*.exe
+          retention-days: 30
+
+      - name: Attach to GitHub Release (tags only)
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: gh release create $env:GITHUB_REF_NAME (Get-ChildItem installer/output/*.exe).FullName --title "Infresco SMS $env:GITHUB_REF_NAME" --notes "One-click Windows installer. Download, double-click, done."

@@ -1,165 +1,101 @@
 # Windows test guide
 
-For the person testing Infresco SMS on a Windows PC. Follow it top to bottom; you don't need to read any other project file.
-Do **Part 1 once**. For each **test round**, do Part 2, then that round's checks in Part 3, then report back with Part 4.
+For the person testing Infresco SMS on a Windows PC. You need **one file** (`InfrescoSMS-Setup-….exe`) and about 30 minutes. No programming tools and no typing of commands.
 
-| Round | When | What gets tested |
-|---|---|---|
-| 1 | Now (after T9) | Install, login, students, attendance from a phone, fee collection and receipts, approvals, dashboard |
-| 2 | Now (after T10) | Demo data, production start script, phone on the built app, receipt printing, backup and restore |
+What you are testing is exactly what a school will get: double-click the installer, then use the desktop icon.
 
 ---
 
-## Part 1 — One-time setup (about 45 min)
+## Before you start
 
-1. Install (default options are fine):
-   - Git: https://git-scm.com/download/win
-   - Node.js 26 LTS (24 also works): https://nodejs.org
-   - PostgreSQL 18: https://www.postgresql.org/download/windows/. Write down the password you set for the `postgres` user and keep port 5432. Skip Stack Builder at the end.
-2. Open **PowerShell** (not as admin) and install pnpm:
-   ```powershell
-   npm i -g pnpm
-   ```
-3. Create the two databases (enter the `postgres` password when asked):
-   ```powershell
-   & "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -c "CREATE DATABASE sms_dev" -c "CREATE DATABASE sms_test"
-   ```
-4. Get the code (the developer will tell you which one applies):
-   ```powershell
-   git clone <repo URL> infresco-sms      # GitHub
-   git clone sms.bundle infresco-sms      # bundle file
-   cd infresco-sms
-   ```
-5. Create the settings files:
-   ```powershell
-   Copy-Item apps\api\.env.example apps\api\.env
-   Copy-Item apps\api\.env.test.example apps\api\.env.test
-   ```
-   Open both files in Notepad and change these lines (use `sms_dev` in `.env`, `sms_test` in `.env.test`):
-   - `DATABASE_ADMIN_URL=postgres://postgres:<postgres password>@localhost:5432/sms_dev`
-   - `DATABASE_URL=postgres://sms_app:<invent a password>@localhost:5432/sms_dev`. Use the **same** invented password in both files.
-   - `SESSION_SECRET=` followed by 40 random characters. Generate them with:
-     ```powershell
-     -join ((48..57)+(65..90)+(97..122) | Get-Random -Count 40 | % {[char]$_})
-     ```
-   If a password contains `@ : / ? #`, choose another one. Those characters break the URL.
+- **PC:** Windows 10 or 11, 64-bit, with about 2 GB free disk space.
+- **Phone:** any phone on the **same Wi-Fi** as the PC (for the phone checks).
+- **Printers:** if available, an 80 mm receipt printer and/or an A4 printer.
+- **Installer:** the developer sends `InfrescoSMS-Setup-<version>.exe` (about 85 MB) by link or USB. Save it in Downloads.
 
-## Part 2 — Start of every round: get the latest code and set it up
+---
 
-```powershell
-cd infresco-sms
-git pull                                  # or re-clone from a new bundle
-pnpm install
-pnpm --filter api db:migrate
-pnpm --filter api db:seed
-pnpm verify
-```
-`pnpm verify` takes about 30 s. It must end with `verify passed`. If it shows `✗`, stop and report (Part 4).
+## Part 1: Install (about 5 minutes)
 
-Then start the app in **two** PowerShell windows, both inside `infresco-sms`:
-```powershell
-pnpm dev:api      # window 1 — wait for "Nest application successfully started"
-pnpm dev:web --host   # window 2 — wait for "Local: http://localhost:5173/" and a "Network:" line
-```
-The first time, Windows Firewall asks about Node.js. Tick **Private networks** and click Allow.
+1. Double-click `InfrescoSMS-Setup-….exe`.
+2. **"Windows protected your PC"** (blue box): click **More info → Run anyway**. This appears because the installer is not code-signed yet.
+3. **"Do you want to allow this app to make changes?"**: **Yes**.
+4. **Next**, keep the folder, **Next**.
+5. On **Select Additional Tasks**, tick **Load demo data (300 sample students)**. This is for testing only; a real school leaves it unticked.
+6. **Install**. Wait 1–4 minutes while it says "Setting up the database and services…". Don't close it.
+7. At the end, keep both boxes ticked and click **Finish**:
+   - **Open Infresco SMS now**: the system opens in its own window.
+   - **Show the first-login sheet**: Notepad opens with the usernames, passwords and phone address.
 
-Logins: `principal` or `clerk`, password `Admin@123`, PIN `1234`.
+**Logins with demo data:** `principal` or `clerk`, password `Admin@123`, PIN `1234`.
 
-## Part 3 — Test rounds
+### Install checks
+- [ ] The installer finished without an error message
+- [ ] A blue **Infresco SMS** icon (graduation cap) is on the desktop
+- [ ] The system opened by itself in its own window (no browser tabs), on the login screen
+- [ ] The first-login sheet opened in Notepad and shows a **Phones:** address like `http://192.168.x.x:8080`
 
-### Round 1 (after T9)
-Base
-- [ ] `pnpm install` finishes without red errors
-- [ ] `pnpm verify` ends with `verify passed`
-- [ ] Browser http://localhost:5173/api/health shows `{"status":"ok"}`
+If the installer shows **"Setup could not finish"**: send the developer the file it names, `C:\ProgramData\InfrescoSMS\logs\install.log`.
 
-Screens on the PC (browser: Edge or Chrome, http://localhost:5173)
-- [ ] Log in as `principal`. Then type a wrong password 5× for `clerk`: the 6th try says the account is locked
-- [ ] Urdu button: the page mirrors right-to-left and the Urdu text is readable (not boxes or question marks)
-- [ ] New admission: student with an Urdu name + 2 guardians, choose class/section, press **Ctrl+Enter** → green message with an admission number
-- [ ] Students: type part of that Urdu name in search → the student is found
-- [ ] Attendance: click the first student row, then press **A**, **L**, **Space** on the keyboard → statuses change; **Ctrl+S** saves (the browser must NOT open a "Save page" dialog)
-- [ ] Switch the Windows keyboard to Urdu (if installed) and repeat: the **P/A/L/V** keys still work
-- [ ] Attendance register → **Print**: the print preview shows A4 **landscape** with only the table (no sidebar)
+---
 
-Fees and approvals on the PC
-- [ ] Fee collection: type a student's name, press **↓** then **Enter** → dues show and the amount box is filled in
-- [ ] Press **Ctrl+Enter** → the Windows print dialog opens with the receipt. In the preview, "Receipt 80 mm" is one narrow page; switch the receipt format to **A4 (2 copies)**, pay again → one A4 page with two copies and a cut line. (Cancel the dialog or "Microsoft Print to PDF" is fine; a real 80 mm printer is round 2)
-- [ ] The Urdu name on the receipt is readable (not boxes). In Urdu mode the amount in words is Urdu and readable
-- [ ] Switch user to `clerk` (PIN `1234`): give a discount above Rs 1,000 → "sent to the principal"
-- [ ] Switch back to `principal`: **Approvals** shows a red count → Approve → the student's dues drop
-- [ ] **Dashboard** opens after login with numbers and charts; **Defaulters → Print** shows an A4 table with no sidebar
-- [ ] Phone: the Dashboard shows one card per row, no sideways scrolling
+## Part 2: Use it (about 15 minutes)
 
-Phone (same Wi-Fi as the PC)
-- [ ] Run `ipconfig` and note the PC's **IPv4 Address** (e.g. 192.168.1.20)
-- [ ] Phone browser opens `http://<IPv4>:8080/api/health` → `{"status":"ok"}`
-- [ ] Phone browser opens `http://<IPv4>:5173` → login page; log in as `clerk`
-- [ ] Phone: Attendance → tap the big P/A buttons → **Save** at the bottom → "Attendance saved"
-- [ ] The PC's Attendance page (same section and date, after reload) shows the phone's changes
+### On the PC
+- [ ] Close the window. Double-click the desktop icon → it opens again within a few seconds
+- [ ] Log in as `principal`. The Dashboard shows about 298 students, numbers and charts
+- [ ] **اردو** button: the whole page mirrors right-to-left and the Urdu is readable (no boxes or ?)
+- [ ] **New admission**: a student with an Urdu name and a guardian → **Ctrl+Enter** → green message with an admission number
+- [ ] **Students**: type part of that Urdu name → found
+- [ ] **Attendance**: pick a class, click the first row, press **A**, **L**, **Space** → statuses change; **Ctrl+S** → "Attendance saved" (no "Save page" dialog)
+- [ ] If an Urdu keyboard is installed, switch to it: the **P/A/L/V** keys still work
+- [ ] **Switch user** → `clerk`, PIN `1234` → the name at the top changes
+- [ ] As clerk, **Fee collection**: type a name, **↓**, **Enter** → **Ctrl+Enter** → the Windows print dialog opens with the receipt
+- [ ] As clerk, give a **Discount** of Rs 1,500 → "sent to the principal"
+- [ ] Switch to `principal` → **Approvals** shows a red number → **Approve**
 
-### Round 2 (after T10, before the demo)
-Do Part 2 first (`pnpm verify` now takes about 90 s because it also builds demo data). Then close both `pnpm dev:...` windows: this round uses the real start script, not the developer servers.
+### Printing (with real printers if you have them)
+- [ ] **80 mm receipt printer**: one narrow receipt, nothing cut off, Urdu name readable
+- [ ] Receipt format **A4 (2 copies)**, pay again → one A4 page with office copy + parent copy and a cut line
+- [ ] In Urdu mode, print a receipt → labels and the amount in words are Urdu
+- [ ] **Attendance register → Print** → A4 landscape, table only. **Defaulters → Print** → table only
 
-Demo data
-- [ ] `pnpm --filter api db:seed-demo` ends with `demo data complete` (about a minute). Running it again says `demo data already present`
-  - It adds 300 students to the `sms_dev` database. If that database already has 100+ students it does nothing.
+### Phone (same Wi-Fi)
+- [ ] Open the **Phones:** address from the first-login sheet (`C:\ProgramData\InfrescoSMS\first-login.txt`) → login page
+- [ ] Log in as `clerk` → **Attendance** → choose a class → tap the big **P/A** buttons → **Save** → "Attendance saved". Nothing is cut off at the sides
+- [ ] Switch to **اردو** on the phone → page mirrors and fits the screen
+- [ ] On the PC, the same class and date (reload) shows the phone's changes
 
-Start like the school will
-- [ ] In File Explorer open `infresco-sms\scripts` and double-click **start.cmd**. The first start builds the app (a few minutes). It ends with:
-  `Backup saved: ...`, `This PC: http://localhost:8080` and a `Phones: http://<IPv4>:8080` line
-- [ ] Windows Firewall asks about Node.js the first time: tick **Private networks**, Allow
-- [ ] Browser http://localhost:8080 (port **8080**, not 5173) → login page. Log in as `principal` → Dashboard with about 300 students, numbers and charts
-- [ ] Close the start window, double-click **start.cmd** again → starts quickly (no build), data is still there
+If the phone can't connect: the PC and phone must be on the same Wi-Fi. Some routers block devices from seeing each other ("AP/client isolation"); try a home router or phone hotspot.
 
-Phone on the built app
-- [ ] Phone browser opens the `Phones:` address from the start window → login as `clerk` → Attendance → choose a class → tap big **P/A** buttons → **Save** → "Attendance saved". Nothing on the screen is cut off at the sides
-- [ ] Phone: switch to Urdu (اردو) → the page mirrors and fits the screen
+---
 
-Printing (connect the school's printers if you have them)
-- [ ] Fee collection → find a student → **Ctrl+Enter** → the Windows print dialog opens with the receipt
-- [ ] 80 mm receipt printer: prints one narrow receipt, nothing cut off, Urdu name readable
-- [ ] Choose **A4 (2 copies)** and pay again → A4 printer: office copy + parent copy with a cut line on one page
-- [ ] Switch to Urdu and print a receipt → labels and the amount in words are Urdu
-- [ ] Attendance register → Print → A4 landscape. Defaulters → Print → table only
+## Part 3: Restart and backups (about 10 minutes)
 
-Backup and restore
-- [ ] Double-click **backup.cmd** → `Backup saved: ...\backups\sms-<date>.dump`
-- [ ] In PowerShell inside `infresco-sms`:
-  ```powershell
-  powershell -ExecutionPolicy Bypass -File scripts\restore.ps1 -File (Get-ChildItem backups\*.dump | Select-Object -Last 1).FullName
-  ```
-  → `Backup OK: 25 tables with data`
-- [ ] Restore into a test copy (the live database is never touched):
-  ```powershell
-  powershell -ExecutionPolicy Bypass -File scripts\restore.ps1 -File (Get-ChildItem backups\*.dump | Select-Object -Last 1).FullName -Into sms_restore_check
-  ```
-  → `Restored into database 'sms_restore_check'`. Then remove the copy:
-  ```powershell
-  & "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -c "DROP DATABASE sms_restore_check"
-  ```
-- [ ] Every start makes a backup; only the newest 14 are kept in `backups\`
+- [ ] **Restart the PC.** After logging into Windows, **don't open anything**, wait 1 minute, double-click the icon → the system opens and everything you entered is still there
+- [ ] Open the folder `C:\ProgramData\InfrescoSMS\backups` → there is at least one `sms-<date>.dump` file (one is made at install, then every day at 2 pm, or later if the PC was off)
+- [ ] Optional USB copy: on a USB stick create a folder named `InfrescoSMS-Backups`, leave it plugged in. Next daily backup also appears there
+- [ ] Run the installer **again** (as if updating), untick demo data → Finish → the system still has all the data
+- [ ] **Settings → Apps → Infresco SMS → Uninstall** → the icon disappears. Then install again (demo box unticked) → your earlier data is still there (the data is kept on purpose)
 
-## Part 4 — Reporting
+---
+
+## Part 4: Reporting
 
 For every unticked or failing item, send the developer:
-1. The round and the item text
-2. What you did and what you saw instead (a screenshot of the screen or PowerShell window)
-3. For command failures, the **last 40 lines** of output:
-   ```powershell
-   pnpm verify 2>&1 | Select-Object -Last 40
-   ```
-4. Your Windows version (`winver`) and `node --version`
+1. The item text
+2. What you did and what you saw (a photo or screenshot)
+3. These files from `C:\ProgramData\InfrescoSMS\logs`: `install.log`, `InfrescoSMS-App.err.log`, `InfrescoSMS-App.out.log`
+4. Your Windows version (press **Win+R**, type `winver`, Enter)
 
-When the round is done, send this file back with your ticks (`- [x]`) and notes.
+When done, send this file back with your ticks (`- [x]`) and notes.
 
 ### Common problems
-| Symptom | Fix |
+| Symptom | What to do |
 |---|---|
-| `pnpm` is not recognized | Close and reopen PowerShell after `npm i -g pnpm` |
-| `psql` is not recognized | Use the full path from Part 1 step 3 |
-| `password authentication failed` | The password in `.env`/`.env.test` doesn't match. Check the `postgres` password in `DATABASE_ADMIN_URL` |
-| `address already in use :8080` | An old window is still running the API. Close it, or restart the PC |
-| `running scripts is disabled on this system` | Use the `.cmd` files, or run with `powershell -ExecutionPolicy Bypass -File scripts\start.ps1` |
-| `pg_dump not found` / `psql not found` | PostgreSQL 18 must be installed in the default folder, or add its `bin` folder to PATH |
-| Phone can't connect | Same Wi-Fi? Firewall allowed on Private? In Windows Settings, the Wi-Fi network must be set to **Private**, not Public |
+| "Windows protected your PC" | **More info → Run anyway** (unsigned installer) |
+| Antivirus blocks or deletes the installer | Allow it once in the antivirus, or temporarily pause it during install. Tell the developer which antivirus |
+| Icon says "Infresco SMS is not answering yet" | Right after starting Windows, wait one minute and try again. Still failing → restart the PC; still failing → send the logs |
+| The window opens in a normal browser tab | Microsoft Edge is missing or blocked; it still works in the browser |
+| Phone can't connect | Same Wi-Fi? Router client isolation? Try a phone hotspot |
+| Forgot a password | Log in as `principal` → **Users & roles** → Edit → reset |
