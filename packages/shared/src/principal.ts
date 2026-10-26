@@ -155,14 +155,6 @@ export const userResetSchema = z
   });
 export type UserReset = z.infer<typeof userResetSchema>;
 
-export interface RoleItem {
-  id: string;
-  code: string;
-  nameEn: string;
-  nameUr: string | null;
-  permissions: string[];
-}
-
 export interface UserItem {
   id: string;
   username: string;

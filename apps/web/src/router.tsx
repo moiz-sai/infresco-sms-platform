@@ -46,10 +46,11 @@ export const router = createBrowserRouter([
           },
           {
             element: <RequirePermission perm="students.edit" />,
-            children: [
-              { path: 'students/new', element: <AdmissionPage /> },
-              { path: 'students/promote', element: <PromotePage /> },
-            ],
+            children: [{ path: 'students/new', element: <AdmissionPage /> }],
+          },
+          {
+            element: <RequirePermission perm="students.promote" />,
+            children: [{ path: 'students/promote', element: <PromotePage /> }],
           },
           {
             element: <RequirePermission perm="attendance.mark" />,
@@ -61,11 +62,15 @@ export const router = createBrowserRouter([
           },
           {
             element: <RequirePermission perm="fees.collect" />,
-            children: [
-              { path: 'fees/collect', element: <FeeCollectionPage /> },
-              { path: 'fees/cash-close', element: <CashClosePage /> },
-              { path: 'fees/defaulters', element: <DefaultersPage /> },
-            ],
+            children: [{ path: 'fees/collect', element: <FeeCollectionPage /> }],
+          },
+          {
+            element: <RequirePermission perm="fees.cash_close" />,
+            children: [{ path: 'fees/cash-close', element: <CashClosePage /> }],
+          },
+          {
+            element: <RequirePermission perm="fees.defaulters" />,
+            children: [{ path: 'fees/defaulters', element: <DefaultersPage /> }],
           },
           {
             element: <RequirePermission perm="fees.configure" />,
@@ -76,11 +81,12 @@ export const router = createBrowserRouter([
             children: [{ path: 'approvals', element: <ApprovalsPage /> }],
           },
           {
+            element: <RequirePermission perm="setup.manage" />,
+            children: [{ path: 'setup', element: <SetupPage /> }],
+          },
+          {
             element: <RequirePermission perm="settings.manage" />,
-            children: [
-              { path: 'setup', element: <SetupPage /> },
-              { path: 'settings', element: <SettingsPage /> },
-            ],
+            children: [{ path: 'settings', element: <SettingsPage /> }],
           },
           {
             element: <RequirePermission perm="users.manage" />,

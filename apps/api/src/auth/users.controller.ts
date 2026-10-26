@@ -10,10 +10,14 @@ import {
   Put,
 } from '@nestjs/common';
 import {
+  roleCreateSchema,
+  roleUpdateSchema,
   userCreateSchema,
   userResetSchema,
   userRolesSchema,
   userUpdateSchema,
+  type RoleCreate,
+  type RoleUpdate,
   type UserCreate,
   type UserReset,
   type UserRolesInput,
@@ -22,20 +26,49 @@ import {
 import type { Actor } from '../common/actor';
 import { CurrentActor, RequirePermission } from '../common/decorators';
 import { ZodPipe } from '../common/zod.pipe';
+import { RolesService } from './roles.service';
 import { UsersService } from './users.service';
 
 const MANAGE = 'users.manage';
+const ROLES = 'roles.manage';
 const id = new ParseUUIDPipe();
 type UserActor = Actor & { userId: string };
 
 @Controller('roles')
 export class RolesController {
-  constructor(private readonly users: UsersService) {}
+  constructor(private readonly roles: RolesService) {}
 
+  // Users & roles needs the list to assign roles; editing roles is principal-only.
   @Get()
   @RequirePermission(MANAGE)
   list(@CurrentActor() actor: Actor) {
-    return this.users.listRoles(actor.schoolId);
+    return this.roles.list(actor.schoolId);
+  }
+
+  @Post()
+  @RequirePermission(ROLES)
+  create(
+    @Body(new ZodPipe(roleCreateSchema)) body: RoleCreate,
+    @CurrentActor() actor: Actor,
+  ) {
+    return this.roles.create(actor, body);
+  }
+
+  @Put(':id')
+  @RequirePermission(ROLES)
+  update(
+    @Param('id', id) roleId: string,
+    @Body(new ZodPipe(roleUpdateSchema)) body: RoleUpdate,
+    @CurrentActor() actor: Actor,
+  ) {
+    return this.roles.update(actor, roleId, body);
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  @RequirePermission(ROLES)
+  remove(@Param('id', id) roleId: string, @CurrentActor() actor: Actor) {
+    return this.roles.remove(actor, roleId);
   }
 }
 

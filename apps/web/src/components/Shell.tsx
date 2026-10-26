@@ -43,7 +43,7 @@ const NAV = [
   {
     to: '/students/promote',
     key: 'nav.promote',
-    perm: 'students.edit',
+    perm: 'students.promote',
     icon: ArrowRightLeft,
     end: true,
   },
@@ -66,19 +66,19 @@ const NAV = [
   {
     to: '/fees/cash-close',
     key: 'nav.cashClose',
-    perm: 'fees.collect',
+    perm: 'fees.cash_close',
     icon: Calculator,
     end: true,
   },
   {
     to: '/fees/defaulters',
     key: 'nav.defaulters',
-    perm: 'fees.collect',
+    perm: 'fees.defaulters',
     icon: FileWarning,
     end: true,
   },
   { to: '/approvals', key: 'nav.approvals', perm: 'approvals.decide', icon: BadgeCheck, end: true },
-  { to: '/setup', key: 'nav.setup', perm: 'settings.manage', icon: Settings, end: false },
+  { to: '/setup', key: 'nav.setup', perm: 'setup.manage', icon: Settings, end: false },
   {
     to: '/settings',
     key: 'nav.settings',

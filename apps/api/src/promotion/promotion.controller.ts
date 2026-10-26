@@ -14,7 +14,7 @@ export class PromotionController {
   constructor(private readonly promotion: PromotionService) {}
 
   @Get('promote/candidates')
-  @RequirePermission('students.edit')
+  @RequirePermission('students.promote')
   candidates(
     @Query(new ZodPipe(promoteCandidatesQuerySchema)) q: { sectionId: string },
     @CurrentActor() actor: Actor,
@@ -24,7 +24,7 @@ export class PromotionController {
 
   @Post('promote')
   @HttpCode(200)
-  @RequirePermission('students.edit')
+  @RequirePermission('students.promote')
   promote(
     @Body(new ZodPipe(promoteSchema)) body: PromoteInput,
     @CurrentActor() actor: Actor & { userId: string },

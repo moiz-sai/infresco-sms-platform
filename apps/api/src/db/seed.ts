@@ -1,33 +1,15 @@
 import { hash } from '@node-rs/argon2';
-import { and, eq, inArray, isNull } from 'drizzle-orm';
+import {
+  CLERK_DEFAULT_EXCLUDED,
+  PERMISSION_CODES,
+  PERMISSION_MODULES,
+} from '@sms/shared';
+import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import type { Db } from './database.module';
 import * as s from './schema';
 import { loadScriptEnv } from './script-env';
-
-export const PERMISSIONS: Record<string, string> = {
-  'students.view': 'students',
-  'students.edit': 'students',
-  'attendance.mark': 'attendance',
-  'attendance.view': 'attendance',
-  'fees.configure': 'fees',
-  'fees.collect': 'fees',
-  'fees.discount': 'fees',
-  'fees.reverse.request': 'fees',
-  'approvals.decide': 'approvals',
-  'dashboard.view': 'dashboard',
-  'users.manage': 'users',
-  'audit.view': 'audit',
-  'settings.manage': 'settings',
-};
-
-const CLERK_EXCLUDED = [
-  'approvals.decide',
-  'users.manage',
-  'settings.manage',
-  'audit.view',
-];
 
 export const DEMO_SCHOOL_ID = '019a0000-0000-7000-8000-000000000001';
 // The Windows installer sets private first-login values; development keeps the demo ones.
@@ -40,11 +22,23 @@ export async function seed(db: Db) {
   const pinHash = await hash(DEMO_PIN);
 
   await db.transaction(async (tx) => {
-    const codes = Object.keys(PERMISSIONS);
-    await tx
+    // module is refreshed on every run; `inserted` is true only for codes new to this database.
+    const perms = await tx
       .insert(s.permission)
-      .values(codes.map((code) => ({ code, module: PERMISSIONS[code] })))
-      .onConflictDoNothing();
+      .values(
+        PERMISSION_MODULES.flatMap((m) =>
+          m.codes.map((code) => ({ code, module: m.module })),
+        ),
+      )
+      .onConflictDoUpdate({
+        target: s.permission.code,
+        set: { module: sql`excluded.module` },
+      })
+      .returning({
+        code: s.permission.code,
+        inserted: sql<boolean>`xmax = 0`,
+      });
+    const fresh = perms.filter((p) => p.inserted).map((p) => p.code);
 
     await tx
       .insert(s.role)
@@ -63,16 +57,20 @@ export async function seed(db: Db) {
         ),
       );
     const roleId = (code: string) => roles.find((r) => r.code === code)!.id;
+    // Principal always holds every code. Clerk only receives codes that are new, so the
+    // principal's choices in the Roles screen survive upgrades (SPEC §T12).
+    const clerkNew = fresh.filter((c) => !CLERK_DEFAULT_EXCLUDED.includes(c));
     await tx
       .insert(s.rolePermission)
       .values([
-        ...codes.map((c) => ({
+        ...PERMISSION_CODES.map((c) => ({
           roleId: roleId('PRINCIPAL'),
           permissionCode: c,
         })),
-        ...codes
-          .filter((c) => !CLERK_EXCLUDED.includes(c))
-          .map((c) => ({ roleId: roleId('CLERK'), permissionCode: c })),
+        ...clerkNew.map((c) => ({
+          roleId: roleId('CLERK'),
+          permissionCode: c,
+        })),
       ])
       .onConflictDoNothing();
 

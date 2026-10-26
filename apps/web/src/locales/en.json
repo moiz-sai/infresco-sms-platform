@@ -175,7 +175,12 @@
       "SELF": "You cannot do this to your own account",
       "UNKNOWN_ROLE": "Unknown role",
       "DB_UNAVAILABLE": "Database is not reachable",
-      "INTERNAL": "Something went wrong"
+      "INTERNAL": "Something went wrong",
+      "UNKNOWN_PERMISSION": "Unknown permission",
+      "PRINCIPAL_ONLY": "Only the principal can have this",
+      "ROLE_LOCKED": "The principal role always has every permission",
+      "ROLE_BUILT_IN": "Built-in roles cannot be deleted",
+      "ROLE_IN_USE": "Remove this role from its users first"
     }
   },
   "attendance": {
@@ -520,5 +525,51 @@
     "lockDaysHint": "Changing attendance older than this many days needs the principal's approval",
     "threshold": "Discount limit for the clerk (Rs)",
     "thresholdHint": "Bigger discounts and fee plans go to the principal for approval"
+  },
+  "perm": {
+    "dashboard.view": "View dashboard",
+    "students.view": "View students",
+    "students.edit": "Admit and edit students",
+    "students.promote": "Promote students",
+    "attendance.view": "View attendance and register",
+    "attendance.mark": "Mark attendance",
+    "fees.collect": "Collect fees, statements, receipts",
+    "fees.discount": "Give discounts",
+    "fees.reverse.request": "Cancel receipts",
+    "fees.defaulters": "Defaulters list",
+    "fees.cash_close": "Cash close",
+    "fees.configure": "Fee setup and posting charges",
+    "approvals.decide": "Approve or reject requests",
+    "setup.manage": "School setup (years, classes, sections)",
+    "settings.manage": "Settings",
+    "users.manage": "Manage users",
+    "roles.manage": "Edit roles",
+    "audit.view": "View audit log"
+  },
+  "module": {
+    "dashboard": "Dashboard",
+    "students": "Students",
+    "attendance": "Attendance",
+    "fees": "Fees",
+    "approvals": "Approvals",
+    "setup": "Setup & settings",
+    "users": "Users & roles",
+    "audit": "Audit log"
+  },
+  "roles": {
+    "tab": "Roles",
+    "usersTab": "Users",
+    "add": "Add role",
+    "module": "Module / action",
+    "principalOnly": "Principal only",
+    "locked": "Always everything",
+    "rename": "Rename",
+    "confirmDelete": "Delete this role?",
+    "saved": "Roles saved",
+    "unsaved": "Unsaved changes",
+    "users": "{{count}} users",
+    "hint": "Untick to hide a module or action. The change applies at once; hidden pages also refuse direct access.",
+    "expand": "Show actions",
+    "collapse": "Hide actions"
   }
 }

@@ -79,7 +79,7 @@ export function DashboardPage() {
         <StatCard
           label={t('dashboard.defaulters')}
           value={String(d.defaulters.count)}
-          to={can('fees.collect') ? '/fees/defaulters' : undefined}
+          to={can('fees.defaulters') ? '/fees/defaulters' : undefined}
         >
           <span>{formatPaisa(d.defaulters.totalPaisa)}</span>
         </StatCard>

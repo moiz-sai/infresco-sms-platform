@@ -95,3 +95,10 @@ First run `pnpm --filter api db:migrate` (new migration).
 
 ## Windows PC
 See docs/WINDOWS_TEST.md (separate guide for the Windows tester; one installer-based test, Parts 1–4).
+
+## T12 Roles
+- [ ] As principal: Users & roles → Roles → untick Fees for Clerk → Save. In the clerk's browser, within a minute (or on next click) Fee collection disappears; typing /fees/collect shows no page
+- [ ] Expand a module, untick one action (e.g. Cash close) → only that page disappears for the clerk
+- [ ] Add a custom role "Attendance only" with Attendance ticked, assign it to a new user → that user sees only attendance pages
+- [ ] Urdu: Roles tab mirrors; Principal column shows the lock
+

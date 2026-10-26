@@ -195,7 +195,7 @@ export class FeesController {
   }
 
   @Get('defaulters')
-  @RequirePermission(VIEW)
+  @RequirePermission('fees.defaulters')
   defaulters(
     @Query(new ZodPipe(defaulterQuerySchema)) q: DefaulterQuery,
     @CurrentActor() actor: Actor,
@@ -204,7 +204,7 @@ export class FeesController {
   }
 
   @Get('cash-close/:date')
-  @RequirePermission(VIEW)
+  @RequirePermission('fees.cash_close')
   cashClose(
     @Param('date', new ZodPipe(attendanceDateSchema)) date: string,
     @CurrentActor() actor: Actor,
@@ -213,7 +213,7 @@ export class FeesController {
   }
 
   @Post('cash-close/:date')
-  @RequirePermission(VIEW)
+  @RequirePermission('fees.cash_close')
   closeCash(
     @Param('date', new ZodPipe(attendanceDateSchema)) date: string,
     @Body(new ZodPipe(cashCloseSchema)) body: { countedTotalPaisa: number },

@@ -11,6 +11,10 @@ function onAuthError(error: unknown) {
     queryClient.setQueryData(['me'], null)
     return true
   }
+  // The principal may have just hidden this module: reload permissions so the sidebar follows.
+  if (error instanceof ApiError && error.status === 403) {
+    void queryClient.invalidateQueries({ queryKey: ['me'] })
+  }
   return false
 }
 

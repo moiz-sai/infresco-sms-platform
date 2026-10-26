@@ -6,25 +6,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { hash } from '@node-rs/argon2';
-import type {
-  RoleItem,
-  UserCreate,
-  UserItem,
-  UserReset,
-  UserUpdate,
-} from '@sms/shared';
-import { and, asc, eq, inArray, isNull, or, sql } from 'drizzle-orm';
+import type { UserCreate, UserItem, UserReset, UserUpdate } from '@sms/shared';
+import { and, asc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import type { Actor } from '../common/actor';
 import { AuditService } from '../common/audit.service';
 import { DB, type Db } from '../db/database.module';
-import {
-  person,
-  role,
-  rolePermission,
-  userAccount,
-  userRole,
-} from '../db/schema';
+import { person, role, userAccount, userRole } from '../db/schema';
 import { withTx, type Tx } from '../db/tx';
+import { RolesService } from './roles.service';
 
 type UserActor = Actor & { userId: string };
 
@@ -45,34 +34,8 @@ export class UsersService {
   constructor(
     @Inject(DB) private readonly db: Db,
     private readonly audit: AuditService,
+    private readonly roles: RolesService,
   ) {}
-
-  async listRoles(schoolId: string): Promise<RoleItem[]> {
-    const rows = await this.db
-      .select({
-        id: role.id,
-        code: role.code,
-        nameEn: role.nameEn,
-        nameUr: role.nameUr,
-        permission: rolePermission.permissionCode,
-      })
-      .from(role)
-      .leftJoin(rolePermission, eq(rolePermission.roleId, role.id))
-      .where(
-        and(
-          isNull(role.deletedAt),
-          or(isNull(role.schoolId), eq(role.schoolId, schoolId)),
-        ),
-      )
-      .orderBy(asc(role.code));
-    const roles = new Map<string, RoleItem>();
-    for (const { permission, ...r } of rows) {
-      const item = roles.get(r.id) ?? { ...r, permissions: [] };
-      if (permission) item.permissions.push(permission);
-      roles.set(r.id, item);
-    }
-    return [...roles.values()];
-  }
 
   async list(schoolId: string): Promise<UserItem[]> {
     const users = await this.db
@@ -129,7 +92,7 @@ export class UsersService {
   }
 
   private async checkRoles(schoolId: string, roleIds: string[]) {
-    const known = new Set((await this.listRoles(schoolId)).map((r) => r.id));
+    const known = await this.roles.known(schoolId, roleIds);
     const unknown = roleIds.filter((id) => !known.has(id));
     if (unknown.length) {
       throw new BadRequestException({
@@ -279,7 +242,7 @@ export class UsersService {
   async setRoles(actor: UserActor, id: string, roleIds: string[]) {
     await this.checkRoles(actor.schoolId, roleIds);
     if (id === actor.userId) {
-      const roles = await this.listRoles(actor.schoolId);
+      const roles = await this.roles.list(actor.schoolId);
       const keepsManage = roles.some(
         (r) => roleIds.includes(r.id) && r.permissions.includes('users.manage'),
       );

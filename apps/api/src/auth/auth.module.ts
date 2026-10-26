@@ -4,6 +4,7 @@ import { AccessService } from './access.service';
 import { AuthController } from './auth.controller';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
+import { RolesService } from './roles.service';
 import { RolesController, UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
@@ -12,6 +13,7 @@ import { UsersService } from './users.service';
   providers: [
     AuthService,
     UsersService,
+    RolesService,
     AccessService,
     { provide: APP_GUARD, useClass: AuthGuard },
   ],

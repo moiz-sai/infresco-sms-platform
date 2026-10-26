@@ -14,6 +14,9 @@ export function useMe() {
       }
     },
     staleTime: Infinity,
+    // Picks up role changes made by the principal without a re-login.
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
   })
 }
 

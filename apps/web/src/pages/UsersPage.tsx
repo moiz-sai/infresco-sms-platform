@@ -11,6 +11,7 @@ import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Loading } from '@/components/Loading'
+import { RolesPanel } from '@/components/RolesPanel'
 import { Field } from '@/components/Field'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -23,6 +24,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Table,
   TableBody,
@@ -32,7 +34,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { api } from '@/lib/api'
-import { useMe } from '@/lib/auth'
+import { useCan, useMe } from '@/lib/auth'
 import { submitOnCtrlEnter, validate, type FieldErrors } from '@/lib/form'
 import { useLocalName } from '@/lib/i18n-helpers'
 
@@ -43,57 +45,73 @@ export function UsersPage() {
   const users = useQuery({ queryKey: ['users'], queryFn: () => api.get<UserItem[]>('/users') })
   const roles = useQuery({ queryKey: ['roles'], queryFn: () => api.get<RoleItem[]>('/roles') })
 
+  const can = useCan()
+  const [tab, setTab] = useState<'users' | 'roles'>('users')
+
   return (
-    <div className="grid max-w-4xl gap-4">
+    <div className="grid max-w-5xl gap-4">
       <div className="flex items-center gap-2">
         <h1 className="me-auto text-xl font-semibold">{t('users.title')}</h1>
-        <Button onClick={() => setEditing('new')}>
-          <UserPlus />
-          {t('users.add')}
-        </Button>
+        {tab === 'users' && (
+          <Button onClick={() => setEditing('new')}>
+            <UserPlus />
+            {t('users.add')}
+          </Button>
+        )}
       </div>
-      {users.isPending && <Loading />}
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{t('users.username')}</TableHead>
-            <TableHead>{t('users.name')}</TableHead>
-            <TableHead>{t('users.roles')}</TableHead>
-            <TableHead>{t('student.statusCol')}</TableHead>
-            <TableHead />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users.data?.map((u) => (
-            <TableRow key={u.id}>
-              <TableCell className="font-mono text-sm">{u.username}</TableCell>
-              <TableCell>{name(u.nameEn, u.nameUr)}</TableCell>
-              <TableCell className="flex flex-wrap gap-1">
-                {u.roles.map((r) => (
-                  <Badge key={r.id} variant="secondary">
-                    {name(r.nameEn, r.nameUr)}
-                  </Badge>
-                ))}
-              </TableCell>
-              <TableCell>
-                {!u.isActive ? (
-                  <Badge variant="outline">{t('users.disabled')}</Badge>
-                ) : u.locked ? (
-                  <Badge variant="destructive">{t('users.locked')}</Badge>
-                ) : (
-                  <Badge>{t('users.active')}</Badge>
-                )}
-              </TableCell>
-              <TableCell className="text-end">
-                <Button size="sm" variant="ghost" onClick={() => setEditing(u)}>
-                  <Pencil />
-                  {t('app.edit')}
-                </Button>
-              </TableCell>
+      {can('roles.manage') && (
+        <Tabs value={tab} onValueChange={(v) => setTab(v as 'users' | 'roles')}>
+          <TabsList>
+            <TabsTrigger value="users">{t('roles.usersTab')}</TabsTrigger>
+            <TabsTrigger value="roles">{t('roles.tab')}</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      )}
+      {tab === 'roles' && roles.data && <RolesPanel key={roles.dataUpdatedAt} roles={roles.data} />}
+      {tab === 'users' && users.isPending && <Loading />}
+      {tab === 'users' && (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t('users.username')}</TableHead>
+              <TableHead>{t('users.name')}</TableHead>
+              <TableHead>{t('users.roles')}</TableHead>
+              <TableHead>{t('student.statusCol')}</TableHead>
+              <TableHead />
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {users.data?.map((u) => (
+              <TableRow key={u.id}>
+                <TableCell className="font-mono text-sm">{u.username}</TableCell>
+                <TableCell>{name(u.nameEn, u.nameUr)}</TableCell>
+                <TableCell className="flex flex-wrap gap-1">
+                  {u.roles.map((r) => (
+                    <Badge key={r.id} variant="secondary">
+                      {name(r.nameEn, r.nameUr)}
+                    </Badge>
+                  ))}
+                </TableCell>
+                <TableCell>
+                  {!u.isActive ? (
+                    <Badge variant="outline">{t('users.disabled')}</Badge>
+                  ) : u.locked ? (
+                    <Badge variant="destructive">{t('users.locked')}</Badge>
+                  ) : (
+                    <Badge>{t('users.active')}</Badge>
+                  )}
+                </TableCell>
+                <TableCell className="text-end">
+                  <Button size="sm" variant="ghost" onClick={() => setEditing(u)}>
+                    <Pencil />
+                    {t('app.edit')}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
       {editing && roles.data && (
         <UserDialog
           key={editing === 'new' ? 'new' : editing.id}

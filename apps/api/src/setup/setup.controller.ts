@@ -33,7 +33,8 @@ import {
 import { ZodPipe } from '../common/zod.pipe';
 import { SetupService } from './setup.service';
 
-const MANAGE = 'settings.manage';
+const MANAGE = 'setup.manage';
+const SETTINGS = 'settings.manage';
 const id = new ParseUUIDPipe();
 
 @Controller('school')
@@ -175,13 +176,13 @@ export class SettingsController {
   constructor(private readonly setup: SetupService) {}
 
   @Get()
-  @RequirePermission(MANAGE)
+  @RequirePermission(SETTINGS)
   get(@CurrentActor() actor: Actor) {
     return this.setup.getSettings(actor.schoolId);
   }
 
   @Put()
-  @RequirePermission(MANAGE)
+  @RequirePermission(SETTINGS)
   update(
     @Body(new ZodPipe(settingsSchema)) body: SettingsInput,
     @CurrentActor() actor: Actor,

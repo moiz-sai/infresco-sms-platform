@@ -1,3 +1,4 @@
+import { CLERK_DEFAULT_EXCLUDED, PERMISSION_CODES } from '@sms/shared';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { DatabaseError, Pool } from 'pg';
 import * as schema from '../src/db/schema';
@@ -50,13 +51,21 @@ describe('T2 schema and seed', () => {
     await seed(db);
     expect(await counts()).toEqual(before);
     expect(before).toMatchObject({
-      permission: 13,
-      role: 2,
-      role_permission: 22,
+      permission: PERMISSION_CODES.length,
       school: 1,
       class: 5,
       fee_head: 3,
       fee_structure: 10,
+    });
+    // Custom roles from other suites are not the seed's: count built-in roles only.
+    const builtIn = await admin.query<{ roles: number; grants: number }>(
+      `select count(distinct r.id)::int as roles, count(rp.*)::int as grants
+         from role r left join role_permission rp on rp.role_id = r.id
+        where r.school_id is null`,
+    );
+    expect(builtIn.rows[0]).toEqual({
+      roles: 2,
+      grants: PERMISSION_CODES.length * 2 - CLERK_DEFAULT_EXCLUDED.length,
     });
     // Other suites add users and sections, so count only the seed's own rows.
     const { rows } = await admin.query<{
