@@ -102,3 +102,11 @@ See docs/WINDOWS_TEST.md (separate guide for the Windows tester; one installer-b
 - [ ] Add a custom role "Attendance only" with Attendance ticked, assign it to a new user → that user sees only attendance pages
 - [ ] Urdu: Roles tab mirrors; Principal column shows the lock
 
+## T13 Developer profile, license, branding
+- [ ] Open /_infresco in the browser → "Get an unlock code" → copy the code → on your machine run `node scripts/dev-sign.mjs unlock <code>` → paste the signature → Unlock
+- [ ] Branding: set school name (en/ur), upload a logo (PNG ≤ 300 KB), set footer → Save; the login page, sidebar and a printed receipt all show the new logo/name/footer
+- [ ] As principal: Setup → School tab is read-only (no Save)
+- [ ] License: `node scripts/dev-sign.mjs license <installId> "<school>" 2027-12-31` → paste license + signature → Apply; status shows Licensed with the expiry
+- [ ] Expiry hard lock: issue a license with a past date, apply it → log out → login shows "license expired", nobody can log in; /_infresco still opens → apply a future-dated license → login works again
+- [ ] The school never sees /_infresco: no link anywhere in the app; a normal user hitting /_infresco and pressing "Get code" cannot unlock without Infresco's signature
+

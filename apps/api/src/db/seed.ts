@@ -74,6 +74,13 @@ export async function seed(db: Db) {
       ])
       .onConflictDoNothing();
 
+    // One installation row (license/branding/backup config); the developer profile owns it.
+    const [inst] = await tx
+      .select({ id: s.installation.id })
+      .from(s.installation)
+      .limit(1);
+    if (!inst) await tx.insert(s.installation).values({});
+
     const schoolId = DEMO_SCHOOL_ID;
     await tx
       .insert(s.school)

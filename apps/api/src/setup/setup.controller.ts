@@ -12,13 +12,11 @@ import {
 } from '@nestjs/common';
 import {
   classSchema,
-  schoolUpdateSchema,
   sectionListQuerySchema,
   sectionSchema,
   settingsSchema,
   yearSchema,
   type ClassInput,
-  type SchoolUpdate,
   type SectionInput,
   type SectionListQuery,
   type SettingsInput,
@@ -45,15 +43,6 @@ export class SchoolController {
   @Authenticated()
   get(@CurrentActor() actor: Actor) {
     return this.setup.getSchool(actor.schoolId);
-  }
-
-  @Put()
-  @RequirePermission(MANAGE)
-  update(
-    @Body(new ZodPipe(schoolUpdateSchema)) body: SchoolUpdate,
-    @CurrentActor() actor: Actor,
-  ) {
-    return this.setup.updateSchool(actor, body);
   }
 }
 

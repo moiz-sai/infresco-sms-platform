@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter } from 'react-router'
 import { Home, RequireAuth, RequirePermission } from '@/components/RequireAuth'
 import { Shell } from '@/components/Shell'
@@ -20,7 +21,20 @@ import { StudentProfilePage } from '@/pages/StudentProfilePage'
 import { StudentsPage } from '@/pages/StudentsPage'
 import { UsersPage } from '@/pages/UsersPage'
 
+const DeveloperPage = lazy(() =>
+  import('@/pages/DeveloperPage').then((m) => ({ default: m.DeveloperPage })),
+)
+
 export const router = createBrowserRouter([
+  // The developer profile: reachable only at this address, never linked from the app (§T13).
+  {
+    path: '/_infresco',
+    element: (
+      <Suspense fallback={null}>
+        <DeveloperPage />
+      </Suspense>
+    ),
+  },
   { path: '/login', element: <LoginPage /> },
   {
     element: <RequireAuth />,

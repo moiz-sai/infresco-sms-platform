@@ -7,7 +7,6 @@ import {
 import type {
   ClassInput,
   School,
-  SchoolUpdate,
   SectionInput,
   SectionListQuery,
   SettingsInput,
@@ -96,21 +95,6 @@ export class SetupService {
       });
     });
     return after;
-  }
-
-  async updateSchool(actor: Actor, input: SchoolUpdate): Promise<School> {
-    const before = await this.getSchool(actor.schoolId);
-    await withTx(this.db, async (tx) => {
-      await tx.update(school).set(input).where(eq(school.id, actor.schoolId));
-      await this.audit.record(tx, actor, {
-        action: 'school.update',
-        entity: 'school',
-        entityId: actor.schoolId,
-        before,
-        after: input,
-      });
-    });
-    return this.getSchool(actor.schoolId);
   }
 
   listYears(schoolId: string) {

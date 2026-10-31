@@ -1,4 +1,4 @@
-import type { ApprovalItem, Page, School } from '@sms/shared'
+import type { ApprovalItem, Page } from '@sms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowRightLeft,
@@ -22,6 +22,8 @@ import {
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useNavigate } from 'react-router'
+import { AppFooter, BrandMark } from '@/components/Brand'
+import { ExpiryBanner } from '@/components/ExpiryBanner'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { SwitchUserDialog } from '@/components/SwitchUserDialog'
 import { Button } from '@/components/ui/button'
@@ -97,7 +99,6 @@ export function Shell() {
   const qc = useQueryClient()
   const navigate = useNavigate()
   const [switchOpen, setSwitchOpen] = useState(false)
-  const school = useQuery({ queryKey: ['school'], queryFn: () => api.get<School>('/school') })
   const canApprove = !!me?.permissions.includes('approvals.decide')
   const pending = useQuery({
     queryKey: ['approvals-count'],
@@ -139,16 +140,12 @@ export function Shell() {
   return (
     <div className="flex min-h-svh">
       <aside className="hidden w-56 print:hidden shrink-0 flex-col gap-1 border-e bg-muted/40 p-3 md:flex">
-        <div className="mb-4 px-3 py-2 font-semibold leading-tight">
-          {school.data ? name(school.data.nameEn, school.data.nameUr) : t('app.name')}
-        </div>
+        <BrandMark className="mb-4 px-3 py-2" logoClassName="h-9" />
         {links}
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-14 items-center gap-2 border-b px-4 print:hidden">
-          <span className="font-semibold md:hidden">
-            {school.data ? name(school.data.nameEn, school.data.nameUr) : t('app.name')}
-          </span>
+          <BrandMark className="md:hidden" logoClassName="h-7" />
           <div className="flex-1" />
           <span className="hidden text-sm text-muted-foreground sm:inline">
             {me && name(me.nameEn, me.nameUr)}
@@ -166,9 +163,11 @@ export function Shell() {
         <nav className="flex gap-1 overflow-x-auto border-b px-2 py-1 md:hidden print:hidden">
           {links}
         </nav>
+        <ExpiryBanner />
         <main className="flex-1 p-4 md:p-6 print:p-0">
           <Outlet />
         </main>
+        <AppFooter />
       </div>
       <SwitchUserDialog open={switchOpen} onOpenChange={setSwitchOpen} />
     </div>

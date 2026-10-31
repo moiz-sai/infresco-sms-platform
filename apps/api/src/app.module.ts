@@ -17,6 +17,7 @@ import { FeesModule } from './fees/fees.module';
 import { PromotionModule } from './promotion/promotion.module';
 import { AuditModule } from './audit/audit.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { DeveloperModule } from './developer/developer.module';
 
 // Production: the API also serves the built web app (SPA fallback to index.html; /api excluded).
 // Same relative path from src/ (dev, tests) and dist/ (built).
@@ -49,6 +50,7 @@ const webApp = existsSync(join(WEB_DIST, 'index.html'))
     PromotionModule,
     AuditModule,
     DashboardModule,
+    DeveloperModule,
     ...webApp,
   ],
   controllers: [HealthController],

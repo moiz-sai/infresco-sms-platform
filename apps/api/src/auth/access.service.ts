@@ -1,6 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, eq, gte, inArray, isNull, lte, or, sql } from 'drizzle-orm';
+import { LICENSED_MODULES, moduleOf } from '@sms/shared';
 import { DB, type Db } from '../db/database.module';
+import { LicenseService } from '../developer/license.service';
 import {
   person,
   role,
@@ -47,7 +49,10 @@ export class UserAccess {
 
 @Injectable()
 export class AccessService {
-  constructor(@Inject(DB) private readonly db: Db) {}
+  constructor(
+    @Inject(DB) private readonly db: Db,
+    private readonly license: LicenseService,
+  ) {}
 
   // Null when the account is missing, deleted or disabled.
   async load(userId: string): Promise<UserAccess | null> {
@@ -95,7 +100,16 @@ export class AccessService {
           ),
         ),
       );
-    return new UserAccess(user, grants);
+    // A code whose module the license has switched off is dropped from the grant (§T13).
+    const enabled = await this.license.enabledModules();
+    const live = grants.filter((g) => {
+      if (!g.code) return true;
+      const m = moduleOf(g.code);
+      return (
+        m === undefined || !LICENSED_MODULES.includes(m) || enabled.includes(m)
+      );
+    });
+    return new UserAccess(user, live);
   }
 
   async displayNames(userIds: string[]) {

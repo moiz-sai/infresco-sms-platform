@@ -1,13 +1,13 @@
 # STATUS
-Updated: 2026-10-26 11:30 · Last task: T11 merged to main (PR #1), released v0.1.0 · Result: DONE
+Updated: 2026-10-31 12:40 · Last task: T13 Developer profile, license, branding · Result: DONE
 ## Done
-- T1 ✔  T2 ✔  T3 ✔  T4 ✔  T5 ✔  T6 ✔  T7 ✔  T8 ✔  T9 ✔  T10 ✔  T11 ✔  (+ SPEC §Z1–Z8)
+- T1–T11 ✔  T12 ✔ (roles editor)  T13 ✔ (developer profile/license/branding)  (+ SPEC §Z1–Z16)
 ## Next
-- Task: Windows test on a real PC with the installer → docs/WINDOWS_TEST.md; then the demo run-through
-- Before starting: send the tester InfrescoSMS-Setup-0.1.0.exe from https://github.com/moiz-sai/infresco-sms/releases/tag/v0.1.0
+- Task: T14 Backups in the app, restore, reset (developer profile)
+- Before starting: none (dev key already at ~/.config/infresco/dev-key.json)
 ## Read next
-- docs/progress/T11.md
-- docs/progress/T10.md
+- docs/progress/T13.md
+- docs/progress/T12.md
 ## Open issues
 - Real-PC Windows test not run yet (CI Windows smoke test passes) → docs/WINDOWS_TEST.md
 - Installer unsigned (SmartScreen warning) → buy a code-signing certificate before selling

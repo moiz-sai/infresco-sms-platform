@@ -68,7 +68,8 @@
     "sectionName": "Section",
     "addSection": "Add section",
     "noYear": "Create an academic year and mark it current first.",
-    "classExample": "Class 6"
+    "classExample": "Class 6",
+    "brandingNote": "School name, logo, address and phone are set by Infresco and appear on every screen and printout."
   },
   "students": {
     "title": "Students",
@@ -180,7 +181,13 @@
       "PRINCIPAL_ONLY": "Only the principal can have this",
       "ROLE_LOCKED": "The principal role always has every permission",
       "ROLE_BUILT_IN": "Built-in roles cannot be deleted",
-      "ROLE_IN_USE": "Remove this role from its users first"
+      "ROLE_IN_USE": "Remove this role from its users first",
+      "LICENSE_LOCKED": "License expired — contact Infresco",
+      "LICENSE_WRONG_INSTALL": "This license is for a different installation",
+      "LICENSE_INVALID": "The license or signature is not valid",
+      "DEV_LOCKED": "Developer unlock required",
+      "DEV_UNLOCK_FAILED": "Unlock failed",
+      "LOGO_TOO_LARGE": "Logo must be a PNG, JPEG or WebP up to 300 KB"
     }
   },
   "attendance": {
@@ -571,5 +578,50 @@
     "hint": "Untick to hide a module or action. The change applies at once; hidden pages also refuse direct access.",
     "expand": "Show actions",
     "collapse": "Hide actions"
+  },
+  "license": {
+    "locked": "Your license has expired. Please contact Infresco to renew it.",
+    "expiringSoon_one": "License expires in 1 day — contact Infresco to renew.",
+    "expiringSoon_other": "License expires in {{count}} days — contact Infresco to renew."
+  },
+  "dev": {
+    "title": "Infresco developer console",
+    "subtitle": "Infresco staff only. This page is not part of the school system.",
+    "install": "Installation ID",
+    "getCode": "Get an unlock code",
+    "code": "Unlock code",
+    "codeHint": "Send this code to Infresco; paste the signature they return.",
+    "signature": "Signature",
+    "unlock": "Unlock",
+    "unlocked": "Unlocked",
+    "lock": "Lock now",
+    "locked": "Locked",
+    "unlockFailed": "Unlock failed — check the signature and try a fresh code",
+    "licenseSection": "License",
+    "state": "Status",
+    "expires": "Expires",
+    "daysLeft": "Days left",
+    "modules": "Modules",
+    "school": "Licensed to",
+    "trial": "Trial",
+    "licensedState": "Licensed",
+    "expiredState": "Expired",
+    "noneState": "No license",
+    "pasteLicense": "Paste license",
+    "pasteSignature": "Paste signature",
+    "applyLicense": "Apply license",
+    "licenseApplied": "License applied",
+    "brandingSection": "Branding",
+    "logo": "Logo",
+    "chooseLogo": "Choose image",
+    "removeLogo": "Remove logo",
+    "footerEn": "Footer (English)",
+    "footerUr": "Footer (Urdu)",
+    "brandingSaved": "Branding saved",
+    "logoSaved": "Logo updated",
+    "logoRemoved": "Logo removed",
+    "logoTooLarge": "Use a PNG, JPEG or WebP up to 300 KB",
+    "backupSection": "Backups",
+    "backupNote": "Backup and restore are managed here (set up in the next release)."
   }
 }

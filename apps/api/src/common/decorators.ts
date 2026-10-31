@@ -9,6 +9,8 @@ import type { Request } from 'express';
 export const IS_PUBLIC = 'sms:public';
 export const IS_AUTHENTICATED = 'sms:authenticated';
 export const PERMISSION = 'sms:permission';
+export const IS_DEVELOPER = 'sms:developer';
+export const IS_LICENSE_EXEMPT = 'sms:license-exempt';
 
 export interface PermissionRequirement {
   code: string;
@@ -17,6 +19,13 @@ export interface PermissionRequirement {
 }
 
 export const Public = () => SetMetadata(IS_PUBLIC, true);
+
+// Reachable only with a valid developer session (Ed25519 unlock); no school user needed.
+// Developer routes are always license-exempt so the license can be fixed while locked.
+export const DeveloperOnly = () => SetMetadata(IS_DEVELOPER, true);
+
+// Works even when the license is expired (health, branding, unlock).
+export const LicenseExempt = () => SetMetadata(IS_LICENSE_EXEMPT, true);
 
 // Logged in, no specific permission (e.g. /auth/me, /auth/logout).
 export const Authenticated = () => SetMetadata(IS_AUTHENTICATED, true);

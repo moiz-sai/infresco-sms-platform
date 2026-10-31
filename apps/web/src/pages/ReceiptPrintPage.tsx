@@ -11,6 +11,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
+import { PrintFooter, PrintLetterhead } from '@/components/Brand'
 import { Field } from '@/components/Field'
 import { Button } from '@/components/ui/button'
 import {
@@ -130,14 +131,7 @@ function ReceiptBody({ r, copy, wide }: { r: ReceiptView; copy?: string; wide?: 
         </div>
       )}
       <header className="mb-2 border-b border-black pb-2 text-center">
-        <div className="text-[1.15em] font-bold">{r.school.nameEn}</div>
-        {r.school.nameUr && (
-          <div dir="rtl" lang="ur" className="font-urdu text-[1.1em]">
-            {r.school.nameUr}
-          </div>
-        )}
-        {r.school.address && <div className="text-[0.85em]">{r.school.address}</div>}
-        {r.school.phone && <div className="text-[0.85em]">{r.school.phone}</div>}
+        <PrintLetterhead compact />
         <div className="mt-1 font-semibold">
           {t('fees.print.title')}
           {copy && ` — ${copy}`}
@@ -219,6 +213,7 @@ function ReceiptBody({ r, copy, wide }: { r: ReceiptView; copy?: string; wide?: 
         {row(t('fees.print.method'), t(`fees.methods.${r.method}`))}
         {row(t('fees.print.balanceAfter'), formatPaisa(r.balanceAfterPaisa))}
         {row(t('fees.print.receivedBy'), r.receivedBy)}
+        <PrintFooter />
       </div>
     </section>
   )

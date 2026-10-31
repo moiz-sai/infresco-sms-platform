@@ -42,6 +42,25 @@ export const moduleOf = (code: string): string | undefined =>
   PERMISSION_MODULES.find((m) => (m.codes as readonly string[]).includes(code))
     ?.module;
 
+// Optional modules a license can switch off (§T13). Base modules are always available.
+export const LICENSED_MODULES: string[] = PERMISSION_MODULES.filter(
+  (m) => 'licensed' in m && m.licensed,
+).map((m) => m.module);
+
+// Codes stay only if their module is a base module or is enabled by the license.
+export const filterByLicense = (
+  codes: string[],
+  enabledModules: string[],
+): string[] =>
+  codes.filter((c) => {
+    const m = moduleOf(c);
+    return (
+      m === undefined ||
+      !LICENSED_MODULES.includes(m) ||
+      enabledModules.includes(m)
+    );
+  });
+
 // Never granted to any role but Principal.
 export const PRINCIPAL_ONLY: string[] = ['roles.manage'];
 

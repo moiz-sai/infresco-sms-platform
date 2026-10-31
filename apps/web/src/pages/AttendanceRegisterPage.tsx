@@ -1,4 +1,4 @@
-import type { MonthRegister, School } from '@sms/shared'
+import type { MonthRegister } from '@sms/shared'
 import { useQuery } from '@tanstack/react-query'
 import { Printer } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { api } from '@/lib/api'
 import { today } from '@/lib/form'
+import { BrandMark } from '@/components/Brand'
 import { useLocalName } from '@/lib/i18n-helpers'
 import { useSections } from '@/lib/setup-queries'
 import { cn } from '@/lib/utils'
@@ -28,7 +29,6 @@ export function AttendanceRegisterPage() {
   const sectionId = params.get('sectionId') || sections.data?.[0]?.id || ''
   const month = params.get('month') || today().slice(0, 7)
   const section = sections.data?.find((s) => s.id === sectionId)
-  const school = useQuery({ queryKey: ['school'], queryFn: () => api.get<School>('/school') })
   const register = useQuery({
     queryKey: ['attendance-register', sectionId, month],
     queryFn: () => api.get<MonthRegister>(`/attendance/sections/${sectionId}/months/${month}`),
@@ -69,7 +69,7 @@ export function AttendanceRegisterPage() {
       {data && (
         <div className="register-print overflow-x-auto">
           <div className="mb-2 hidden items-baseline justify-between print:flex">
-            <strong>{school.data && name(school.data.nameEn, school.data.nameUr)}</strong>
+            <BrandMark logoClassName="h-6" />
             <span>
               {t('attendance.register')} ·{' '}
               {section && `${name(section.classNameEn, section.classNameUr)} — ${section.name}`} ·{' '}

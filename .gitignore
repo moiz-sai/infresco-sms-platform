@@ -8,3 +8,6 @@ coverage/
 .env.test
 installer/build/
 installer/output/
+
+# developer signing key (never commit)
+dev-key.json

@@ -29,6 +29,13 @@
       "when": 1792925230060,
       "tag": "0003_approval_promote",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792999110162,
+      "tag": "0004_installation",
+      "breakpoints": true
     }
   ]
 }

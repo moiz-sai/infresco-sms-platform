@@ -12,6 +12,8 @@ declare module 'express-session' {
   interface SessionData {
     userId: string;
     schoolId: string;
+    // Developer profile unlock expiry (epoch ms); separate from a school login.
+    devUntil: number;
   }
 }
 
@@ -19,7 +21,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
-      actor?: Actor & { userId: string };
+      actor?: Actor;
     }
   }
 }

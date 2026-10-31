@@ -1,4 +1,4 @@
-import { formatPaisa, type Defaulter, type Page, type School } from '@sms/shared'
+import { formatPaisa, type Defaulter, type Page } from '@sms/shared'
 import { useQuery } from '@tanstack/react-query'
 import { Printer } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/table'
 import { api } from '@/lib/api'
 import { today } from '@/lib/form'
+import { BrandMark } from '@/components/Brand'
 import { useLocalName } from '@/lib/i18n-helpers'
 import { useClasses } from '@/lib/setup-queries'
 
@@ -30,7 +31,6 @@ export function DefaultersPage() {
   const classId = params.get('classId') ?? ''
   const minMonths = Number(params.get('minMonths') ?? 1)
   const classes = useClasses()
-  const school = useQuery({ queryKey: ['school'], queryFn: () => api.get<School>('/school') })
   const list = useQuery({
     queryKey: ['defaulters', classId, minMonths],
     queryFn: () => api.get<Page<Defaulter>>('/fees/defaulters', { classId, minMonths, size: 100 }),
@@ -79,7 +79,7 @@ export function DefaultersPage() {
       </div>
 
       <div className="hidden items-baseline justify-between print:flex">
-        <strong>{school.data && name(school.data.nameEn, school.data.nameUr)}</strong>
+        <BrandMark logoClassName="h-6" />
         <span>
           {t('defaulters.title')} ·{' '}
           {cls ? name(cls.nameEn, cls.nameUr) : t('defaulters.allClasses')} ·{' '}

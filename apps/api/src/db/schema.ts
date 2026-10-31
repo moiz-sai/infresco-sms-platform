@@ -1,4 +1,5 @@
 import { sql } from 'drizzle-orm';
+import type { LicensePayload } from '@sms/shared';
 import {
   type AnyPgColumn,
   bigint,
@@ -42,7 +43,10 @@ export const APPEND_ONLY_TABLES = [
   'ledger_entry',
   'receipt',
   'cash_close',
+  'developer_log',
 ] as const;
+
+export type { LicensePayload } from '@sms/shared';
 
 const tz = () => timestamp({ withTimezone: true });
 const pk = () =>
@@ -519,6 +523,43 @@ export const cashClose = pgTable(
     ...created(),
   },
   (t) => [unique().on(t.schoolId, t.date)],
+);
+
+// Singleton (one row) global config: license, branding, backup settings (§T13, §T14).
+// No school_id — one install serves one school. The developer profile owns it; the school never sees it.
+export const installation = pgTable('installation', {
+  id: pk(),
+  // Identity the license is bound to; generated once, never changes.
+  installId: uuid()
+    .notNull()
+    .unique()
+    .default(sql`uuidv7()`),
+  licenseJson: jsonb().$type<LicensePayload>(),
+  licenseSig: text(),
+  // Branding managed by the developer profile only.
+  logoData: text(), // base64, ≤ 300 KB source
+  logoType: text(),
+  footerEn: text(),
+  footerUr: text(),
+  // Backup settings (§T14).
+  backupPrimaryDir: text(),
+  backupSecondaryDir: text(),
+  backupTimes: jsonb().$type<string[]>().notNull().default(['13:30']),
+  backupKeep: integer().notNull().default(14),
+  ...mutable(),
+});
+
+// Append-only trail of developer-profile actions (unlock, license, branding, backup, restore, reset).
+export const developerLog = pgTable(
+  'developer_log',
+  {
+    id: pk(),
+    action: text().notNull(),
+    detail: jsonb().$type<Record<string, unknown>>(),
+    ip: text(),
+    ...created(),
+  },
+  (t) => [index().on(t.createdAt)],
 );
 
 // connect-pg-simple table layout; managed here so sms_app never needs CREATE.

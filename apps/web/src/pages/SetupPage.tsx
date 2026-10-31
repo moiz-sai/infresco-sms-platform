@@ -1,4 +1,4 @@
-import { classSchema, schoolUpdateSchema, yearSchema, type School, type Year } from '@sms/shared'
+import { classSchema, yearSchema, type Year } from '@sms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus, Trash2, X } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { api } from '@/lib/api'
+import { useBranding } from '@/lib/branding'
 import { submitOnCtrlEnter, validate, type FieldErrors } from '@/lib/form'
 import { useLocalName } from '@/lib/i18n-helpers'
 import { useClasses, useSections } from '@/lib/setup-queries'
@@ -67,56 +68,26 @@ function useSetupMutation<T>(fn: (body: T) => Promise<unknown>, message = 'app.s
 
 function SchoolForm() {
   const { t } = useTranslation()
-  const school = useQuery({ queryKey: ['school'], queryFn: () => api.get<School>('/school') })
-  const [errors, setErrors] = useState<FieldErrors>({})
-  const save = useSetupMutation((body: unknown) => api.put('/school', body))
-  if (!school.data) return <Loading rows={5} />
-  const s = school.data
-
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const result = validate(schoolUpdateSchema, Object.fromEntries(new FormData(e.currentTarget)))
-    if (!result.ok) return setErrors(result.errors)
-    setErrors({})
-    save.mutate(result.data)
-  }
-
+  const name = useLocalName()
+  const { data } = useBranding()
+  if (!data) return <Loading rows={4} />
+  const row = (label: string, value: string | null) => (
+    <div className="grid gap-0.5">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span>{value || t('app.none')}</span>
+    </div>
+  )
+  // Name, logo, address and phone are set by Infresco from the developer profile (§T13),
+  // so the school sees them here but cannot change them.
   return (
     <Card>
-      <CardContent className="pt-6">
-        <form
-          className="grid gap-4 sm:grid-cols-2"
-          onSubmit={onSubmit}
-          onKeyDown={submitOnCtrlEnter}
-        >
-          <Field label={t('setup.nameEn')} error={errors.nameEn}>
-            <Input name="nameEn" defaultValue={s.nameEn} />
-          </Field>
-          <Field label={t('setup.nameUr')} error={errors.nameUr}>
-            <Input
-              name="nameUr"
-              defaultValue={s.nameUr ?? ''}
-              dir="rtl"
-              lang="ur"
-              className="font-urdu"
-            />
-          </Field>
-          <Field label={t('setup.address')} error={errors.address}>
-            <Input name="address" defaultValue={s.address ?? ''} />
-          </Field>
-          <Field label={t('setup.phone')} error={errors.phone}>
-            <Input name="phone" defaultValue={s.phone ?? ''} />
-          </Field>
-          <Field label={t('setup.prefix')}>
-            <Input value={s.devicePrefix} disabled />
-          </Field>
-          <div className="flex items-end gap-3 sm:col-span-2">
-            <Button type="submit" disabled={save.isPending}>
-              {t('app.save')}
-            </Button>
-            <span className="text-sm text-muted-foreground">{t('app.saveHint')}</span>
-          </div>
-        </form>
+      <CardContent className="grid gap-4 pt-6 sm:grid-cols-2">
+        <p className="text-sm text-muted-foreground sm:col-span-2">
+          {t('setup.brandingNote')}
+        </p>
+        {row(t('setup.nameEn'), name(data.nameEn, data.nameUr))}
+        {row(t('setup.address'), data.address)}
+        {row(t('setup.phone'), data.phone)}
       </CardContent>
     </Card>
   )
