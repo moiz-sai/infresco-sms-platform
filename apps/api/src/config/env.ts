@@ -8,6 +8,11 @@ export const envSchema = z.object({
     .string()
     .regex(/^[A-Z0-9]{1,4}$/)
     .default('D1'),
+  // Admin DB role for backup/restore/reset (pg_dump/pg_restore). Optional: those features
+  // report "not configured" if it is absent. Present in dev .env and the installer's app.env.
+  DATABASE_ADMIN_URL: z.url({ protocol: /^postgres(ql)?$/ }).optional(),
+  // Folder holding pg_dump/pg_restore; empty means they are on PATH (installer sets it).
+  PG_BIN_DIR: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

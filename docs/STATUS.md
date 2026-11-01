@@ -1,13 +1,13 @@
 # STATUS
-Updated: 2026-10-31 12:40 · Last task: T13 Developer profile, license, branding · Result: DONE
+Updated: 2026-11-01 20:30 · Last task: T14 Backups, restore, reset · Result: DONE
 ## Done
-- T1–T11 ✔  T12 ✔ (roles editor)  T13 ✔ (developer profile/license/branding)  (+ SPEC §Z1–Z16)
+- T1–T11 ✔  T12 ✔ (roles editor)  T13 ✔ (developer/license/branding)  T14 ✔ (backups/restore/reset)  (+ SPEC §Z1–Z16)
 ## Next
-- Task: T14 Backups in the app, restore, reset (developer profile)
-- Before starting: none (dev key already at ~/.config/infresco/dev-key.json)
+- Task: T15 Staff (staff_profile, employee numbers, profiles)
+- Before starting: none
 ## Read next
+- docs/progress/T14.md
 - docs/progress/T13.md
-- docs/progress/T12.md
 ## Open issues
 - Real-PC Windows test not run yet (CI Windows smoke test passes) → docs/WINDOWS_TEST.md
 - Installer unsigned (SmartScreen warning) → buy a code-signing certificate before selling

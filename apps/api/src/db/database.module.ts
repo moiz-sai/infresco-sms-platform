@@ -29,11 +29,16 @@ class PoolCloser implements OnApplicationShutdown {
     {
       provide: PG_POOL,
       inject: [ConfigService],
-      useFactory: (config: ConfigService<Env, true>) =>
-        new Pool({
+      useFactory: (config: ConfigService<Env, true>) => {
+        const pool = new Pool({
           connectionString: config.get('DATABASE_URL', { infer: true }),
           max: 10,
-        }),
+        });
+        // A restore terminates backends (§T14); an idle client erroring must not crash the
+        // process. pg drops the client from the pool and reconnects on the next query.
+        pool.on('error', () => undefined);
+        return pool;
+      },
     },
     {
       provide: DB,

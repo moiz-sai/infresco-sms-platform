@@ -76,7 +76,11 @@ try {
     }
     Remove-Item Env:PGPASSWORD
 
-    if ($isNew) { Write-Config $cfg }
+    # pg tools + backup folder for the in-app BackupService (§T14). Written every run so an
+    # upgrade from an older build (which used the Windows task) gains them.
+    $cfg['PG_BIN_DIR'] = (Join-Path $AppDir 'pgsql\bin')
+    $cfg['SMS_BACKUP_DIR'] = $BackupDir
+    Write-Config $cfg
     if (-not (Test-Path -LiteralPath $ConfigFile)) {
         Get-ChildItem -Force $ConfigDir | Format-Table -AutoSize | Out-String | Write-Host
         & icacls.exe $ConfigDir | Write-Host
@@ -145,16 +149,10 @@ try {
     New-NetFirewallRule -Name 'InfrescoSMS' -DisplayName 'Infresco SMS' -Direction Inbound -Action Allow `
         -Protocol TCP -LocalPort $appPort -Profile Any | Out-Null
 
-    # ---------- daily backup at 14:00 (runs later if the PC was off), keeps 14
-    Write-Step 'Scheduling the daily backup'
-    $action = New-ScheduledTaskAction -Execute 'powershell.exe' `
-        -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$(Join-Path $AppDir 'setup\backup.ps1')`" -AppDir `"$AppDir`""
-    $trigger = New-ScheduledTaskTrigger -Daily -At '14:00'
-    $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Hours 1)
-    $principal = New-ScheduledTaskPrincipal -UserId 'S-1-5-18' -LogonType ServiceAccount -RunLevel Highest
-    Register-ScheduledTask -TaskName $BackupTask -Action $action -Trigger $trigger -Settings $settings `
-        -Principal $principal -Force | Out-Null
-    & (Join-Path $AppDir 'setup\backup.ps1') -AppDir $AppDir
+    # ---------- backups now run inside the app (§T14): scheduled times, startup-if-stale, on demand.
+    # Remove the old Windows scheduled task left by pre-T14 builds.
+    Write-Step 'Removing the old backup task (backups now run inside the app)'
+    Unregister-ScheduledTask -TaskName $BackupTask -Confirm:$false -ErrorAction SilentlyContinue
 
     # ---------- what the desktop icon opens, and the login sheet
     $urls = @("http://localhost:$appPort") + (Get-LanIPs | ForEach-Object { "http://${_}:$appPort" })

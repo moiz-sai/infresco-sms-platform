@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { api, ApiError } from '@/lib/api'
+import { BackupPanel } from '@/components/DeveloperBackup'
 import { logoUrl } from '@/lib/branding'
 import { errorText } from '@/lib/query'
 import { submitOnCtrlEnter, validate, type FieldErrors } from '@/lib/form'
@@ -113,6 +114,7 @@ function Console({ data }: { data: DeveloperStatus }) {
       </Card>
       <LicensePanel data={data} />
       <BrandingPanel data={data} />
+      <BackupPanel backup={data.backup} />
     </div>
   )
 }

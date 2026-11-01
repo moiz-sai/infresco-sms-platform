@@ -99,3 +99,9 @@ When done, send this file back with your ticks (`- [x]`) and notes.
 | The window opens in a normal browser tab | Microsoft Edge is missing or blocked; it still works in the browser |
 | Phone can't connect | Same Wi-Fi? Router client isolation? Try a phone hotspot |
 | Forgot a password | Log in as `principal` → **Users & roles** → Edit → reset |
+
+## Round 5 (T14 backups) — Windows
+- [ ] Installer upgrade over a pre-T14 build removes the old "Infresco SMS daily backup" scheduled task
+- [ ] C:\ProgramData\InfrescoSMS\config\app.env has PG_BIN_DIR and SMS_BACKUP_DIR
+- [ ] The app service working directory is app\api (restore runs migrations from there)
+- [ ] A backup appears automatically at the configured time and on startup when stale

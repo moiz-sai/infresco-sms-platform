@@ -23,6 +23,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useNavigate } from 'react-router'
 import { AppFooter, BrandMark } from '@/components/Brand'
+import { BackupBanner } from '@/components/BackupBanner'
 import { ExpiryBanner } from '@/components/ExpiryBanner'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { SwitchUserDialog } from '@/components/SwitchUserDialog'
@@ -164,6 +165,7 @@ export function Shell() {
           {links}
         </nav>
         <ExpiryBanner />
+        <BackupBanner />
         <main className="flex-1 p-4 md:p-6 print:p-0">
           <Outlet />
         </main>

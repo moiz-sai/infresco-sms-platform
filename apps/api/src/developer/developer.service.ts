@@ -20,6 +20,7 @@ import { eq } from 'drizzle-orm';
 import { DB, type Db } from '../db/database.module';
 import { developerLog, installation, school } from '../db/schema';
 import { developerPublicKeys } from './keys';
+import { BackupService } from './backup.service';
 import { LicenseService } from './license.service';
 
 const CHALLENGE_MS = 10 * 60 * 1000;
@@ -33,6 +34,7 @@ export class DeveloperService {
   constructor(
     @Inject(DB) private readonly db: Db,
     private readonly license: LicenseService,
+    private readonly backup: BackupService,
   ) {}
 
   async log(action: string, detail?: Record<string, unknown>, ip?: string) {
@@ -239,30 +241,11 @@ export class DeveloperService {
   }
 
   async status(): Promise<DeveloperStatus> {
-    const [license, branding] = await Promise.all([
+    const [license, branding, backup] = await Promise.all([
       this.license.status(),
       this.getBranding(),
+      this.backup.summary(),
     ]);
-    const [b] = await this.db
-      .select({
-        primaryDir: installation.backupPrimaryDir,
-        secondaryDir: installation.backupSecondaryDir,
-        times: installation.backupTimes,
-        keep: installation.backupKeep,
-      })
-      .from(installation)
-      .limit(1);
-    return {
-      installId: license.installId,
-      license,
-      branding,
-      backup: {
-        primaryDir: b?.primaryDir ?? null,
-        secondaryDir: b?.secondaryDir ?? null,
-        times: b?.times ?? [],
-        keep: b?.keep ?? 14,
-        lastGoodAt: null,
-      },
-    };
+    return { installId: license.installId, license, branding, backup };
   }
 }

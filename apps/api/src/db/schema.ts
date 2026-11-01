@@ -44,6 +44,7 @@ export const APPEND_ONLY_TABLES = [
   'receipt',
   'cash_close',
   'developer_log',
+  'backup_run',
 ] as const;
 
 export type { LicensePayload } from '@sms/shared';
@@ -548,6 +549,22 @@ export const installation = pgTable('installation', {
   backupKeep: integer().notNull().default(14),
   ...mutable(),
 });
+
+// Every backup attempt (scheduled, startup, pre-restore/reset, manual). Append-only.
+export const backupRun = pgTable(
+  'backup_run',
+  {
+    id: pk(),
+    trigger: text().notNull(), // scheduled | startup | manual | pre_restore | pre_reset
+    status: text().notNull(), // ok | failed
+    filePath: text(),
+    fileBytes: bigint({ mode: 'number' }),
+    secondaryCopied: boolean().notNull().default(false),
+    error: text(),
+    ...created(),
+  },
+  (t) => [index().on(t.createdAt)],
+);
 
 // Append-only trail of developer-profile actions (unlock, license, branding, backup, restore, reset).
 export const developerLog = pgTable(

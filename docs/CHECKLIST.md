@@ -110,3 +110,11 @@ See docs/WINDOWS_TEST.md (separate guide for the Windows tester; one installer-b
 - [ ] Expiry hard lock: issue a license with a past date, apply it → log out → login shows "license expired", nobody can log in; /_infresco still opens → apply a future-dated license → login works again
 - [ ] The school never sees /_infresco: no link anywhere in the app; a normal user hitting /_infresco and pressing "Get code" cannot unlock without Infresco's signature
 
+## T14 Backups, restore, reset (developer profile)
+- [ ] /_infresco → Backups: set the backup folder + a second-copy folder + a daily time, Save; "Back up now" → a file appears in both folders
+- [ ] Plug in a USB stick with a folder named InfrescoSMS-Backups → next backup copies there too (Windows)
+- [ ] Restore: pick a backup → confirm → data returns to that point; the license is still active; everyone is logged out (log back in)
+- [ ] Reset "Fees" (type the school name) → students and classes remain, all balances are 0
+- [ ] Reset "Everything" → login still works; students are gone; classes are back (defaults re-seeded)
+- [ ] As principal with no backup for 48 h: a "contact support" banner shows (hard to trigger by hand; backup runs keep it hidden)
+

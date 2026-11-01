@@ -103,12 +103,79 @@ export interface DeveloperStatus {
   installId: string;
   license: LicenseStatus;
   branding: Branding;
-  // T14 fills these
-  backup: {
-    primaryDir: string | null;
-    secondaryDir: string | null;
-    times: string[];
-    keep: number;
-    lastGoodAt: string | null;
-  };
+  backup: BackupSummary;
 }
+
+// ---------- backups, restore, reset (developer only)
+
+export interface BackupSummary {
+  primaryDir: string | null;
+  secondaryDir: string | null;
+  times: string[];
+  keep: number;
+  lastGoodAt: string | null;
+  // true when no good backup in 48 h (drives the principal's banner)
+  stale: boolean;
+  pgReady: boolean; // admin DB + pg tools available
+}
+
+export interface BackupFile {
+  name: string;
+  bytes: number;
+  modifiedAt: string;
+  location: 'primary' | 'secondary';
+}
+
+export interface BackupRunItem {
+  id: string;
+  trigger: string;
+  status: 'ok' | 'failed';
+  fileName: string | null;
+  bytes: number | null;
+  secondaryCopied: boolean;
+  error: string | null;
+  at: string;
+}
+
+const hhmm = z
+  .string()
+  .regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Use HH:MM (24-hour)');
+const dir = z
+  .string()
+  .trim()
+  .max(500)
+  .transform((v) => v || null)
+  .nullish();
+
+export const backupSettingsSchema = z.object({
+  primaryDir: dir,
+  secondaryDir: dir,
+  times: z.array(hhmm).min(1, 'At least one time').max(6),
+  keep: z.coerce.number().int().min(1).max(365),
+});
+export type BackupSettingsInput = z.infer<typeof backupSettingsSchema>;
+
+export const restoreSchema = z.object({
+  file: z.string().min(1).max(300),
+});
+export type RestoreInput = z.infer<typeof restoreSchema>;
+
+// Reset scopes (SPEC §T14). Order widest-last.
+export const RESET_MODULES = [
+  'attendance',
+  'fees',
+  'staff_attendance',
+  'payroll',
+  'expenses',
+  'students',
+  'staff',
+  'all',
+] as const;
+export type ResetModule = (typeof RESET_MODULES)[number];
+
+export const resetSchema = z.object({
+  module: z.enum(RESET_MODULES),
+  // Typed confirmation: the school's English name, to prevent accidents.
+  confirm: z.string().min(1),
+});
+export type ResetInput = z.infer<typeof resetSchema>;

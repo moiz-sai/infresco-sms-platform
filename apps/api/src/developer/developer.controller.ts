@@ -10,14 +10,20 @@ import {
   Res,
 } from '@nestjs/common';
 import {
+  backupSettingsSchema,
   brandingSchema,
   licenseSchema,
   logoSchema,
+  resetSchema,
+  restoreSchema,
   unlockSchema,
   type BrandingInput,
   type LicenseInput,
   type LogoInput,
   type UnlockInput,
+  type BackupSettingsInput,
+  type ResetInput,
+  type RestoreInput,
 } from '@sms/shared';
 import type { Request, Response } from 'express';
 import {
@@ -27,6 +33,7 @@ import {
   Public,
 } from '../common/decorators';
 import { ZodPipe } from '../common/zod.pipe';
+import { BackupService } from './backup.service';
 import { DeveloperService } from './developer.service';
 import { LicenseService } from './license.service';
 
@@ -78,6 +85,7 @@ export class DeveloperController {
   constructor(
     private readonly dev: DeveloperService,
     private readonly license: LicenseService,
+    private readonly backup: BackupService,
   ) {}
 
   @Public()
@@ -149,5 +157,73 @@ export class DeveloperController {
     @Req() req: Request,
   ) {
     await this.dev.setLicense(body, ip(req));
+  }
+
+  // ----- backups / restore / reset
+
+  @DeveloperOnly()
+  @Put('backup/settings')
+  @HttpCode(204)
+  async backupSettings(
+    @Body(new ZodPipe(backupSettingsSchema)) body: BackupSettingsInput,
+    @Req() req: Request,
+  ) {
+    await this.backup.updateSettings(body);
+    await this.dev.log('dev.backup.settings', { times: body.times }, ip(req));
+  }
+
+  @DeveloperOnly()
+  @Post('backup')
+  @HttpCode(200)
+  async runBackup(@Req() req: Request) {
+    await this.dev.log('dev.backup.run', undefined, ip(req));
+    return this.backup.runBackup('manual');
+  }
+
+  @DeveloperOnly()
+  @Get('backup/files')
+  files() {
+    return this.backup.listFiles();
+  }
+
+  @DeveloperOnly()
+  @Get('backup/runs')
+  runs() {
+    return this.backup.recentRuns();
+  }
+
+  @DeveloperOnly()
+  @Post('backup/restore')
+  @HttpCode(204)
+  async restore(
+    @Body(new ZodPipe(restoreSchema)) body: RestoreInput,
+    @Req() req: Request,
+  ) {
+    await this.dev.log('dev.restore', { file: body.file }, ip(req));
+    await this.backup.restore(body.file);
+  }
+
+  @DeveloperOnly()
+  @Post('reset')
+  @HttpCode(204)
+  async reset(
+    @Body(new ZodPipe(resetSchema)) body: ResetInput,
+    @Req() req: Request,
+  ) {
+    await this.dev.log('dev.reset', { module: body.module }, ip(req));
+    await this.backup.reset(body.module, body.confirm);
+  }
+}
+
+// Authenticated, so the principal's dashboard can warn when backups are overdue (§T14).
+@Controller('backup-health')
+export class BackupHealthController {
+  constructor(private readonly backup: BackupService) {}
+
+  @Authenticated()
+  @Get()
+  async get() {
+    const s = await this.backup.summary();
+    return { lastGoodAt: s.lastGoodAt, stale: s.stale, pgReady: s.pgReady };
   }
 }
